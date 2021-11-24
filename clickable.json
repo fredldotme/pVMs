@@ -1,5 +1,31 @@
 {
-  "clickable_minimum_required": "6.22.0",
-  "builder": "cmake",
-  "kill": "pvms"
+	"builder": "custom",
+	"default": "clean build",
+	"kill": "pvms",
+	"dependencies_ppa": [
+		"ppa:deadsnakes/ppa"
+	],
+	"dependencies_target": [
+		"libgbm-dev",
+		"libdrm-dev",
+		"libepoxy-dev",
+		"bison",
+		"flex",
+		"gettext",
+		"ninja-build",
+		"python3.6",
+		"libtool",
+		"libaio-dev",
+		"libsdl2-dev",
+		"libsdl2-image-dev",
+		"libseccomp-dev",
+		"libpulse-dev",
+		"libpixman-1-dev",
+		"libgles2-mesa-dev",
+		"libegl1-mesa-dev",
+		"zlib1g-dev"
+	],
+	"build": "${ROOT}/build.sh -c -d",
+	"make_jobs": 4,
+	"qt_version": "5.12"
 }
