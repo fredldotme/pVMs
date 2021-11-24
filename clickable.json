@@ -3,7 +3,8 @@
 	"default": "clean build",
 	"kill": "pvms",
 	"dependencies_ppa": [
-		"ppa:deadsnakes/ppa"
+		"ppa:deadsnakes/ppa",
+		"ppa:ubuntu-support-team/ninja"
 	],
 	"dependencies_target": [
 		"libgbm-dev",
@@ -26,6 +27,6 @@
 		"zlib1g-dev"
 	],
 	"build": "${ROOT}/build.sh -c -d",
-	"make_jobs": 4,
+	"make_jobs": 6,
 	"qt_version": "5.12"
 }
