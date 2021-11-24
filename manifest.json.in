@@ -1,0 +1,15 @@
+{
+    "name": "pvms.me.fredl",
+    "description": "Virtual Machines for your Ubuntu Touch device",
+    "architecture": "@CLICK_ARCH@",
+    "title": "Pocket VMs",
+    "hooks": {
+        "pvms": {
+            "apparmor": "pvms.apparmor",
+            "desktop":  "pvms.desktop"
+        }
+    },
+    "version": "1.0.0",
+    "maintainer": "Alfred Neumayer <dev.beidl@gmail.com>",
+    "framework" : "@CLICK_FRAMEWORK@"
+}
