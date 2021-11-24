@@ -4,7 +4,7 @@
 	"kill": "pvms",
 	"dependencies_ppa": [
 		"ppa:deadsnakes/ppa",
-		"ppa:ubuntu-support-team/ninja"
+		"ppa:chenghlee/buildtools"
 	],
 	"dependencies_target": [
 		"libgbm-dev",
