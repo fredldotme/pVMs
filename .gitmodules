@@ -1,0 +1,3 @@
+[submodule "3rdparty/virglrenderer"]
+	path = 3rdparty/virglrenderer
+	url = git://anongit.freedesktop.org/virglrenderer
