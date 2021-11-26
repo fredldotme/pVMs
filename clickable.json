@@ -1,6 +1,6 @@
 {
     "builder": "custom",
-    "default": "clean build",
+    "default": "build",
     "kill": "pvms",
     "dependencies_ppa": [
         "ppa:deadsnakes/ppa",
