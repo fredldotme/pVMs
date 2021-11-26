@@ -14,14 +14,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QtQml>
-#include <QtQml/QQmlContext>
+#include <QFileInfo>
 
-#include "plugin.h"
 #include "vmmanager.h"
 
-void ExamplePlugin::registerTypes(const char *uri) {
-    //@uri VMManager
-    qmlRegisterType<Machine>(uri, 1, 0, "Machine");
-    qmlRegisterSingletonType<VMManager>(uri, 1, 0, "Manager", [](QQmlEngine*, QJSEngine*) -> QObject* { return new VMManager; });
+VMManager::VMManager() {
+
+}
+
+void VMManager::startVM(Machine* machine) {
+    const QString kvmArgs = hasKvm() ? "-enable-kvm" : "";
+    const QString vmArgs = getLaunchArguments(machine);
+}
+
+QString VMManager::getLaunchArguments(Machine* machine)
+{
+    return QStringLiteral("");
+}
+
+bool VMManager::hasKvm()
+{
+    const QString kvmPath = QStringLiteral("/dev/kvm");
+
+    if (!QFile::exists(kvmPath))
+        return false;
+
+    QFileInfo kvmInfo(kvmPath);
+    if (!kvmInfo.isReadable() || !kvmInfo.isWritable())
+        return false;
+
+    return true;
 }

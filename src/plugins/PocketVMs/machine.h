@@ -14,14 +14,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QtQml>
-#include <QtQml/QQmlContext>
+#ifndef MACHINE_H
+#define MACHINE_H
 
-#include "plugin.h"
-#include "vmmanager.h"
+#include <QObject>
 
-void ExamplePlugin::registerTypes(const char *uri) {
-    //@uri VMManager
-    qmlRegisterType<Machine>(uri, 1, 0, "Machine");
-    qmlRegisterSingletonType<VMManager>(uri, 1, 0, "Manager", [](QQmlEngine*, QJSEngine*) -> QObject* { return new VMManager; });
-}
+class Machine: public QObject {
+    Q_OBJECT
+
+    Q_PROPERTY(QString name MEMBER name NOTIFY nameChanged)
+    Q_PROPERTY(QString cpu MEMBER display NOTIFY cpuChanged)
+    Q_PROPERTY(QString display MEMBER display NOTIFY displayChanged)
+
+public:
+    Machine();
+    ~Machine() = default;
+
+    QString name;
+    QString cpu;
+    QString display;
+
+signals:
+    void nameChanged();
+    void cpuChanged();
+    void displayChanged();
+};
+
+#endif

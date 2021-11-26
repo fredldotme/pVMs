@@ -14,14 +14,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QDebug>
+#ifndef VMMANAGER_H
+#define VMMANAGER_H
 
-#include "example.h"
+#include <QObject>
 
-Example::Example() {
+#include "machine.h"
 
-}
+class VMManager: public QObject {
+    Q_OBJECT
 
-void Example::startVM() {
-    qDebug() << "hello world!";
-}
+public:
+    VMManager();
+    ~VMManager() = default;
+
+    Q_INVOKABLE void startVM(Machine* machine);
+
+private:
+    QString getLaunchArguments(Machine* machine);
+    bool hasKvm();
+};
+
+#endif

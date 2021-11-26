@@ -4,7 +4,8 @@ set(PLUGIN "Example")
 set(
     SRC
     plugin.cpp
-    example.cpp
+    vmmanager.cpp
+    machine.cpp
 )
 
 set(CMAKE_AUTOMOC ON)

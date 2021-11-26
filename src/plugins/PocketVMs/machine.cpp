@@ -14,19 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXAMPLE_H
-#define EXAMPLE_H
+#include "machine.h"
 
-#include <QObject>
+Machine::Machine() {
 
-class Example: public QObject {
-    Q_OBJECT
-
-public:
-    Example();
-    ~Example() = default;
-
-    Q_INVOKABLE void speak();
-};
-
-#endif
+}
