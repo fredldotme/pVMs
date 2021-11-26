@@ -20,7 +20,7 @@ import Ubuntu.Components 1.3
 import QtQuick.Layouts 1.3
 import Qt.labs.settings 1.0
 
-import Example 1.0
+import PocketVMs 1.0
 
 MainView {
     id: root
@@ -31,42 +31,37 @@ MainView {
     width: units.gu(45)
     height: units.gu(75)
 
-    Page {
+    AdaptivePageLayout {
         anchors.fill: parent
-
-        header: PageHeader {
-            id: header
-            title: i18n.tr('Pocket VMs')
+        primaryPage: page1
+        Page {
+            id: page1
+            header: PageHeader {
+                id: header
+                title: "Pocket VMs"
+            }
+            Column {
+                anchors.top: header.bottom
+                Button {
+                    text: "Add Page2 above " + page1.title
+                    onClicked: page1.pageStack.addPageToCurrentColumn(page1, page2)
+                }
+                Button {
+                    text: "Add Page3 next to " + page1.title
+                    onClicked: page1.pageStack.addPageToNextColumn(page1, page3)
+                }
+            }
         }
-
-        ColumnLayout {
-            spacing: units.gu(2)
-            anchors {
-                margins: units.gu(2)
-                top: header.bottom
-                left: parent.left
-                right: parent.right
-                bottom: parent.bottom
+        Page {
+            id: page2
+            header: PageHeader {
+                title: "VM"
             }
-
-            Item {
-                Layout.fillHeight: true
-            }
-
-            Label {
-                id: label
-                Layout.alignment: Qt.AlignHCenter
-                text: i18n.tr('Press the button below and check the logs!')
-            }
-
-            Button {
-                Layout.alignment: Qt.AlignHCenter
-                text: i18n.tr('Press here!')
-                onClicked: Example.speak()
-            }
-
-            Item {
-                Layout.fillHeight: true
+        }
+        Page {
+            id: page3
+            header: PageHeader {
+                title: "Add VM"
             }
         }
     }
