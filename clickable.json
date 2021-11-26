@@ -28,6 +28,9 @@
         "libegl1-mesa-dev",
         "zlib1g-dev"
     ],
+    "install_lib": [
+        "/lib/${ARCH_TRIPLET}/libaio.so*"
+    ],
     "build": "${ROOT}/build.sh",
     "make_jobs": 6,
     "qt_version": "5.12"

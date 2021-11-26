@@ -107,7 +107,10 @@ function build_3rdparty_cmake {
 
 ninja --version
 
-build_3rdparty_autogen qemu "--python=/usr/bin/python3.6 --enable-sdl --audio-drv-list=pa,sdl --target-list=aarch64-softmmu,x86_64-softmmu --disable-strip"
+if [ ! -f $INSTALL/.qemu_built ]; then
+    build_3rdparty_autogen qemu "--python=/usr/bin/python3.6 --enable-sdl --audio-drv-list=pa,sdl --target-list=aarch64-softmmu,x86_64-softmmu --disable-strip"
+    touch $INSTALL/.qemu_built
+fi
 
 # Build main sources
 build_project
