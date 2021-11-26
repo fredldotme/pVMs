@@ -23,5 +23,5 @@
 void ExamplePlugin::registerTypes(const char *uri) {
     //@uri VMManager
     qmlRegisterType<Machine>(uri, 1, 0, "Machine");
-    qmlRegisterSingletonType<VMManager>(uri, 1, 0, "Manager", [](QQmlEngine*, QJSEngine*) -> QObject* { return new VMManager; });
+    qmlRegisterSingletonType<VMManager>(uri, 1, 0, "VMManager", [](QQmlEngine*, QJSEngine*) -> QObject* { return new VMManager; });
 }

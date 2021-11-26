@@ -1,4 +1,13 @@
 {
-    "policy_groups": [],
+    "policy_groups": [
+        "networking",
+        "audio"
+    ],
+    "read_path": [
+        "/dev/kvm"
+    ],
+    "write_path": [
+        "/dev/kvm"
+    ],
     "policy_version": 16.04
 }

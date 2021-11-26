@@ -14,9 +14,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QDirIterator>
+#include <QFile>
 #include <QFileInfo>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonParseError>
+#include <QQmlEngine>
+#include <QStandardPaths>
+#include <QString>
+#include <QVariant>
 
 #include "vmmanager.h"
+
+const QString KEY_DESC = QStringLiteral("description");
+const QString KEY_DVD = QStringLiteral("dvd");
+const QString KEY_HDD = QStringLiteral("hdd");
 
 VMManager::VMManager() {
 
@@ -44,4 +57,87 @@ bool VMManager::hasKvm()
         return false;
 
     return true;
+}
+
+void VMManager::setRefreshing(bool value)
+{
+    if (this->m_refreshing == value)
+        return;
+
+    this->m_refreshing = value;
+    emit refreshingChanged();
+}
+
+void VMManager::refreshVMs()
+{
+    QVariantList vms;
+    QDirIterator dirIt(
+                QStandardPaths::writableLocation(QStandardPaths::AppDataLocation),
+                QStringList() << "info.json", QDir::Files, QDirIterator::Subdirectories);
+
+    setRefreshing(true);
+
+    while (dirIt.hasNext()) {
+        dirIt.next();
+        QVariantMap vm;
+        try {
+            vm = listEntryForJSON(dirIt.filePath());
+        } catch (...) {
+            continue;
+        }
+        vms.push_back(vm);
+    }
+    this->m_vms = vms;
+    emit vmsChanged();
+
+    setRefreshing(false);
+}
+
+Machine* VMManager::fromQml(QVariantMap vm)
+{
+    Machine* machine = new Machine();
+    QQmlEngine::setObjectOwnership(machine, QQmlEngine::JavaScriptOwnership);
+
+    machine->name = vm.value(KEY_DESC).toString();
+    machine->hdd = vm.value(KEY_HDD).toString();
+    machine->dvd = vm.value(KEY_DVD).toString();
+
+    return machine;
+}
+
+QVariantMap VMManager::listEntryForJSON(const QString& path)
+{
+    QVariantMap ret;
+    QFile jsonFile(path);
+
+    ret.insert("path", path);
+
+    if (!jsonFile.exists())
+        throw "File doesn't exist";
+    if (!jsonFile.open(QFile::ReadOnly))
+        throw "Couldn't open file";
+
+    QJsonParseError jsonErr;
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonFile.readAll(), &jsonErr);
+    if (jsonErr.error != QJsonParseError::NoError)
+        throw jsonErr.errorString().toStdString();
+
+    if (!jsonDoc.isObject())
+        throw "Invalid VM information";
+
+    QJsonObject rootObject = jsonDoc.object();
+
+    if (!rootObject.contains(KEY_DESC))
+        throw "Missing 'description'";
+    ret.insert("description", rootObject.value(KEY_DESC).toString());
+
+    if (!rootObject.contains(KEY_HDD))
+        throw "Missing 'hdd'";
+    ret.insert("hdd", rootObject.value(KEY_HDD).toString());
+
+    if (!rootObject.contains(KEY_DVD))
+        throw "Missing 'dvd'";
+    ret.insert("dvd", rootObject.value(KEY_DVD).toString());
+
+    return ret;
 }

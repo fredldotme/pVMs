@@ -23,6 +23,8 @@ class Machine: public QObject {
     Q_OBJECT
 
     Q_PROPERTY(QString name MEMBER name NOTIFY nameChanged)
+    Q_PROPERTY(QString hdd MEMBER hdd NOTIFY nameChanged)
+    Q_PROPERTY(QString dvd MEMBER dvd NOTIFY nameChanged)
     Q_PROPERTY(QString cpu MEMBER display NOTIFY cpuChanged)
     Q_PROPERTY(QString display MEMBER display NOTIFY displayChanged)
 
@@ -31,6 +33,8 @@ public:
     ~Machine() = default;
 
     QString name;
+    QString hdd;
+    QString dvd;
     QString cpu;
     QString display;
 

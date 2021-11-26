@@ -16,10 +16,9 @@
 
 import QtQuick 2.7
 import Ubuntu.Components 1.3
-//import QtQuick.Controls 2.2
+import Ubuntu.Components.ListItems 1.3 as ListItem
 import QtQuick.Layouts 1.3
 import Qt.labs.settings 1.0
-
 import PocketVMs 1.0
 
 MainView {
@@ -31,35 +30,86 @@ MainView {
     width: units.gu(45)
     height: units.gu(75)
 
+    property var selectedMachine : null
+
+    Component.onCompleted: {
+        VMManager.refreshVMs();
+    }
+
     AdaptivePageLayout {
         anchors.fill: parent
-        primaryPage: page1
+        primaryPage: mainPage
         Page {
-            id: page1
+            id: mainPage
             header: PageHeader {
                 id: header
                 title: "Pocket VMs"
-            }
-            Column {
-                anchors.top: header.bottom
-                Button {
-                    text: "Add Page2 above " + page1.title
-                    onClicked: page1.pageStack.addPageToCurrentColumn(page1, page2)
+                trailingActionBar {
+                    actions: [
+                        Action {
+                            iconName: "add"
+                            text: "Add VM"
+                            onTriggered: {
+                                mainPage.pageStack.addPageToNextColumn(mainPage, addVm)
+                            }
+                        },
+                        Action {
+                            iconName: "info"
+                            text: "Info"
+                            onTriggered: {
+                            }
+                        }
+                    ]
+                    numberOfSlots: 2
                 }
-                Button {
-                    text: "Add Page3 next to " + page1.title
-                    onClicked: page1.pageStack.addPageToNextColumn(page1, page3)
+            }
+            UbuntuListView {
+                anchors {
+                    top: header.bottom
+                    left: parent.left
+                    right: parent.right
+                    bottom: parent.bottom
+                }
+
+                model: VMManager.vms
+                pullToRefresh {
+                    enabled: true
+                    refreshing: VMManager.refreshing
+                    onRefresh: VMManager.refreshVMs()
+                }
+                delegate: ListItem.Expandable {
+                    property Machine machine : VMManager.fromQml(modelData);
+                    ListItemLayout {
+                        title.text: machine.name
+                    }
+                    onClicked: {
+                        selectedMachine = machine
+                        mainPage.pageStack.addPageToNextColumn(mainPage, vmDetails)
+                    }
                 }
             }
         }
         Page {
-            id: page2
+            id: vmDetails
             header: PageHeader {
                 title: "VM"
+                trailingActionBar {
+                    actions: [
+                        Action {
+                            iconName: "settings"
+                            text: "Settings"
+                        },
+                        Action {
+                            iconName: "media-playback-start"
+                            text: "Start"
+                        }
+                    ]
+                    numberOfSlots: 2
+                }
             }
         }
         Page {
-            id: page3
+            id: addVm
             header: PageHeader {
                 title: "Add VM"
             }

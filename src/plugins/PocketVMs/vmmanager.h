@@ -18,21 +18,39 @@
 #define VMMANAGER_H
 
 #include <QObject>
+#include <QString>
+#include <QVariantList>
+#include <QVariantMap>
 
 #include "machine.h"
 
 class VMManager: public QObject {
     Q_OBJECT
 
+    Q_PROPERTY(QVariantList vms MEMBER m_vms NOTIFY vmsChanged)
+    Q_PROPERTY(bool refreshing MEMBER m_refreshing NOTIFY refreshingChanged)
+
 public:
     VMManager();
     ~VMManager() = default;
 
     Q_INVOKABLE void startVM(Machine* machine);
+    Q_INVOKABLE void refreshVMs();
+    Q_INVOKABLE Machine* fromQml(QVariantMap vm);
 
 private:
+    QVariantMap listEntryForJSON(const QString& path);
     QString getLaunchArguments(Machine* machine);
     bool hasKvm();
+
+    void setRefreshing(bool value);
+
+    QVariantList m_vms;
+    bool m_refreshing;
+
+signals:
+    void vmsChanged();
+    void refreshingChanged();
 };
 
 #endif
