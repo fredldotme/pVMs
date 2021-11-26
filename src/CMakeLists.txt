@@ -18,7 +18,6 @@ set(QT_IMPORTS_DIR "lib/${ARCH_TRIPLET}")
 
 set(PROJECT_NAME "pvms")
 set(FULL_PROJECT_NAME "pvms.me.fredl")
-set(DATA_DIR /)
 set(DESKTOP_FILE_NAME ${PROJECT_NAME}.desktop)
 
 # This command figures out the minimum SDK framework for use in the manifest
@@ -71,7 +70,7 @@ add_custom_target(${DESKTOP_FILE_NAME} ALL
     COMMAND sed -i 's/${PROJECT_NAME}-//g' ${CMAKE_CURRENT_BINARY_DIR}/${DESKTOP_FILE_NAME}
 )
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${DESKTOP_FILE_NAME} DESTINATION ${DATA_DIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${DESKTOP_FILE_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 add_subdirectory(po)
 add_subdirectory(plugins)

@@ -1,5 +1,5 @@
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-set(PLUGIN "Example")
+set(PLUGIN "PocketVMs")
 
 set(
     SRC
@@ -20,7 +20,7 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-set(QT_IMPORTS_DIR "/lib/${ARCH_TRIPLET}")
+set(QT_IMPORTS_DIR "${CMAKE_INSTALL_PREFIX}/lib/${ARCH_TRIPLET}")
 
 install(TARGETS ${PLUGIN} DESTINATION ${QT_IMPORTS_DIR}/${PLUGIN}/)
 install(FILES qmldir DESTINATION ${QT_IMPORTS_DIR}/${PLUGIN}/)
