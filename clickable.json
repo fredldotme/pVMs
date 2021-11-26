@@ -4,7 +4,8 @@
 	"kill": "pvms",
 	"dependencies_ppa": [
 		"ppa:deadsnakes/ppa",
-		"ppa:chenghlee/buildtools"
+		"\"deb [arch=amd64] http://archive.ubuntu.com/ubuntu xenial-backports universe restricted multiverse main\"",
+		"\"deb [arch=arm64,armhf] http://ports.ubuntu.com/ubuntu-ports xenial-backports universe restricted multiverse main\""
 	],
 	"dependencies_target": [
 		"libgbm-dev",
@@ -13,8 +14,9 @@
 		"bison",
 		"flex",
 		"gettext",
-		"ninja-build",
 		"python3.6",
+		"meson:any",
+		"ninja-build:any/xenial-backports",
 		"libtool",
 		"libaio-dev",
 		"libsdl2-dev",
@@ -26,7 +28,7 @@
 		"libegl1-mesa-dev",
 		"zlib1g-dev"
 	],
-	"build": "${ROOT}/build.sh -c -d",
+	"build": "${ROOT}/build.sh",
 	"make_jobs": 6,
 	"qt_version": "5.12"
 }

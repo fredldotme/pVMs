@@ -17,8 +17,6 @@ fi
 
 # Internal variables
 CLEAN=0
-BUILD_DEPS=0
-SUB_PROJECTS="all"
 
 # Overridable number of build processors
 if [ "$NUM_PROC" == "" ]; then
@@ -33,12 +31,8 @@ while [[ $# -gt 0 ]]; do
             CLEAN=1
             shift
         ;;
-        -d|--deps)
-            BUILD_DEPS=1
-            shift
-        ;;
         *)
-            echo "usage: $0 [-d|--deps] [-c|--clean]"
+            echo "usage: $0 [-c|--clean]"
             exit 1
         ;;
     esac
@@ -101,12 +95,19 @@ function build_project {
     build_cmake
 }
 
-# Build direct dependencies if requested
-if [ "$BUILD_DEPS" == "1" ]; then
-    # Build direct dependencies
-    # build_3rdparty_autogen virglrenderer # Build on focal ASAP
-    build_3rdparty_autogen qemu "--python=/usr/bin/python3.6 --enable-sdl --audio-drv-list=pa,sdl"
-fi
+function build_3rdparty_cmake {
+    echo "Building: $1"
+    cd $SRC_PATH
+    cd 3rdparty/$1
+    build_cmake
+}
+
+# Build direct dependencies
+# build_3rdparty_autogen virglrenderer # Build on focal ASAP
+
+ninja --version
+
+build_3rdparty_autogen qemu "--python=/usr/bin/python3.6 --enable-sdl --audio-drv-list=pa,sdl --target-list=aarch64-softmmu,x86_64-softmmu"
 
 # Build main sources
 build_project
