@@ -1,34 +1,34 @@
 {
-	"builder": "custom",
-	"default": "clean build",
-	"kill": "pvms",
-	"dependencies_ppa": [
-		"ppa:deadsnakes/ppa",
-		"\"deb [arch=amd64] http://archive.ubuntu.com/ubuntu xenial-backports universe restricted multiverse main\"",
-		"\"deb [arch=arm64,armhf] http://ports.ubuntu.com/ubuntu-ports xenial-backports universe restricted multiverse main\""
-	],
-	"dependencies_target": [
-		"libgbm-dev",
-		"libdrm-dev",
-		"libepoxy-dev",
-		"bison",
-		"flex",
-		"gettext",
-		"python3.6",
-		"meson:any",
-		"ninja-build:any/xenial-backports",
-		"libtool",
-		"libaio-dev",
-		"libsdl2-dev",
-		"libsdl2-image-dev",
-		"libseccomp-dev",
-		"libpulse-dev",
-		"libpixman-1-dev",
-		"libgles2-mesa-dev",
-		"libegl1-mesa-dev",
-		"zlib1g-dev"
-	],
-	"build": "${ROOT}/build.sh",
-	"make_jobs": 6,
-	"qt_version": "5.12"
+    "builder": "custom",
+    "default": "clean build",
+    "kill": "pvms",
+    "dependencies_ppa": [
+        "ppa:deadsnakes/ppa",
+        "\"deb [arch=amd64] http://archive.ubuntu.com/ubuntu xenial-backports universe restricted multiverse main\"",
+        "\"deb [arch=arm64,armhf] http://ports.ubuntu.com/ubuntu-ports xenial-backports universe restricted multiverse main\""
+    ],
+    "dependencies_target": [
+        "libgbm-dev",
+        "libdrm-dev",
+        "libepoxy-dev",
+        "bison",
+        "flex",
+        "gettext",
+        "python3.6",
+        "meson:any",
+        "ninja-build:any/xenial-backports",
+        "libtool",
+        "libaio-dev",
+        "libsdl2-dev",
+        "libsdl2-image-dev",
+        "libseccomp-dev",
+        "libpulse-dev",
+        "libpixman-1-dev",
+        "libgles2-mesa-dev",
+        "libegl1-mesa-dev",
+        "zlib1g-dev"
+    ],
+    "build": "${ROOT}/build.sh",
+    "make_jobs": 6,
+    "qt_version": "5.12"
 }
