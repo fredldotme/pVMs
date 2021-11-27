@@ -130,6 +130,7 @@ MainView {
                             Action {
                                 iconName: !machine.running ? "media-playback-start" : "media-playback-stop"
                                 text: !machine.running ? "Start" : "Stop"
+                                enabled: !starting
                                 onTriggered: {
                                     if (!machine.running) {
                                         starting = true;
@@ -167,6 +168,7 @@ MainView {
                 ActivityIndicator {
                     id: startingActivity
                     running: starting
+                    anchors.centerIn: parent
                 }
                 VncOutput {
                     id: viewer
