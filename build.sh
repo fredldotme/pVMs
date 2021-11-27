@@ -15,8 +15,15 @@ else
     INSTALL=/opt/${PROJECT}-${VERSION}
 fi
 
-# Internal variables
+# Argument variables
 CLEAN=0
+
+# Internal variables
+if [ -f /usr/bin/dpkg-architecture ]; then
+    MULTIARCH=$(/usr/bin/dpkg-architecture -qDEB_TARGET_MULTIARCH)
+else
+    MULTIARCH=""
+fi
 
 # Overridable number of build processors
 if [ "$NUM_PROCS" == "" ]; then
@@ -42,10 +49,13 @@ function build_3rdparty_autogen {
     echo "Building: $1"
     cd $SRC_PATH
     cd 3rdparty/$1
+    PKG_CONF_SYSTEM=/usr/lib/$MULTIARCH/pkgconfig
+    PKG_CONF_INSTALL=$INSTALL/lib/pkgconfig:$INSTALL/share/pkgconfig:$INSTALL/lib/$MULTIARCH/pkgconfig
+    PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PKG_CONF_SYSTEM:$PKG_CONF_INSTALL
     if [ -f ./autogen.sh ]; then
-        ./autogen.sh
+        env PKG_CONFIG_PATH=$PKG_CONFIG_PATH ./autogen.sh --prefix=$INSTALL $2
     fi
-    ./configure --prefix=$INSTALL $2
+    env PKG_CONFIG_PATH=$PKG_CONFIG_PATH ./configure --prefix=$INSTALL $2
     make -j$NUM_PROCS
     if [ -f /usr/bin/sudo ]; then
         sudo make install
@@ -64,13 +74,8 @@ function build_cmake {
         mkdir build
     fi
     cd build
-    if [ -f /usr/bin/dpkg-architecture ]; then
-        MULTIARCH=$(/usr/bin/dpkg-architecture -qDEB_TARGET_MULTIARCH)
-    else
-        MULTIARCH=""
-    fi
     PKG_CONF_SYSTEM=/usr/lib/$MULTIARCH/pkgconfig
-    PKG_CONF_INSTALL=$INSTALL/lib/pkgconfig:$INSTALL/lib/$MULTIARCH/pkgconfig
+    PKG_CONF_INSTALL=$INSTALL/lib/pkgconfig:$INSTALL/share/pkgconfig:$INSTALL/lib/$MULTIARCH/pkgconfig
     PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PKG_CONF_SYSTEM:$PKG_CONF_INSTALL
     env PKG_CONFIG_PATH=$PKG_CONFIG_PATH LDFLAGS="-L$INSTALL/lib" \
     	cmake .. \
@@ -88,13 +93,6 @@ function build_cmake {
     fi
 }
 
-function build_project {
-    echo "Building project"
-    cd $SRC_PATH
-    cd src
-    build_cmake
-}
-
 function build_3rdparty_cmake {
     echo "Building: $1"
     cd $SRC_PATH
@@ -102,10 +100,37 @@ function build_3rdparty_cmake {
     build_cmake
 }
 
+function build_project {
+    echo "Building project"
+    cd $SRC_PATH
+    cd src
+    build_cmake
+}
+
 # Build direct dependencies
 # build_3rdparty_autogen virglrenderer # Build on focal ASAP
 
-ninja --version
+if [ ! -f $INSTALL/.spice-protocol_built ]; then
+    build_3rdparty_autogen spice-protocol
+    touch $INSTALL/.spice-protocol_built
+fi
+
+if [ ! -f $INSTALL/.spice-server_built ]; then
+    export GIT_SSL_NO_VERIFY=1
+    build_3rdparty_autogen spice-server "--disable-opus"
+    unset GIT_SSL_NO_VERIFY
+    touch $INSTALL/.spice-server_built
+fi
+
+#if [ ! -f $INSTALL/.spice_built ]; then
+#    build_3rdparty_autogen spice "--disable-opus"
+#    touch $INSTALL/.spice_built
+#fi
+
+if [ ! -f $INSTALL/.SDL_built ]; then
+    build_3rdparty_cmake SDL
+    touch $INSTALL/.SDL_built
+fi
 
 if [ ! -f $INSTALL/.qemu_built ]; then
     build_3rdparty_autogen qemu "--python=/usr/bin/python3.6 --enable-sdl --audio-drv-list=pa,sdl --target-list=aarch64-softmmu,x86_64-softmmu --disable-strip"

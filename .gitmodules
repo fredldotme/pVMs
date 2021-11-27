@@ -4,3 +4,15 @@
 [submodule "3rdparty/qemu"]
 	path = 3rdparty/qemu
 	url = git://git.qemu.org/qemu.git
+[submodule "3rdparty/SDL"]
+	path = 3rdparty/SDL
+	url = https://github.com/libsdl-org/SDL.git
+[submodule "3rdparty/spice"]
+	path = 3rdparty/spice
+	url = https://github.com/freedesktop/spice.git
+[submodule "3rdparty/spice-protocol"]
+	path = 3rdparty/spice-protocol
+	url = https://github.com/freedesktop/spice-protocol.git
+[submodule "3rdparty/spice-server"]
+	path = 3rdparty/spice-server
+	url = https://gitlab.freedesktop.org/spice/spice.git
