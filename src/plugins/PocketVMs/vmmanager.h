@@ -40,9 +40,6 @@ public:
 
 private:
     QVariantMap listEntryForJSON(const QString& path);
-    QString getLaunchArguments(Machine* machine);
-    bool hasKvm();
-
     void setRefreshing(bool value);
 
     QVariantList m_vms;

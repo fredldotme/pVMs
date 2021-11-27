@@ -19,9 +19,14 @@
 
 #include "plugin.h"
 #include "vmmanager.h"
+#include "vnc_client.h"
+#include "vnc_output.h"
 
 void ExamplePlugin::registerTypes(const char *uri) {
     //@uri VMManager
     qmlRegisterType<Machine>(uri, 1, 0, "Machine");
     qmlRegisterSingletonType<VMManager>(uri, 1, 0, "VMManager", [](QQmlEngine*, QJSEngine*) -> QObject* { return new VMManager; });
+    using namespace LomiriVNC;
+    qmlRegisterType<VncClient>(uri, 1, 0, "VncClient");
+    qmlRegisterType<VncOutput>(uri, 1, 0, "VncOutput");
 }

@@ -16,7 +16,6 @@
 
 #include <QDirIterator>
 #include <QFile>
-#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
@@ -28,35 +27,12 @@
 #include "vmmanager.h"
 
 const QString KEY_DESC = QStringLiteral("description");
+const QString KEY_ARCH = QStringLiteral("arch");
 const QString KEY_DVD = QStringLiteral("dvd");
 const QString KEY_HDD = QStringLiteral("hdd");
 
 VMManager::VMManager() {
 
-}
-
-void VMManager::startVM(Machine* machine) {
-    const QString kvmArgs = hasKvm() ? "-enable-kvm" : "";
-    const QString vmArgs = getLaunchArguments(machine);
-}
-
-QString VMManager::getLaunchArguments(Machine* machine)
-{
-    return QStringLiteral("");
-}
-
-bool VMManager::hasKvm()
-{
-    const QString kvmPath = QStringLiteral("/dev/kvm");
-
-    if (!QFile::exists(kvmPath))
-        return false;
-
-    QFileInfo kvmInfo(kvmPath);
-    if (!kvmInfo.isReadable() || !kvmInfo.isWritable())
-        return false;
-
-    return true;
 }
 
 void VMManager::setRefreshing(bool value)
@@ -99,6 +75,7 @@ Machine* VMManager::fromQml(QVariantMap vm)
     QQmlEngine::setObjectOwnership(machine, QQmlEngine::JavaScriptOwnership);
 
     machine->name = vm.value(KEY_DESC).toString();
+    machine->arch = vm.value(KEY_ARCH).toString();
     machine->hdd = vm.value(KEY_HDD).toString();
     machine->dvd = vm.value(KEY_DVD).toString();
 
@@ -130,6 +107,10 @@ QVariantMap VMManager::listEntryForJSON(const QString& path)
     if (!rootObject.contains(KEY_DESC))
         throw "Missing 'description'";
     ret.insert("description", rootObject.value(KEY_DESC).toString());
+
+    if (!rootObject.contains(KEY_ARCH))
+        throw "Missing 'arch'";
+    ret.insert("arch", rootObject.value(KEY_ARCH).toString());
 
     if (!rootObject.contains(KEY_HDD))
         throw "Missing 'hdd'";

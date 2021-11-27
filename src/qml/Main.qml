@@ -30,8 +30,6 @@ MainView {
     width: units.gu(45)
     height: units.gu(75)
 
-    property var selectedMachine : null
-
     Component.onCompleted: {
         VMManager.refreshVMs();
     }
@@ -83,28 +81,57 @@ MainView {
                         title.text: machine.name
                     }
                     onClicked: {
-                        selectedMachine = machine
-                        mainPage.pageStack.addPageToNextColumn(mainPage, vmDetails)
+                        mainPage.pageStack.addPageToNextColumn(mainPage,
+                                                               vmDetailsComponent.createObject(mainPage,
+                                                                               { machine : machine }))
                     }
                 }
             }
         }
-        Page {
-            id: vmDetails
-            header: PageHeader {
-                title: "VM"
-                trailingActionBar {
-                    actions: [
-                        Action {
-                            iconName: "settings"
-                            text: "Settings"
-                        },
-                        Action {
-                            iconName: "media-playback-start"
-                            text: "Start"
-                        }
-                    ]
-                    numberOfSlots: 2
+        Component {
+            id: vmDetailsComponent
+            Page {
+                id: vmDetails
+                property Machine machine : null
+                Connections {
+                    target: machine
+                    onStarted: {
+                        vncClient.connectToServer(host, "");
+                    }
+                    onStopped: {
+                        vncClient.disconnect();
+                    }
+                }
+
+                header: PageHeader {
+                    title: "VM"
+                    trailingActionBar {
+                        actions: [
+                            Action {
+                                iconName: "settings"
+                                text: "Settings"
+                            },
+                            Action {
+                                iconName: "media-playback-start"
+                                text: "Start"
+                                onTriggered: {
+                                    machine.start()
+                                }
+                            }
+                        ]
+                        numberOfSlots: 2
+                    }
+                }
+                VncClient {
+                    id: vncClient
+                    onConnectedChanged: {
+                        console.log("Connected to instance")
+                    }
+                }
+                VncOutput {
+                    id: viewer
+                    client: vncClient
+                    anchors.fill: parent
                 }
             }
         }
