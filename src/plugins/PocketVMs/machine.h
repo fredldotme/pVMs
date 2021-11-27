@@ -31,10 +31,12 @@ class Machine: public QObject {
     Q_PROPERTY(QString dvd MEMBER dvd NOTIFY dvdChanged)
     Q_PROPERTY(QString cpu MEMBER display NOTIFY cpuChanged)
     Q_PROPERTY(QString display MEMBER display NOTIFY displayChanged)
+    Q_PROPERTY(int number MEMBER number NOTIFY numberChanged)
+    Q_PROPERTY(bool running MEMBER running NOTIFY runningChanged)
 
 public:
     Machine();
-    ~Machine() = default;
+    ~Machine();
 
     QString name;
     QString arch;
@@ -42,8 +44,11 @@ public:
     QString dvd;
     QString cpu;
     QString display;
+    int number;
+    bool running;
 
     Q_INVOKABLE void start();
+    Q_INVOKABLE void stop();
 
 private:
     QStringList getLaunchArguments();
@@ -58,8 +63,10 @@ signals:
     void hddChanged();
     void dvdChanged();
     void displayChanged();
+    void numberChanged();
+    void runningChanged();
 
-    void started(QString host);
+    void started();
     void stopped();
 };
 

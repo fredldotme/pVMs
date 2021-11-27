@@ -21,11 +21,26 @@
 
 #include "machine.h"
 
-Machine::Machine() {
+Machine::Machine()
+{
     this->m_process = new QProcess(this);
+    QObject::connect(this, &Machine::started, this, [=](){
+        this->running = true;
+        emit runningChanged();
+    });
+    QObject::connect(this, &Machine::stopped, this, [=](){
+        this->running = false;
+        emit runningChanged();
+    });
 }
 
-void Machine::start() {
+Machine::~Machine()
+{
+    stop();
+}
+
+void Machine::start()
+{
     if (this->m_process->state() == QProcess::Running) {
         qWarning() << "VM process already running";
         return;
@@ -51,8 +66,20 @@ void Machine::start() {
     }
 
     QTimer::singleShot(1000, this, [=](){
-        emit started("localhost:5901");
+        emit started();
     });
+}
+
+void Machine::stop()
+{
+    if (this->m_process->state() == QProcess::NotRunning) {
+        qWarning() << "VM process already stopped";
+        return;
+    }
+
+    this->m_process->kill();
+    this->m_process->waitForFinished();
+    emit stopped();
 }
 
 QStringList Machine::getLaunchArguments()

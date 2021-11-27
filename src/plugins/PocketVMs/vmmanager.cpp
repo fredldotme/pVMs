@@ -73,11 +73,13 @@ Machine* VMManager::fromQml(QVariantMap vm)
 {
     Machine* machine = new Machine();
     QQmlEngine::setObjectOwnership(machine, QQmlEngine::JavaScriptOwnership);
+    static int port_counter = 0;
 
     machine->name = vm.value(KEY_DESC).toString();
     machine->arch = vm.value(KEY_ARCH).toString();
     machine->hdd = vm.value(KEY_HDD).toString();
     machine->dvd = vm.value(KEY_DVD).toString();
+    machine->number = ++port_counter;
 
     return machine;
 }

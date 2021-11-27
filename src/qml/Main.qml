@@ -55,6 +55,7 @@ MainView {
                             iconName: "info"
                             text: "Info"
                             onTriggered: {
+                                mainPage.pageStack.addPageToNextColumn(mainPage, about)
                             }
                         }
                     ]
@@ -83,7 +84,7 @@ MainView {
                     onClicked: {
                         mainPage.pageStack.addPageToNextColumn(mainPage,
                                                                vmDetailsComponent.createObject(mainPage,
-                                                                               { machine : machine }))
+                                                                                               { machine : machine }))
                     }
                 }
             }
@@ -93,13 +94,28 @@ MainView {
             Page {
                 id: vmDetails
                 property Machine machine : null
+                property bool starting : false
+
+                function reconnect() {
+                    var port = 5900 + machine.number
+                    vncClient.connectToServer("127.0.0.1:" + port, "");
+                }
+
                 Connections {
                     target: machine
                     onStarted: {
-                        vncClient.connectToServer(host, "");
+                        starting = false
+                        reconnect()
                     }
                     onStopped: {
+                        starting = false
                         vncClient.disconnect();
+                    }
+                }
+
+                Component.onCompleted: {
+                    if (machine.running) {
+                        reconnect()
                     }
                 }
 
@@ -112,14 +128,28 @@ MainView {
                                 text: "Settings"
                             },
                             Action {
-                                iconName: "media-playback-start"
-                                text: "Start"
+                                iconName: !machine.running ? "media-playback-start" : "media-playback-stop"
+                                text: !machine.running ? "Start" : "Stop"
                                 onTriggered: {
-                                    machine.start()
+                                    if (!machine.running) {
+                                        starting = true;
+                                        machine.start()
+                                    } else {
+                                        machine.stop()
+                                    }
+                                }
+                            },
+                            Action {
+                                iconName: "input-keyboard-symbolic"
+                                text: "Keyboard"
+                                enabled: machine.running
+                                onTriggered: {
+                                    viewer.forceActiveFocus()
+                                    Qt.inputMethod.show()
                                 }
                             }
                         ]
-                        numberOfSlots: 2
+                        numberOfSlots: 3
                     }
                 }
                 VncClient {
@@ -128,10 +158,21 @@ MainView {
                         console.log("Connected to instance")
                     }
                 }
+                Label {
+                    anchors.centerIn: parent
+                    text: "VM is not running."
+                    textSize: Label.Large
+                    visible: !machine.running
+                }
+                ActivityIndicator {
+                    id: startingActivity
+                    running: starting
+                }
                 VncOutput {
                     id: viewer
                     client: vncClient
                     anchors.fill: parent
+                    visible: machine.running
                 }
             }
         }
@@ -139,6 +180,20 @@ MainView {
             id: addVm
             header: PageHeader {
                 title: "Add VM"
+            }
+        }
+        Page {
+            id: about
+            header: PageHeader {
+                title: "About Pocket VMs"
+            }
+            Item {
+                anchors {
+                    top: header.bottom
+                    left: parent.left
+                    right: parent.right
+                    bottom: parent.bottom
+                }
             }
         }
     }
