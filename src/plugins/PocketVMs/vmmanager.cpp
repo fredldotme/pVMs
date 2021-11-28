@@ -28,6 +28,9 @@
 #include <QUuid>
 #include <QVariant>
 
+#include <stdio.h>
+#include <unistd.h>
+
 #include "vmmanager.h"
 
 const QString KEY_STORAGE = QStringLiteral("storage");
@@ -146,16 +149,17 @@ bool VMManager::createVM(Machine* machine)
         machine->hdd = hddPath;
     }
 
+#if 0 // Enable once Content-Hub incoming files can be unlinked from their source location
     // Move the DVD/ISO image from HubIncoming to storage
     {
         const QString dvdStoragePath = QStringLiteral("%1/dvd.iso").arg(vmDirPath);
-        if (!QFile::rename(machine->dvd, dvdStoragePath)) {
+        if (rename(machine->dvd.toUtf8().data(), dvdStoragePath.toUtf8().data())) {
             qWarning() << "Failed to move" << machine->dvd << "DVD image to target" << dvdStoragePath;
             return false;
         }
-
         machine->dvd = dvdStoragePath;
     }
+#endif
 
     // Copy the EFI firmware to storage
     {
