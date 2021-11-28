@@ -73,7 +73,7 @@ MainView {
             }
             Label {
                 anchors.centerIn: parent
-                text: "Please add a VM to continue."
+                text: "Please add a VM to continue"
                 textSize: Label.Large
                 visible: vmListView.model.length <= 0
             }
@@ -199,7 +199,7 @@ MainView {
                 }
                 Label {
                     anchors.centerIn: parent
-                    text: "VM is not running."
+                    text: "VM is not running"
                     textSize: Label.Large
                     visible: !machine.running
                 }
