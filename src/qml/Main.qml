@@ -42,6 +42,7 @@ MainView {
     }
 
     AdaptivePageLayout {
+        id: rootLayout
         anchors.fill: parent
         primaryPage: mainPage
         Page {
@@ -56,8 +57,7 @@ MainView {
                             text: "Add VM"
                             onTriggered: {
                                 mainPage.pageStack.addPageToNextColumn(mainPage,
-                                                                       addVmComponent.createObject(mainPage,
-                                                                                                   { parentPageStack : mainPage.pageStack }))
+                                                                       addVmComponent.createObject(mainPage))
                             }
                         },
                         Action {
@@ -221,7 +221,6 @@ MainView {
             id: addVmComponent
             Page {
                 id: addVm
-                property PageStack parentPageStack : null
 
                 property var supportedArchitectures : [
                     i18n.tr("aarch64"),
@@ -275,7 +274,7 @@ MainView {
 
                                     if (VMManager.createVM(newMachine)) {
                                         VMManager.refreshVMs();
-                                        parentPageStack.removePages(addVm)
+                                        addVm.pageStack.removePages(addVm)
                                     }
                                 }
                             }
