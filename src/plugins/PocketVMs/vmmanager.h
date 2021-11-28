@@ -38,6 +38,7 @@ public:
     Q_INVOKABLE void refreshVMs();
     Q_INVOKABLE Machine* fromQml(QVariantMap vm);
     Q_INVOKABLE bool createVM(Machine* machine);
+    Q_INVOKABLE bool editVM(Machine* machine);
     Q_INVOKABLE bool deleteVM(Machine* machine);
 
 private:

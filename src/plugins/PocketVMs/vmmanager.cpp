@@ -279,6 +279,26 @@ QByteArray VMManager::machineToJSON(const Machine* machine)
     return doc.toJson();
 }
 
+bool VMManager::editVM(Machine* machine)
+{
+    if (!machine) {
+        qWarning() << "nullptr machine provided";
+        return false;
+    }
+
+    // Edit the VM metadata
+    {
+        const QString jsonFilePath = QStringLiteral("%1/info.json").arg(machine->storage);
+        QFile jsonFile(jsonFilePath);
+        if (!jsonFile.open(QFile::ReadWrite | QFile::Truncate)) {
+            qWarning() << "Failed to open JSON file for writing";
+            return false;
+        }
+
+        jsonFile.write(machineToJSON(machine));
+    }
+}
+
 bool VMManager::deleteVM(Machine* machine)
 {
     qDebug() << "Deleting:" << machine->storage;
