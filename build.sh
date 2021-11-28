@@ -128,13 +128,13 @@ function build_project {
 #    touch $INSTALL/.spice_built
 #fi
 
-if [ ! -f $INSTALL/.SDL_built ]; then
-    build_3rdparty_cmake SDL
-    touch $INSTALL/.SDL_built
-fi
+#if [ ! -f $INSTALL/.SDL_built ]; then
+#    build_3rdparty_cmake SDL
+#    touch $INSTALL/.SDL_built
+#fi
 
 if [ ! -f $INSTALL/.qemu_built ]; then
-    build_3rdparty_autogen qemu "--python=/usr/bin/python3.6 --enable-sdl --audio-drv-list=pa,sdl --target-list=aarch64-softmmu,x86_64-softmmu --disable-strip"
+    build_3rdparty_autogen qemu "--python=/usr/bin/python3.6 --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu --disable-strip"
     touch $INSTALL/.qemu_built
 fi
 
