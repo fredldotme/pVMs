@@ -95,18 +95,27 @@ QStringList Machine::getLaunchArguments()
     ret << QStringLiteral("-smp") << QString::number(this->cores);
     ret << QStringLiteral("-m") << QStringLiteral("%1M").arg(this->mem);
 
+    // Use "virt" machine on aarch64 regardless
+    if (this->arch == "aarch64")
+        ret << QStringLiteral("-machine") << QStringLiteral("virt");
+
+    // Display
+    ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci");
+
+    // Networking
+    ret << QStringLiteral("-netdev") << QStringLiteral("user,id=net0")
+        << QStringLiteral("-device") << QStringLiteral("virtio-net-pci,netdev=net0");
+
     // Main drives
     ret << QStringLiteral("-drive") << QStringLiteral("if=virtio,format=qcow2,file=%1").arg(this->hdd);
-    ret << QStringLiteral("-cdrom") << this->dvd;
+    if (!this->dvd.isEmpty())
+        ret << QStringLiteral("-cdrom") << this->dvd;
 
     // Setup firmware
     if (!this->flash1.isEmpty())
         ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,file=%1").arg(this->flash1);
     if (!this->flash2.isEmpty())
         ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,file=%1").arg(this->flash2);
-
-    if (this->arch == "aarch64")
-        ret << QStringLiteral("-machine") << QStringLiteral("virt");
 
     ret << QStringLiteral("-vnc") << QStringLiteral(":%1").arg(QString::number(this->number));
     return ret;
