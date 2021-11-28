@@ -25,10 +25,14 @@ Machine::Machine()
 {
     this->m_process = new QProcess(this);
     QObject::connect(this, &Machine::started, this, [=](){
+        if (this->running)
+            return;
         this->running = true;
         emit runningChanged();
     });
     QObject::connect(this, &Machine::stopped, this, [=](){
+        if (!this->running)
+            return;
         this->running = false;
         emit runningChanged();
     });
@@ -52,7 +56,7 @@ void Machine::start()
     const QString qemuBin = QStringLiteral("%1/bin/qemu-system-%2").arg(pwd, this->arch);
 
     QStringList args;
-    if (hasKvm())
+    if (hasKvm() && canVirtualize())
         args << QStringLiteral("-enable-kvm");
     args << vmArgs;
 
@@ -62,6 +66,7 @@ void Machine::start()
     this->m_process->waitForStarted();
     if (this->m_process->state() != QProcess::Running) {
         qWarning() << "Starting machine failed:" << this->m_process->readAllStandardError();
+        emit stopped();
         return;
     }
 
@@ -85,11 +90,25 @@ void Machine::stop()
 QStringList Machine::getLaunchArguments()
 {
     QStringList ret;
+
+    // Machine setup
+    ret << QStringLiteral("-smp") << QString::number(this->cores);
+    ret << QStringLiteral("-m") << QStringLiteral("%1M").arg(this->mem);
+
+    // Main drives
     ret << QStringLiteral("-drive") << QStringLiteral("if=virtio,format=qcow2,file=%1").arg(this->hdd);
     ret << QStringLiteral("-cdrom") << this->dvd;
+
+    // Setup firmware
+    if (!this->flash1.isEmpty())
+        ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,file=%1").arg(this->flash1);
+    if (!this->flash2.isEmpty())
+        ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,file=%1").arg(this->flash2);
+
     if (this->arch == "aarch64")
         ret << QStringLiteral("-machine") << QStringLiteral("virt");
-    ret << QStringLiteral("-vnc") << QStringLiteral(":1");
+
+    ret << QStringLiteral("-vnc") << QStringLiteral(":%1").arg(QString::number(this->number));
     return ret;
 }
 
@@ -105,4 +124,14 @@ bool Machine::hasKvm()
         return false;
 
     return true;
+}
+
+bool Machine::canVirtualize()
+{
+    QProcess unameMachine;
+    unameMachine.start("/bin/uname", QStringList() << "-m");
+    unameMachine.waitForFinished(1000);
+    const QString machineType = unameMachine.readAllStandardOutput();
+
+    return (machineType == this->arch);
 }

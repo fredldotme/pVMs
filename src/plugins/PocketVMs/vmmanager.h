@@ -37,9 +37,12 @@ public:
     Q_INVOKABLE void startVM(Machine* machine);
     Q_INVOKABLE void refreshVMs();
     Q_INVOKABLE Machine* fromQml(QVariantMap vm);
+    Q_INVOKABLE bool createVM(Machine* machine);
+    Q_INVOKABLE bool deleteVM(Machine* machine);
 
 private:
-    QVariantMap listEntryForJSON(const QString& path);
+    QVariantMap listEntryForJSON(const QString& path, const QString& storage);
+    QByteArray machineToJSON(const Machine* machine);
     void setRefreshing(bool value);
 
     QVariantList m_vms;

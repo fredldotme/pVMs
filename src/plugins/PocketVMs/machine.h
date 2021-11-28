@@ -28,9 +28,13 @@ class Machine: public QObject {
     Q_PROPERTY(QString name MEMBER name NOTIFY nameChanged)
     Q_PROPERTY(QString arch MEMBER arch NOTIFY archChanged)
     Q_PROPERTY(QString hdd MEMBER hdd NOTIFY hddChanged)
+    Q_PROPERTY(quint64 hddSize MEMBER hddSize NOTIFY hddSizeChanged)
     Q_PROPERTY(QString dvd MEMBER dvd NOTIFY dvdChanged)
     Q_PROPERTY(QString cpu MEMBER display NOTIFY cpuChanged)
+    Q_PROPERTY(int cores MEMBER cores NOTIFY coresChanged)
+    Q_PROPERTY(int mem MEMBER mem NOTIFY memChanged)
     Q_PROPERTY(QString display MEMBER display NOTIFY displayChanged)
+
     Q_PROPERTY(int number MEMBER number NOTIFY numberChanged)
     Q_PROPERTY(bool running MEMBER running NOTIFY runningChanged)
 
@@ -43,9 +47,21 @@ public:
     QString hdd;
     QString dvd;
     QString cpu;
+    int cores;
+    int mem; // MB
     QString display;
     int number;
     bool running;
+
+    // Storage path
+    QString storage;
+
+    // Only necessary during VM creation
+    quint64 hddSize;
+
+    // Only necessary for firmware
+    QString flash1;
+    QString flash2;
 
     Q_INVOKABLE void start();
     Q_INVOKABLE void stop();
@@ -53,6 +69,7 @@ public:
 private:
     QStringList getLaunchArguments();
     bool hasKvm();
+    bool canVirtualize();
 
     QProcess* m_process = nullptr;
 
@@ -61,7 +78,10 @@ signals:
     void archChanged();
     void cpuChanged();
     void hddChanged();
+    void hddSizeChanged();
     void dvdChanged();
+    void coresChanged();
+    void memChanged();
     void displayChanged();
     void numberChanged();
     void runningChanged();

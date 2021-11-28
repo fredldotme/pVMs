@@ -14,22 +14,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QCoreApplication>
+#include <QDebug>
 #include <QDirIterator>
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QQmlEngine>
 #include <QStandardPaths>
 #include <QString>
+#include <QUuid>
 #include <QVariant>
 
 #include "vmmanager.h"
 
+const QString KEY_STORAGE = QStringLiteral("storage");
 const QString KEY_DESC = QStringLiteral("description");
 const QString KEY_ARCH = QStringLiteral("arch");
+const QString KEY_CORES = QStringLiteral("cores");
+const QString KEY_MEM = QStringLiteral("mem");
 const QString KEY_DVD = QStringLiteral("dvd");
 const QString KEY_HDD = QStringLiteral("hdd");
+const QString KEY_FLASH1 = QStringLiteral("flash1");
+const QString KEY_FLASH2 = QStringLiteral("flash2");
+
+const QStringList VALID_ARCHES = {
+    QStringLiteral("x86_64"),
+    QStringLiteral("aarch64"),
+};
+
+static int port_counter = 0;
 
 VMManager::VMManager() {
 
@@ -57,7 +73,7 @@ void VMManager::refreshVMs()
         dirIt.next();
         QVariantMap vm;
         try {
-            vm = listEntryForJSON(dirIt.filePath());
+            vm = listEntryForJSON(dirIt.filePath(), QFileInfo(dirIt.filePath()).canonicalPath());
         } catch (...) {
             continue;
         }
@@ -73,23 +89,108 @@ Machine* VMManager::fromQml(QVariantMap vm)
 {
     Machine* machine = new Machine();
     QQmlEngine::setObjectOwnership(machine, QQmlEngine::JavaScriptOwnership);
-    static int port_counter = 0;
 
+    machine->storage = vm.value(KEY_STORAGE).toString();
     machine->name = vm.value(KEY_DESC).toString();
     machine->arch = vm.value(KEY_ARCH).toString();
+    machine->cores = vm.value(KEY_CORES).toInt();
+    machine->mem = vm.value(KEY_MEM).toInt();
     machine->hdd = vm.value(KEY_HDD).toString();
     machine->dvd = vm.value(KEY_DVD).toString();
+    machine->flash1 = vm.value(KEY_FLASH1).toString();
+    machine->flash2 = vm.value(KEY_FLASH2).toString();
     machine->number = ++port_counter;
 
     return machine;
 }
 
-QVariantMap VMManager::listEntryForJSON(const QString& path)
+bool VMManager::createVM(Machine* machine)
+{
+    if (!machine) {
+        qWarning() << "nullptr machine provided";
+        return false;
+    }
+
+    const QString vmDirPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
+            QStringLiteral("/") + QUuid::createUuid().toString();
+    const QString pwd = QCoreApplication::applicationDirPath();
+
+    machine->storage = vmDirPath;
+
+    // Create directory storing the VM image
+    {
+        QDir vmDir(vmDirPath);
+        if (!vmDir.exists()) {
+            vmDir.mkpath(vmDirPath);
+        }
+    }
+
+    // Create the QCOW2 image for the HDD
+    {
+        const QString qemuImgBin = QStringLiteral("%1/bin/qemu-img").arg(pwd);
+        const QString hddPath = QStringLiteral("%1/hdd.qcow2").arg(vmDirPath);
+
+        QStringList qemuImgArgs;
+        qemuImgArgs << QStringLiteral("create") << QStringLiteral("-f") << QStringLiteral("qcow2");
+        qemuImgArgs << hddPath << QStringLiteral("%1G").arg(machine->hddSize);
+        qDebug() << "Creating qcow2 image with arguments:" << qemuImgArgs;
+
+        QProcess qemuImg;
+        qemuImg.start(qemuImgBin, qemuImgArgs);
+        qemuImg.waitForFinished();
+        if (qemuImg.exitCode() != 0) {
+            qWarning() << "qemu-img failed:" << qemuImg.readAllStandardError();
+            return false;
+        }
+
+        machine->hdd = hddPath;
+    }
+
+    // Move the DVD/ISO image from HubIncoming to storage
+    {
+        const QString dvdStoragePath = QStringLiteral("%1/dvd.iso").arg(vmDirPath);
+        if (!QFile::rename(machine->dvd, dvdStoragePath)) {
+            qWarning() << "Failed to move" << machine->dvd << "DVD image to target" << dvdStoragePath;
+            return false;
+        }
+
+        machine->dvd = dvdStoragePath;
+    }
+
+    // Copy the EFI firmware to storage
+    {
+        const QString efiFw = QStringLiteral("%1/share/qemu/edk2-%2-code.fd").arg(pwd, machine->arch);
+        const QString efiFwTarget = QStringLiteral("%1/efi.fd").arg(vmDirPath);
+        if (!QFile::copy(efiFw, efiFwTarget)) {
+            qWarning() << "Failed to copy" << efiFw << "EFI firmware to target" << efiFwTarget;
+            return false;
+        }
+
+        machine->flash1 = efiFwTarget;
+    }
+
+    // Finally, create the VM metadata
+    {
+        const QString jsonFilePath = QStringLiteral("%1/info.json").arg(vmDirPath);
+        QFile jsonFile(jsonFilePath);
+        if (!jsonFile.open(QFile::ReadWrite)) {
+            qWarning() << "Failed to open JSON file for writing";
+            return false;
+        }
+
+        jsonFile.write(machineToJSON(machine));
+    }
+
+    return true;
+}
+
+QVariantMap VMManager::listEntryForJSON(const QString& path, const QString& storage)
 {
     QVariantMap ret;
     QFile jsonFile(path);
 
     ret.insert("path", path);
+    ret.insert(KEY_STORAGE, storage);
 
     if (!jsonFile.exists())
         throw "File doesn't exist";
@@ -112,7 +213,18 @@ QVariantMap VMManager::listEntryForJSON(const QString& path)
 
     if (!rootObject.contains(KEY_ARCH))
         throw "Missing 'arch'";
-    ret.insert("arch", rootObject.value(KEY_ARCH).toString());
+    const QString arch = rootObject.value(KEY_ARCH).toString();
+    if (!VALID_ARCHES.contains(arch))
+        throw "Invalid architecture";
+    ret.insert("arch", arch);
+
+    if (!rootObject.contains(KEY_CORES))
+        throw "Missing 'cores'";
+    ret.insert("cores", rootObject.value(KEY_CORES).toString());
+
+    if (!rootObject.contains(KEY_MEM))
+        throw "Missing 'mem'";
+    ret.insert("mem", rootObject.value(KEY_MEM).toString());
 
     if (!rootObject.contains(KEY_HDD))
         throw "Missing 'hdd'";
@@ -122,5 +234,35 @@ QVariantMap VMManager::listEntryForJSON(const QString& path)
         throw "Missing 'dvd'";
     ret.insert("dvd", rootObject.value(KEY_DVD).toString());
 
+    if (!rootObject.contains(KEY_FLASH1))
+        throw "Missing 'flash1'";
+    ret.insert("flash1", rootObject.value(KEY_FLASH1).toString());
+
+    if (!rootObject.contains(KEY_FLASH2))
+        throw "Missing 'flash2'";
+    ret.insert("flash2", rootObject.value(KEY_FLASH2).toString());
+
     return ret;
+}
+
+QByteArray VMManager::machineToJSON(const Machine* machine)
+{
+    QJsonObject rootObject;
+    rootObject.insert(KEY_DESC, QJsonValue(machine->name).toString());
+    rootObject.insert(KEY_ARCH, QJsonValue(machine->arch).toString());
+    rootObject.insert(KEY_CORES, QJsonValue(QString::number(machine->cores)).toString());
+    rootObject.insert(KEY_MEM, QJsonValue(QString::number(machine->mem)).toString());
+    rootObject.insert(KEY_DVD, QJsonValue(machine->dvd).toString());
+    rootObject.insert(KEY_HDD, QJsonValue(machine->hdd).toString());
+    rootObject.insert(KEY_FLASH1, QJsonValue(machine->flash1).toString());
+    rootObject.insert(KEY_FLASH2, QJsonValue(machine->flash2).toString());
+
+    QJsonDocument doc(rootObject);
+    return doc.toJson();
+}
+
+bool VMManager::deleteVM(Machine* machine)
+{
+    qDebug() << "Deleting:" << machine->storage;
+    return QDir(machine->storage).removeRecursively();
 }

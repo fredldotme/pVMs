@@ -16,9 +16,9 @@
 
 import QtQuick 2.7
 import Ubuntu.Components 1.3
-import Ubuntu.Components.ListItems 1.3 as ListItem
+import Ubuntu.Components.Themes 1.3
+import Ubuntu.Content 1.1
 import QtQuick.Layouts 1.3
-import Qt.labs.settings 1.0
 import PocketVMs 1.0
 
 MainView {
@@ -26,6 +26,13 @@ MainView {
     objectName: 'mainView'
     applicationName: 'pvms.me.fredl'
     automaticOrientation: true
+
+    // TODO: Make this pretty with a dark-purplish background and white text
+    /*theme.palette: Palette {
+        normal.background: UbuntuColors.purple
+    }*/
+
+    readonly property int typicalMargin : units.gu(3)
 
     width: units.gu(45)
     height: units.gu(75)
@@ -48,7 +55,9 @@ MainView {
                             iconName: "add"
                             text: "Add VM"
                             onTriggered: {
-                                mainPage.pageStack.addPageToNextColumn(mainPage, addVm)
+                                mainPage.pageStack.addPageToNextColumn(mainPage,
+                                                                       addVmComponent.createObject(mainPage,
+                                                                                                   { parentPageStack : mainPage.pageStack }))
                             }
                         },
                         Action {
@@ -62,7 +71,14 @@ MainView {
                     numberOfSlots: 2
                 }
             }
+            Label {
+                anchors.centerIn: parent
+                text: "Please add a VM to continue."
+                textSize: Label.Large
+                visible: vmListView.model.length <= 0
+            }
             UbuntuListView {
+                id: vmListView
                 anchors {
                     top: header.bottom
                     left: parent.left
@@ -76,10 +92,31 @@ MainView {
                     refreshing: VMManager.refreshing
                     onRefresh: VMManager.refreshVMs()
                 }
-                delegate: ListItem.Expandable {
+                delegate: ListItem {
                     property Machine machine : VMManager.fromQml(modelData);
+
+                    leadingActions: ListItemActions {
+                        actions: [
+                            Action {
+                                iconName: "delete"
+                                enabled: !machine.running
+                                onTriggered: {
+                                    VMManager.deleteVM(machine)
+                                    VMManager.refreshVMs()
+                                }
+                            }
+                        ]
+                    }
+
                     ListItemLayout {
                         title.text: machine.name
+                        summary.text: "CPUs: " + machine.cores + ", RAM: " + machine.mem + "M"
+                        Icon {
+                            id: icon
+                            width: units.gu(2)
+                            name: !machine.running ? "" : "media-playback-start"
+                            color: !machine.running ? theme.palette.normal.base : theme.palette.normal.activity
+                        }
                     }
                     onClicked: {
                         mainPage.pageStack.addPageToNextColumn(mainPage,
@@ -126,6 +163,7 @@ MainView {
                             Action {
                                 iconName: "settings"
                                 text: "Settings"
+                                enabled: !machine.running
                             },
                             Action {
                                 iconName: !machine.running ? "media-playback-start" : "media-playback-stop"
@@ -178,23 +216,347 @@ MainView {
                 }
             }
         }
-        Page {
-            id: addVm
-            header: PageHeader {
-                title: "Add VM"
+
+        Component {
+            id: addVmComponent
+            Page {
+                id: addVm
+                property PageStack parentPageStack : null
+
+                property var supportedArchitectures : [
+                    i18n.tr("aarch64"),
+                    i18n.tr("x86_64")
+                ]
+
+                property bool creating : false
+                property list<ContentItem> importItems
+                property var activeTransfer
+                property string isoFileUrl : ""
+
+                function getFileName(path) {
+                    var crumbs = path.split("/").filter(function (element) {
+                        return element !== null && element !== "";
+                    });
+
+                    if (crumbs.length < 1)
+                        return "/"
+
+                    return crumbs[(crumbs.length - 1) % crumbs.length]
+                }
+
+                function stripFilePath(path) {
+                    if (path.indexOf("file://") !== 0)
+                        return path
+                    return path.substring(7)
+                }
+
+                Machine {
+                    id: newMachine
+                }
+
+                header: PageHeader {
+                    id: addVmHeader
+                    title: "Add VM"
+                    trailingActionBar {
+                        actions: [
+                            Action {
+                                iconName: "ok"
+                                text: "Save"
+                                enabled: description.text !== "" && isoFileUrl !== ""
+                                onTriggered: {
+                                    creating = true
+
+                                    newMachine.name = description.text
+                                    newMachine.arch = supportedArchitectures[architecture.selectedIndex]
+                                    newMachine.cores = coresSlider.value
+                                    newMachine.mem = memSlider.value
+                                    newMachine.hddSize = hddSizeSlider.value
+                                    newMachine.dvd = stripFilePath(isoFileUrl);
+
+                                    if (VMManager.createVM(newMachine)) {
+                                        VMManager.refreshVMs();
+                                        parentPageStack.removePages(addVm)
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+
+                onImportItemsChanged: {
+                    if (importItems.length < 1 || importItems > 1)
+                        return;
+                    isoFileUrl = importItems[0].url
+                }
+
+                function openIsoPicker() {
+                    var peer = null
+                    for (var i = 0; i < contentPeerModel.peers.length; ++i) {
+                        var p = contentPeerModel.peers[i]
+                        if (p.appId.indexOf("com.ubuntu.filemanager_") === 0) {
+                            peer = p
+                        }
+                    }
+
+                    peer.selectionType = ContentTransfer.Single
+                    activeTransfer = peer.request()
+                }
+
+                ContentPeerModel {
+                    id: contentPeerModel
+                    contentType: ContentType.Documents
+                    handler: ContentHandler.Source
+                }
+                ContentTransferHint {
+                    id: importHint
+                    anchors.fill: parent
+                    activeTransfer: activeTransfer
+                }
+
+                Connections {
+                    target: activeTransfer
+                    onStateChanged: {
+                        if (activeTransfer.state === ContentTransfer.Charged) {
+                            importItems = activeTransfer.items;
+                        }
+                    }
+                }
+
+                Flickable {
+                    anchors {
+                        top: addVmHeader.bottom
+                        left: parent.left
+                        right: parent.right
+                        bottom: parent.bottom
+                    }
+
+                    // Hack around OptionSelector imploding when pressed
+                    // Allows scrolling past the edge but better than nothing...
+                    contentHeight: addVmMainColumn.height + architecture.height
+
+                    ActivityIndicator {
+                        id: creatingActivity
+                        running: creating
+                        anchors.centerIn: parent
+                    }
+
+                    Column {
+                        id: addVmMainColumn
+                        anchors.fill: parent
+                        spacing: typicalMargin
+
+                        TextField {
+                            id: description
+                            placeholderText: "Description"
+                            width: parent.width
+                        }
+
+                        OptionSelector {
+                            id: architecture
+                            text: i18n.tr("Architecture")
+                            model: supportedArchitectures
+                        }
+
+                        Column {
+                            width: parent.width
+                            Label {
+                                text: "CPU cores: " + coresSlider.value
+                            }
+
+                            Slider {
+                                id: coresSlider
+                                minimumValue: 1
+                                maximumValue: 4
+                                stepSize: 1
+                                value: 1
+                                live: true
+                                width: parent.width
+                            }
+                        }
+
+                        Column {
+                            width: parent.width
+                            Label {
+                                text: "RAM: " + memSlider.value + "MB"
+                            }
+
+                            Slider {
+                                id: memSlider
+                                minimumValue: 256
+                                maximumValue: 4096
+                                stepSize: 256
+                                value: 1024
+                                live: true
+                                width: parent.width
+                            }
+                        }
+
+
+                        Column {
+                            width: parent.width
+                            Label {
+                                text: "HDD size: " + hddSizeSlider.value + "GB"
+                            }
+
+                            Slider {
+                                id: hddSizeSlider
+                                minimumValue: 1
+                                maximumValue: 20
+                                value: 8
+                                live: true
+                                width: parent.width
+                            }
+                        }
+
+                        Button {
+                            id: isoImport
+                            text: isoFileUrl === "" ? "Pick an ISO" : getFileName(isoFileUrl)
+                            onClicked: openIsoPicker()
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+                    }
+                }
             }
         }
         Page {
             id: about
             header: PageHeader {
+                id: aboutHeader
                 title: "About Pocket VMs"
             }
-            Item {
+            Flickable {
                 anchors {
-                    top: header.bottom
+                    top: aboutHeader.bottom
                     left: parent.left
                     right: parent.right
                     bottom: parent.bottom
+                }
+                contentHeight: aboutMainColumn.height
+
+                Column {
+                    id: aboutMainColumn
+                    width: parent.width
+                    spacing: typicalMargin
+
+                    Label {
+                        width: parent.width
+                        text: qsTr("Pocket VMs")
+                        textSize: Label.Large
+                        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+
+                    Label {
+                        width: parent.width
+                        text: qsTr("Virtual Machines for your Ubuntu Touch device")
+                        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                        horizontalAlignment: Text.AlignHCenter
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            leftMargin: typicalMargin
+                            rightMargin: typicalMargin
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Donation")
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.leftMargin: 16
+                    }
+
+                    Row {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: typicalMargin
+
+                        Label {
+                            text: qsTr("Via PayPal")
+                            font.underline: true
+                            textSize: Label.Large
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    Qt.openUrlExternally("https://paypal.me/beidl")
+                                }
+                            }
+                        }
+
+                        /*Label {
+                            text: qsTr("Via Flattr")
+                            font.underline: true
+                            textSize: Label.Large
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    Qt.openUrlExternally("https://flattr.com/@beidl")
+                                }
+                            }
+                        }*/
+                    }
+
+                    Label {
+                        text: qsTr("Copyright notices")
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.leftMargin: 16
+                    }
+
+                    Label {
+                        text: qsTr("Licensed under GPL v3")
+                        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                        horizontalAlignment: Text.AlignHCenter
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            leftMargin: typicalMargin
+                            rightMargin: typicalMargin
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Source code on GitHub")
+                        font.underline: true
+                        textSize: Label.Small
+                        horizontalAlignment: Text.AlignHCenter
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                Qt.openUrlExternally("https://github.com/fredldotme/pVMs")
+                            }
+                        }
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            leftMargin: typicalMargin
+                            rightMargin: typicalMargin
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("QEMU (GPL v2 & GPL v3)")
+                        textSize: Label.XSmall
+                        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                        horizontalAlignment: Text.AlignHCenter
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            leftMargin: typicalMargin
+                            rightMargin: typicalMargin
+                        }
+                    }
+                    Label {
+                        text: qsTr("CuteVNC QML controls by Alberto Mardegan (GPL v3)")
+                        textSize: Label.XSmall
+                        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                        horizontalAlignment: Text.AlignHCenter
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            leftMargin: typicalMargin
+                            rightMargin: typicalMargin
+                        }
+                    }
                 }
             }
         }
