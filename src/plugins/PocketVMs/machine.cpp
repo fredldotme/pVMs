@@ -95,12 +95,14 @@ QStringList Machine::getLaunchArguments()
     ret << QStringLiteral("-smp") << QString::number(this->cores);
     ret << QStringLiteral("-m") << QStringLiteral("%1M").arg(this->mem);
 
-    // Use "virt" machine on aarch64 regardless
-    if (this->arch == "aarch64")
-        ret << QStringLiteral("-machine") << QStringLiteral("virt");
+    // Use "virt" machine and "cortex-a57" CPU on aarch64 regardless
+    if (this->arch == "aarch64") {
+        ret << QStringLiteral("-machine") << QStringLiteral("virt")
+            << QStringLiteral("-cpu") << QStringLiteral("cortex-a57");
+    }
 
     // Display
-    ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci");
+    ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu");
 
     // Networking
     ret << QStringLiteral("-netdev") << QStringLiteral("user,id=net0")
