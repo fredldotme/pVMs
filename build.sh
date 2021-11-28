@@ -110,17 +110,18 @@ function build_project {
 # Build direct dependencies
 # build_3rdparty_autogen virglrenderer # Build on focal ASAP
 
-if [ ! -f $INSTALL/.spice-protocol_built ]; then
-    build_3rdparty_autogen spice-protocol
-    touch $INSTALL/.spice-protocol_built
-fi
+# Care about SPICE when VNC is not enough
+#if [ ! -f $INSTALL/.spice-protocol_built ]; then
+#    build_3rdparty_autogen spice-protocol
+#    touch $INSTALL/.spice-protocol_built
+#fi
 
-if [ ! -f $INSTALL/.spice-server_built ]; then
-    export GIT_SSL_NO_VERIFY=1
-    build_3rdparty_autogen spice-server "--disable-opus"
-    unset GIT_SSL_NO_VERIFY
-    touch $INSTALL/.spice-server_built
-fi
+#if [ ! -f $INSTALL/.spice-server_built ]; then
+#    export GIT_SSL_NO_VERIFY=1
+#    build_3rdparty_autogen spice-server "--disable-opus"
+#    unset GIT_SSL_NO_VERIFY
+#    touch $INSTALL/.spice-server_built
+#fi
 
 #if [ ! -f $INSTALL/.spice_built ]; then
 #    build_3rdparty_autogen spice "--disable-opus"
