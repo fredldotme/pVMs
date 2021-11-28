@@ -173,6 +173,20 @@ bool VMManager::createVM(Machine* machine)
         machine->flash1 = efiFwTarget;
     }
 
+    // Copy the EFI NVRAM to storage
+    {
+        const QString varsArch = (machine->arch == QStringLiteral("aarch64")) ?
+                    QStringLiteral("arm") : QStringLiteral("i386");
+        const QString efiVars = QStringLiteral("%1/share/qemu/edk2-%2-vars.fd").arg(pwd, varsArch);
+        const QString efiVarsTarget = QStringLiteral("%1/efi_nvram.fd").arg(vmDirPath);
+        if (!QFile::copy(efiVars, efiVarsTarget)) {
+            qWarning() << "Failed to copy" << efiVars << "EFI NVRAM to target" << efiVarsTarget;
+            return false;
+        }
+
+        machine->flash2 = efiVarsTarget;
+    }
+
     // Finally, create the VM metadata
     {
         const QString jsonFilePath = QStringLiteral("%1/info.json").arg(vmDirPath);
