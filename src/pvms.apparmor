@@ -1,7 +1,8 @@
 {
     "policy_groups": [
         "networking",
-        "audio"
+        "audio",
+        "content_exchange"
     ],
     "read_path": [
         "/dev/kvm"
