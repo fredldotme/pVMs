@@ -164,6 +164,13 @@ MainView {
                                 iconName: "settings"
                                 text: "Settings"
                                 enabled: !machine.running
+                                onTriggered: {
+                                    mainPage.pageStack.addPageToNextColumn(mainPage,
+                                                                           addVmComponent.createObject(mainPage,
+                                                                                                       {
+                                                                                                           existingMachine : machine
+                                                                                                       }))
+                                }
                             },
                             Action {
                                 iconName: !machine.running ? "media-playback-start" : "media-playback-stop"
@@ -222,6 +229,9 @@ MainView {
             Page {
                 id: addVm
 
+                property Machine existingMachine : null
+                readonly property bool editMode : existingMachine !== null
+
                 property var supportedArchitectures : [
                     i18n.tr("aarch64"),
                     i18n.tr("x86_64")
@@ -230,7 +240,7 @@ MainView {
                 property bool creating : false
                 property list<ContentItem> importItems
                 property var activeTransfer
-                property string isoFileUrl : ""
+                property string isoFileUrl : !editMode ? "" : existingMachine.dvd
 
                 function getFileName(path) {
                     var crumbs = path.split("/").filter(function (element) {
@@ -255,26 +265,38 @@ MainView {
 
                 header: PageHeader {
                     id: addVmHeader
-                    title: "Add VM"
+                    title: !editMode ? "Add VM" : "Edit VM"
                     trailingActionBar {
                         actions: [
                             Action {
                                 iconName: "ok"
                                 text: "Save"
-                                enabled: description.text !== "" && isoFileUrl !== ""
+                                enabled: !editMode ? (description.text !== "" && isoFileUrl !== "")
+                                                   : true
                                 onTriggered: {
                                     creating = true
 
-                                    newMachine.name = description.text
-                                    newMachine.arch = supportedArchitectures[architecture.selectedIndex]
-                                    newMachine.cores = coresSlider.value
-                                    newMachine.mem = memSlider.value
-                                    newMachine.hddSize = hddSizeSlider.value
-                                    newMachine.dvd = stripFilePath(isoFileUrl);
+                                    if (!editMode) {
+                                        newMachine.name = description.text
+                                        newMachine.arch = supportedArchitectures[architecture.selectedIndex]
+                                        newMachine.cores = coresSlider.value
+                                        newMachine.mem = memSlider.value
+                                        newMachine.hddSize = hddSizeSlider.value
+                                        newMachine.dvd = stripFilePath(isoFileUrl);
 
-                                    if (VMManager.createVM(newMachine)) {
-                                        VMManager.refreshVMs();
-                                        addVm.pageStack.removePages(addVm)
+                                        if (VMManager.createVM(newMachine)) {
+                                            VMManager.refreshVMs();
+                                            addVm.pageStack.removePages(addVm)
+                                        }
+                                    } else {
+                                        existingMachine.cores = coresSlider.value
+                                        existingMachine.mem = memSlider.value
+                                        existingMachine.dvd = stripFilePath(isoFileUrl);
+
+                                        if (VMManager.editVM(existingMachine)) {
+                                            VMManager.refreshVMs();
+                                            addVm.pageStack.removePages(addVm)
+                                        }
                                     }
                                 }
                             }
@@ -348,18 +370,22 @@ MainView {
                             id: description
                             placeholderText: "Description"
                             width: parent.width
+                            enabled: !editMode
+                            text: !editMode ? "" : existingMachine.name
                         }
 
                         OptionSelector {
                             id: architecture
                             text: i18n.tr("Architecture")
                             model: supportedArchitectures
+                            enabled: !editMode
+                            selectedIndex: !editMode ? 0 : supportedArchitectures.indexOf(existingMachine.arch)
                         }
 
                         Column {
                             width: parent.width
                             Label {
-                                text: "CPU cores: " + coresSlider.value
+                                text: "CPU cores: " + coresSlider.value.toFixed(0)
                             }
 
                             Slider {
@@ -367,16 +393,19 @@ MainView {
                                 minimumValue: 1
                                 maximumValue: 4
                                 stepSize: 1
-                                value: 1
+                                value: !editMode ? 1 : existingMachine.cores
                                 live: true
                                 width: parent.width
+                                function formatValue(v) {
+                                    return v.toFixed(0)
+                                }
                             }
                         }
 
                         Column {
                             width: parent.width
                             Label {
-                                text: "RAM: " + memSlider.value + "MB"
+                                text: "RAM: " + memSlider.value.toFixed(0) + "MB"
                             }
 
                             Slider {
@@ -384,17 +413,20 @@ MainView {
                                 minimumValue: 256
                                 maximumValue: 4096
                                 stepSize: 256
-                                value: 1024
+                                value: !editMode ? 1024 : existingMachine.mem
                                 live: true
                                 width: parent.width
+                                function formatValue(v) {
+                                    return v.toFixed(0)
+                                }
                             }
                         }
 
-
                         Column {
                             width: parent.width
+                            visible: !editMode
                             Label {
-                                text: "HDD size: " + hddSizeSlider.value + "GB"
+                                text: "HDD size: " + hddSizeSlider.value.toFixed(0) + "GB"
                             }
 
                             Slider {
@@ -407,11 +439,22 @@ MainView {
                             }
                         }
 
-                        Button {
-                            id: isoImport
-                            text: isoFileUrl === "" ? "Pick an ISO" : getFileName(isoFileUrl)
-                            onClicked: openIsoPicker()
-                            anchors.horizontalCenter: parent.horizontalCenter
+                        Row {
+                            width: parent.width
+                            Button {
+                                id: isoImport
+                                text: isoFileUrl === "" ? "Pick an ISO" : getFileName(isoFileUrl)
+                                onClicked: openIsoPicker()
+                                width: parent.width - clearIsoButton.width
+                            }
+                            Button {
+                                id: clearIsoButton
+                                iconName: "edit-clear"
+                                width: units.gu(4)
+                                onClicked: {
+                                    isoFileUrl = ""
+                                }
+                            }
                         }
                     }
                 }
