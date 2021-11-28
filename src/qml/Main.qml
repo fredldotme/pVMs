@@ -110,7 +110,7 @@ MainView {
 
                     ListItemLayout {
                         title.text: machine.name
-                        summary.text: "CPUs: " + machine.cores + ", RAM: " + machine.mem + "M"
+                        summary.text: machine.arch + ", " + machine.cores + " cores, " + machine.mem + "MB RAM"
                         Icon {
                             id: icon
                             width: units.gu(2)
@@ -157,7 +157,7 @@ MainView {
                 }
 
                 header: PageHeader {
-                    title: "VM"
+                    title: "VM: " + machine.name
                     trailingActionBar {
                         actions: [
                             Action {
