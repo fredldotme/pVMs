@@ -118,20 +118,26 @@ QStringList Machine::getLaunchArguments()
     // Display
     ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu");
 
+    // Main drives
+    if (!this->dvd.isEmpty()) {
+        ret << QStringLiteral("-cdrom") << this->dvd;
+    }
+    ret << QStringLiteral("-drive") << QStringLiteral("if=virtio,format=qcow2,file=%1").arg(this->hdd);
+
+    // USB and input peripherals
+    ret << QStringLiteral("-device") << QStringLiteral("qemu-xhci");
+    ret << QStringLiteral("-device") << QStringLiteral("usb-mouse");
+    ret << QStringLiteral("-device") << QStringLiteral("usb-kbd");
+
     // Networking
     ret << QStringLiteral("-netdev") << QStringLiteral("user,id=net0")
         << QStringLiteral("-device") << QStringLiteral("virtio-net-pci,netdev=net0");
 
-    // Main drives
-    ret << QStringLiteral("-drive") << QStringLiteral("if=virtio,format=qcow2,file=%1").arg(this->hdd);
-    if (!this->dvd.isEmpty())
-        ret << QStringLiteral("-cdrom") << this->dvd;
-
     // Setup firmware
     if (!this->flash1.isEmpty())
-        ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,file=%1").arg(this->flash1);
+        ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,unit=0,file=%1").arg(this->flash1);
     if (!this->flash2.isEmpty())
-        ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,file=%1").arg(this->flash2);
+        ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,unit=1,file=%1").arg(this->flash2);
 
     ret << QStringLiteral("-vnc") << QStringLiteral("unix:%1").arg(QStringLiteral("%1/vnc.sock").arg(this->storage));
     return ret;
