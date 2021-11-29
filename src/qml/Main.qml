@@ -32,7 +32,7 @@ MainView {
         normal.background: UbuntuColors.purple
     }*/
 
-    readonly property int typicalMargin : units.gu(3)
+    readonly property int typicalMargin : units.gu(2)
 
     width: units.gu(45)
     height: units.gu(75)
@@ -279,9 +279,9 @@ MainView {
                                     if (!editMode) {
                                         newMachine.name = description.text
                                         newMachine.arch = supportedArchitectures[architecture.selectedIndex]
-                                        newMachine.cores = coresSlider.value
-                                        newMachine.mem = memSlider.value
-                                        newMachine.hddSize = hddSizeSlider.value
+                                        newMachine.cores = coresSlider.value.toFixed(0)
+                                        newMachine.mem = memSlider.value.toFixed(0)
+                                        newMachine.hddSize = hddSizeSlider.value.toFixed(0)
                                         newMachine.dvd = stripFilePath(isoFileUrl);
 
                                         if (VMManager.createVM(newMachine)) {
@@ -289,8 +289,8 @@ MainView {
                                             addVm.pageStack.removePages(addVm)
                                         }
                                     } else {
-                                        existingMachine.cores = coresSlider.value
-                                        existingMachine.mem = memSlider.value
+                                        existingMachine.cores = coresSlider.value.toFixed(0)
+                                        existingMachine.mem = memSlider.value.toFixed(0)
                                         existingMachine.dvd = stripFilePath(isoFileUrl);
 
                                         if (VMManager.editVM(existingMachine)) {
@@ -350,10 +350,12 @@ MainView {
                         right: parent.right
                         bottom: parent.bottom
                     }
+                    anchors.topMargin: typicalMargin
 
                     // Hack around OptionSelector imploding when pressed
                     // Allows scrolling past the edge but better than nothing...
-                    contentHeight: addVmMainColumn.height + architecture.height
+                    //contentHeight: addVmMainColumn.height + architecture.height
+                    contentHeight: childrenRect.height
 
                     ActivityIndicator {
                         id: creatingActivity
@@ -479,6 +481,16 @@ MainView {
                     id: aboutMainColumn
                     width: parent.width
                     spacing: typicalMargin
+                    anchors.topMargin: typicalMargin
+
+                    UbuntuShape {
+                        width: Math.min(parent.width, parent.height) / 2
+                        height: width
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        source: Image {
+                            source: "qrc:/assets/logo.svg"
+                        }
+                    }
 
                     Label {
                         width: parent.width
