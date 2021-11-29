@@ -17,6 +17,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFileInfo>
+#include <QSysInfo>
 #include <QTimer>
 
 #include "machine.h"
@@ -96,13 +97,22 @@ QStringList Machine::getLaunchArguments()
     ret << QStringLiteral("-m") << QStringLiteral("%1M").arg(this->mem);
 
     // Use "virt" machine and "cortex-a57" CPU on aarch64 regardless
-    if (this->arch == "aarch64") {
-        ret << QStringLiteral("-machine") << QStringLiteral("virt")
-            << QStringLiteral("-cpu") << QStringLiteral("cortex-a57");
+    if (this->arch == QStringLiteral("aarch64")) {
+        ret << QStringLiteral("-machine") << QStringLiteral("virt");
+
+        // Enable host CPU mode when virtualization is possible
+        if (hasKvm() && canVirtualize())
+            ret << QStringLiteral("-cpu") << QStringLiteral("host");
+        else
+            ret << QStringLiteral("-cpu") << QStringLiteral("cortex-a57");
     }
 
     // Display
-    ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu");
+    // As per documentation, virtio-gpu-pci requires KVM
+    if (this->arch == QStringLiteral("aarch64") && hasKvm() && canVirtualize())
+        ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci");
+    else
+        ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu");
 
     // Networking
     ret << QStringLiteral("-netdev") << QStringLiteral("user,id=net0")
@@ -127,22 +137,31 @@ bool Machine::hasKvm()
 {
     const QString kvmPath = QStringLiteral("/dev/kvm");
 
-    if (!QFile::exists(kvmPath))
+    if (!QFile::exists(kvmPath)) {
+        qWarning() << "KVM is not enabled on this kernel or device.";
         return false;
+    }
 
     QFileInfo kvmInfo(kvmPath);
-    if (!kvmInfo.isReadable() || !kvmInfo.isWritable())
+    if (!kvmInfo.isReadable()) {
+        qWarning() << "/dev/kvm is not readable.";
         return false;
+    }
+    if (!kvmInfo.isWritable()) {
+        qWarning() << "/dev/kvm is not writable.";
+        return false;
+    }
 
     return true;
 }
 
 bool Machine::canVirtualize()
 {
-    QProcess unameMachine;
-    unameMachine.start("/bin/uname", QStringList() << "-m");
-    unameMachine.waitForFinished(1000);
-    const QString machineType = unameMachine.readAllStandardOutput();
+    // Only "arm64" and "x86_64" are supported anyway
+    const QString currentCpuType = QSysInfo::currentCpuArchitecture();
+    const QString machineType = currentCpuType == QStringLiteral("arm64") ?
+                QStringLiteral("aarch64") : currentCpuType;
+    qDebug() << "uname" << machineType << "vs arch" << this->arch;
 
     return (machineType == this->arch);
 }
