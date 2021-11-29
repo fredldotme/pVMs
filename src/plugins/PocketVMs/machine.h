@@ -34,8 +34,8 @@ class Machine: public QObject {
     Q_PROPERTY(int cores MEMBER cores NOTIFY coresChanged)
     Q_PROPERTY(int mem MEMBER mem NOTIFY memChanged)
     Q_PROPERTY(QString display MEMBER display NOTIFY displayChanged)
+    Q_PROPERTY(QString storage MEMBER storage NOTIFY storageChanged)
 
-    Q_PROPERTY(int number MEMBER number NOTIFY numberChanged)
     Q_PROPERTY(bool running MEMBER running NOTIFY runningChanged)
 
 public:
@@ -50,8 +50,7 @@ public:
     int cores;
     int mem; // MB
     QString display;
-    int number;
-    bool running;
+    bool running = false;
 
     // Storage path
     QString storage;
@@ -63,7 +62,7 @@ public:
     QString flash1;
     QString flash2;
 
-    Q_INVOKABLE void start();
+    Q_INVOKABLE bool start();
     Q_INVOKABLE void stop();
 
 private:
@@ -83,7 +82,7 @@ signals:
     void coresChanged();
     void memChanged();
     void displayChanged();
-    void numberChanged();
+    void storageChanged();
     void runningChanged();
 
     void started();

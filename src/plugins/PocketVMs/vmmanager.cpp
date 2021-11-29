@@ -48,8 +48,6 @@ const QStringList VALID_ARCHES = {
     QStringLiteral("aarch64"),
 };
 
-static int port_counter = 0;
-
 VMManager::VMManager() {
 
 }
@@ -102,7 +100,6 @@ Machine* VMManager::fromQml(QVariantMap vm)
     machine->dvd = vm.value(KEY_DVD).toString();
     machine->flash1 = vm.value(KEY_FLASH1).toString();
     machine->flash2 = vm.value(KEY_FLASH2).toString();
-    machine->number = ++port_counter;
 
     return machine;
 }

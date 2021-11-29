@@ -25,6 +25,18 @@
 Machine::Machine()
 {
     this->m_process = new QProcess(this);
+    QObject::connect(this->m_process, &QProcess::stateChanged, this, [=](QProcess::ProcessState newState){
+        if (newState != QProcess::Running) {
+            qWarning() << this->m_process->readAllStandardError();
+            emit stopped();
+            return;
+        }
+
+        QTimer::singleShot(1000, this, [=](){
+            emit started();
+        });
+    });
+
     QObject::connect(this, &Machine::started, this, [=](){
         if (this->running)
             return;
@@ -44,36 +56,21 @@ Machine::~Machine()
     stop();
 }
 
-void Machine::start()
+bool Machine::start()
 {
     if (this->m_process->state() == QProcess::Running) {
         qWarning() << "VM process already running";
-        return;
+        return false;
     }
-
-    const QStringList vmArgs = getLaunchArguments();
 
     const QString pwd = QCoreApplication::applicationDirPath();
     const QString qemuBin = QStringLiteral("%1/bin/qemu-system-%2").arg(pwd, this->arch);
-
-    QStringList args;
-    if (hasKvm() && canVirtualize())
-        args << QStringLiteral("-enable-kvm");
-    args << vmArgs;
+    const QStringList args = getLaunchArguments();
 
     qDebug() << "Start:" << qemuBin << args;
 
     this->m_process->start(qemuBin, args);
-    this->m_process->waitForStarted();
-    if (this->m_process->state() != QProcess::Running) {
-        qWarning() << "Starting machine failed:" << this->m_process->readAllStandardError();
-        emit stopped();
-        return;
-    }
-
-    QTimer::singleShot(1000, this, [=](){
-        emit started();
-    });
+    return true;
 }
 
 void Machine::stop()
@@ -83,7 +80,7 @@ void Machine::stop()
         return;
     }
 
-    this->m_process->kill();
+    this->m_process->terminate();
     this->m_process->waitForFinished();
     emit stopped();
 }
@@ -92,27 +89,34 @@ QStringList Machine::getLaunchArguments()
 {
     QStringList ret;
 
+    const bool useKvm = hasKvm() && canVirtualize();
+
     // Machine setup
     ret << QStringLiteral("-smp") << QString::number(this->cores);
     ret << QStringLiteral("-m") << QStringLiteral("%1M").arg(this->mem);
+
+    // Use KVM if possible
+    if (useKvm)
+        ret << QStringLiteral("-enable-kvm");
 
     // Use "virt" machine and "cortex-a57" CPU on aarch64 regardless
     if (this->arch == QStringLiteral("aarch64")) {
         ret << QStringLiteral("-machine") << QStringLiteral("virt");
 
         // Enable host CPU mode when virtualization is possible
-        if (hasKvm() && canVirtualize())
+        if (useKvm)
             ret << QStringLiteral("-cpu") << QStringLiteral("host");
         else
             ret << QStringLiteral("-cpu") << QStringLiteral("cortex-a57");
     }
+    // Also enable host CPU mode on x86_64 if possible
+    else {
+        if (useKvm)
+            ret << QStringLiteral("-cpu") << QStringLiteral("host");
+    }
 
     // Display
-    // As per documentation, virtio-gpu-pci requires KVM
-    if (this->arch == QStringLiteral("aarch64") && hasKvm() && canVirtualize())
-        ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci");
-    else
-        ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu");
+    ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu");
 
     // Networking
     ret << QStringLiteral("-netdev") << QStringLiteral("user,id=net0")
@@ -129,7 +133,7 @@ QStringList Machine::getLaunchArguments()
     if (!this->flash2.isEmpty())
         ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,file=%1").arg(this->flash2);
 
-    ret << QStringLiteral("-vnc") << QStringLiteral(":%1").arg(QString::number(this->number));
+    ret << QStringLiteral("-vnc") << QStringLiteral("unix:%1").arg(QStringLiteral("%1/vnc.sock").arg(this->storage));
     return ret;
 }
 
