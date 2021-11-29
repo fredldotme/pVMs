@@ -134,8 +134,8 @@ MainView {
                 property bool starting : false
 
                 function reconnect() {
-                    var port = 5900 + machine.number
-                    vncClient.connectToServer("127.0.0.1:" + port, "");
+                    const socket = machine.storage + "/vnc.sock";
+                    vncClient.connectToServer(socket, "");
                 }
 
                 Connections {
@@ -178,8 +178,7 @@ MainView {
                                 enabled: !starting
                                 onTriggered: {
                                     if (!machine.running) {
-                                        starting = true;
-                                        machine.start()
+                                        starting = machine.start()
                                     } else {
                                         machine.stop()
                                     }
@@ -601,6 +600,18 @@ MainView {
                     }
                     Label {
                         text: qsTr("CuteVNC QML controls by Alberto Mardegan (GPL v3)")
+                        textSize: Label.XSmall
+                        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                        horizontalAlignment: Text.AlignHCenter
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            leftMargin: typicalMargin
+                            rightMargin: typicalMargin
+                        }
+                    }
+                    Label {
+                        text: qsTr("Icon by Mateo Salta")
                         textSize: Label.XSmall
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         horizontalAlignment: Text.AlignHCenter
