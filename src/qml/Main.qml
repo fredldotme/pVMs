@@ -353,8 +353,7 @@ MainView {
 
                     // Hack around OptionSelector imploding when pressed
                     // Allows scrolling past the edge but better than nothing...
-                    //contentHeight: addVmMainColumn.height + architecture.height
-                    contentHeight: childrenRect.height
+                    contentHeight: addVmMainColumn.height + architecture.height
 
                     ActivityIndicator {
                         id: creatingActivity
