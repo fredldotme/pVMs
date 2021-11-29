@@ -53,18 +53,18 @@ MainView {
                 trailingActionBar {
                     actions: [
                         Action {
+                            iconName: "info"
+                            text: "Info"
+                            onTriggered: {
+                                mainPage.pageStack.addPageToNextColumn(mainPage, about)
+                            }
+                        },
+                        Action {
                             iconName: "add"
                             text: "Add VM"
                             onTriggered: {
                                 mainPage.pageStack.addPageToNextColumn(mainPage,
                                                                        addVmComponent.createObject(mainPage))
-                            }
-                        },
-                        Action {
-                            iconName: "info"
-                            text: "Info"
-                            onTriggered: {
-                                mainPage.pageStack.addPageToNextColumn(mainPage, about)
                             }
                         }
                     ]
