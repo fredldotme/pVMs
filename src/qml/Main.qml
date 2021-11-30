@@ -33,6 +33,41 @@ MainView {
     }*/
 
     readonly property int typicalMargin : units.gu(2)
+    property var runningMachineRefs : []
+
+
+    function isRegisteredMachine(storage) {
+        for (var i = 0; i < runningMachineRefs.length; i++) {
+            if (runningMachineRefs[i].key === storage) {
+                return true;
+            }
+        }
+        return false;
+    }
+    function getRegisteredMachine(storage) {
+        for (var i = 0; i < runningMachineRefs.length; i++) {
+            if (runningMachineRefs[i].key === storage) {
+                return runningMachineRefs[i].value;
+            }
+        }
+        return null;
+    }
+    function registerMachine(machine) {
+        for (var i = 0; i < runningMachineRefs.length; i++) {
+            // Already registered? Nothing to do!
+            if (runningMachineRefs[i].key === machine.storage) {
+                return
+            }
+        }
+        runningMachineRefs.push({key: machine.storage, value: machine})
+    }
+    function unregisterMachine(machine) {
+        for (var i = 0; i < runningMachineRefs.length; i++) {
+            if (runningMachineRefs[i].key === machine.storage) {
+                runningMachineRefs.splice(i, 1);
+            }
+        }
+    }
 
     width: units.gu(45)
     height: units.gu(75)
@@ -93,7 +128,9 @@ MainView {
                     onRefresh: VMManager.refreshVMs()
                 }
                 delegate: ListItem {
-                    property Machine machine : VMManager.fromQml(modelData);
+                    property Machine machine : isRegisteredMachine(modelData.storage) ?
+                                                    getRegisteredMachine(modelData.storage) :
+                                                    VMManager.fromQml(modelData);
 
                     leadingActions: ListItemActions {
                         actions: [
@@ -142,10 +179,12 @@ MainView {
                     target: machine
                     onStarted: {
                         starting = false
+                        registerMachine(machine)
                         reconnect()
                     }
                     onStopped: {
                         starting = false
+                        unregisterMachine(machine)
                         vncClient.disconnect();
                     }
                 }
