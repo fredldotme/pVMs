@@ -1,3 +1,4 @@
 build
 .clickable
 *.user
+.DS_Store
