@@ -16,6 +16,7 @@
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QFile>
 #include <QFileInfo>
 #include <QSysInfo>
 #include <QTimer>
@@ -99,7 +100,7 @@ QStringList Machine::getLaunchArguments()
     if (useKvm)
         ret << QStringLiteral("-enable-kvm");
 
-    // Use "virt" machine and "cortex-a57" CPU on aarch64 regardless
+    // Use "virt" machine on aarch64
     if (this->arch == QStringLiteral("aarch64")) {
         ret << QStringLiteral("-machine") << QStringLiteral("virt");
 
@@ -118,10 +119,14 @@ QStringList Machine::getLaunchArguments()
     // Display
     ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu");
 
-    // Main drives
-    if (!this->dvd.isEmpty()) {
+    // ISO/DVD drive
+    // This one likes to get lost due to content-hub clearing each app's cache during boot,
+    // so add a check whether the file is actually there or not.
+    if (!this->dvd.isEmpty() && QFile::exists(this->dvd)) {
         ret << QStringLiteral("-cdrom") << this->dvd;
     }
+
+    // Main drive
     ret << QStringLiteral("-drive") << QStringLiteral("if=virtio,format=qcow2,file=%1").arg(this->hdd);
 
     // USB and input peripherals
