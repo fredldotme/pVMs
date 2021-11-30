@@ -126,7 +126,7 @@ QStringList Machine::getLaunchArguments()
 
     // USB and input peripherals
     ret << QStringLiteral("-device") << QStringLiteral("qemu-xhci");
-    ret << QStringLiteral("-device") << QStringLiteral("usb-mouse");
+    ret << QStringLiteral("-device") << QStringLiteral("usb-tablet");
     ret << QStringLiteral("-device") << QStringLiteral("usb-kbd");
 
     // Networking
