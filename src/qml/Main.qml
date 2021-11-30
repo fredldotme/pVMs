@@ -139,7 +139,7 @@ MainView {
                                 iconName: "delete"
                                 enabled: !machine.running
                                 onTriggered: {
-                                    if (machine.storage === selectedMachine.storage)
+                                    if (selectedMachine && machine.storage === selectedMachine.storage)
                                         mainPage.pageStack.removePages(selectedMachinePage)
                                     VMManager.deleteVM(machine)
                                     VMManager.refreshVMs()
