@@ -32,7 +32,43 @@ MainView {
         normal.background: UbuntuColors.purple
     }*/
 
-    readonly property int typicalMargin : units.gu(3)
+    readonly property int typicalMargin : units.gu(2)
+    property var runningMachineRefs : []
+    property Page selectedMachinePage : null
+    readonly property Machine selectedMachine : selectedMachinePage ? selectedMachinePage.machine : null
+
+    function isRegisteredMachine(storage) {
+        for (var i = 0; i < runningMachineRefs.length; i++) {
+            if (runningMachineRefs[i].key === storage) {
+                return true;
+            }
+        }
+        return false;
+    }
+    function getRegisteredMachine(storage) {
+        for (var i = 0; i < runningMachineRefs.length; i++) {
+            if (runningMachineRefs[i].key === storage) {
+                return runningMachineRefs[i].value;
+            }
+        }
+        return null;
+    }
+    function registerMachine(machine) {
+        for (var i = 0; i < runningMachineRefs.length; i++) {
+            // Already registered? Nothing to do!
+            if (runningMachineRefs[i].key === machine.storage) {
+                return
+            }
+        }
+        runningMachineRefs.push({key: machine.storage, value: machine})
+    }
+    function unregisterMachine(machine) {
+        for (var i = 0; i < runningMachineRefs.length; i++) {
+            if (runningMachineRefs[i].key === machine.storage) {
+                runningMachineRefs.splice(i, 1);
+            }
+        }
+    }
 
     width: units.gu(45)
     height: units.gu(75)
@@ -53,18 +89,18 @@ MainView {
                 trailingActionBar {
                     actions: [
                         Action {
+                            iconName: "info"
+                            text: "Info"
+                            onTriggered: {
+                                mainPage.pageStack.addPageToNextColumn(mainPage, about)
+                            }
+                        },
+                        Action {
                             iconName: "add"
                             text: "Add VM"
                             onTriggered: {
                                 mainPage.pageStack.addPageToNextColumn(mainPage,
                                                                        addVmComponent.createObject(mainPage))
-                            }
-                        },
-                        Action {
-                            iconName: "info"
-                            text: "Info"
-                            onTriggered: {
-                                mainPage.pageStack.addPageToNextColumn(mainPage, about)
                             }
                         }
                     ]
@@ -93,7 +129,9 @@ MainView {
                     onRefresh: VMManager.refreshVMs()
                 }
                 delegate: ListItem {
-                    property Machine machine : VMManager.fromQml(modelData);
+                    property Machine machine : isRegisteredMachine(modelData.storage) ?
+                                                    getRegisteredMachine(modelData.storage) :
+                                                    VMManager.fromQml(modelData);
 
                     leadingActions: ListItemActions {
                         actions: [
@@ -101,6 +139,8 @@ MainView {
                                 iconName: "delete"
                                 enabled: !machine.running
                                 onTriggered: {
+                                    if (selectedMachine && machine.storage === selectedMachine.storage)
+                                        mainPage.pageStack.removePages(selectedMachinePage)
                                     VMManager.deleteVM(machine)
                                     VMManager.refreshVMs()
                                 }
@@ -119,9 +159,10 @@ MainView {
                         }
                     }
                     onClicked: {
-                        mainPage.pageStack.addPageToNextColumn(mainPage,
-                                                               vmDetailsComponent.createObject(mainPage,
-                                                                                               { machine : machine }))
+                        var newPage = vmDetailsComponent.createObject(mainPage,
+                                                                      { machine : machine })
+                        mainPage.pageStack.addPageToNextColumn(mainPage, newPage)
+                        selectedMachinePage = newPage;
                     }
                 }
             }
@@ -134,18 +175,20 @@ MainView {
                 property bool starting : false
 
                 function reconnect() {
-                    var port = 5900 + machine.number
-                    vncClient.connectToServer("127.0.0.1:" + port, "");
+                    const socket = machine.storage + "/vnc.sock";
+                    vncClient.connectToServer(socket, "");
                 }
 
                 Connections {
                     target: machine
                     onStarted: {
                         starting = false
+                        registerMachine(machine)
                         reconnect()
                     }
                     onStopped: {
                         starting = false
+                        unregisterMachine(machine)
                         vncClient.disconnect();
                     }
                 }
@@ -164,6 +207,13 @@ MainView {
                                 iconName: "settings"
                                 text: "Settings"
                                 enabled: !machine.running
+                                onTriggered: {
+                                    mainPage.pageStack.addPageToNextColumn(mainPage,
+                                                                           addVmComponent.createObject(mainPage,
+                                                                                                       {
+                                                                                                           existingMachine : machine
+                                                                                                       }))
+                                }
                             },
                             Action {
                                 iconName: !machine.running ? "media-playback-start" : "media-playback-stop"
@@ -171,8 +221,7 @@ MainView {
                                 enabled: !starting
                                 onTriggered: {
                                     if (!machine.running) {
-                                        starting = true;
-                                        machine.start()
+                                        starting = machine.start()
                                     } else {
                                         machine.stop()
                                     }
@@ -222,6 +271,9 @@ MainView {
             Page {
                 id: addVm
 
+                property Machine existingMachine : null
+                readonly property bool editMode : existingMachine !== null
+
                 property var supportedArchitectures : [
                     i18n.tr("aarch64"),
                     i18n.tr("x86_64")
@@ -230,7 +282,7 @@ MainView {
                 property bool creating : false
                 property list<ContentItem> importItems
                 property var activeTransfer
-                property string isoFileUrl : ""
+                property string isoFileUrl : !editMode ? "" : existingMachine.dvd
 
                 function getFileName(path) {
                     var crumbs = path.split("/").filter(function (element) {
@@ -255,26 +307,40 @@ MainView {
 
                 header: PageHeader {
                     id: addVmHeader
-                    title: "Add VM"
+                    title: !editMode ? "Add VM" : "Edit VM"
                     trailingActionBar {
                         actions: [
                             Action {
                                 iconName: "ok"
                                 text: "Save"
-                                enabled: description.text !== "" && isoFileUrl !== ""
+                                enabled: !editMode ? (description.text !== "" && isoFileUrl !== "")
+                                                   : true
                                 onTriggered: {
                                     creating = true
 
-                                    newMachine.name = description.text
-                                    newMachine.arch = supportedArchitectures[architecture.selectedIndex]
-                                    newMachine.cores = coresSlider.value
-                                    newMachine.mem = memSlider.value
-                                    newMachine.hddSize = hddSizeSlider.value
-                                    newMachine.dvd = stripFilePath(isoFileUrl);
+                                    if (!editMode) {
+                                        newMachine.name = description.text
+                                        newMachine.arch = supportedArchitectures[architecture.selectedIndex]
+                                        newMachine.cores = coresSlider.value.toFixed(0)
+                                        newMachine.mem = memSlider.value.toFixed(0)
+                                        newMachine.hddSize = hddSizeSlider.value.toFixed(0)
+                                        newMachine.dvd = stripFilePath(isoFileUrl);
 
-                                    if (VMManager.createVM(newMachine)) {
-                                        VMManager.refreshVMs();
-                                        addVm.pageStack.removePages(addVm)
+                                        if (VMManager.createVM(newMachine)) {
+                                            VMManager.refreshVMs();
+                                            addVm.pageStack.removePages(addVm)
+                                            selectedMachinePage = null
+                                        }
+                                    } else {
+                                        existingMachine.cores = coresSlider.value.toFixed(0)
+                                        existingMachine.mem = memSlider.value.toFixed(0)
+                                        existingMachine.dvd = stripFilePath(isoFileUrl);
+
+                                        if (VMManager.editVM(existingMachine)) {
+                                            VMManager.refreshVMs();
+                                            addVm.pageStack.removePages(addVm)
+                                            selectedMachinePage = null
+                                        }
                                     }
                                 }
                             }
@@ -328,6 +394,7 @@ MainView {
                         right: parent.right
                         bottom: parent.bottom
                     }
+                    anchors.topMargin: typicalMargin
 
                     // Hack around OptionSelector imploding when pressed
                     // Allows scrolling past the edge but better than nothing...
@@ -348,18 +415,22 @@ MainView {
                             id: description
                             placeholderText: "Description"
                             width: parent.width
+                            enabled: !editMode
+                            text: !editMode ? "" : existingMachine.name
                         }
 
                         OptionSelector {
                             id: architecture
                             text: i18n.tr("Architecture")
                             model: supportedArchitectures
+                            enabled: !editMode
+                            selectedIndex: !editMode ? 0 : supportedArchitectures.indexOf(existingMachine.arch)
                         }
 
                         Column {
                             width: parent.width
                             Label {
-                                text: "CPU cores: " + coresSlider.value
+                                text: "CPU cores: " + coresSlider.value.toFixed(0)
                             }
 
                             Slider {
@@ -367,16 +438,19 @@ MainView {
                                 minimumValue: 1
                                 maximumValue: 4
                                 stepSize: 1
-                                value: 1
+                                value: !editMode ? 1 : existingMachine.cores
                                 live: true
                                 width: parent.width
+                                function formatValue(v) {
+                                    return v.toFixed(0)
+                                }
                             }
                         }
 
                         Column {
                             width: parent.width
                             Label {
-                                text: "RAM: " + memSlider.value + "MB"
+                                text: "RAM: " + memSlider.value.toFixed(0) + "MB"
                             }
 
                             Slider {
@@ -384,17 +458,20 @@ MainView {
                                 minimumValue: 256
                                 maximumValue: 4096
                                 stepSize: 256
-                                value: 1024
+                                value: !editMode ? 1024 : existingMachine.mem
                                 live: true
                                 width: parent.width
+                                function formatValue(v) {
+                                    return v.toFixed(0)
+                                }
                             }
                         }
 
-
                         Column {
                             width: parent.width
+                            visible: !editMode
                             Label {
-                                text: "HDD size: " + hddSizeSlider.value + "GB"
+                                text: "HDD size: " + hddSizeSlider.value.toFixed(0) + "GB"
                             }
 
                             Slider {
@@ -407,11 +484,22 @@ MainView {
                             }
                         }
 
-                        Button {
-                            id: isoImport
-                            text: isoFileUrl === "" ? "Pick an ISO" : getFileName(isoFileUrl)
-                            onClicked: openIsoPicker()
-                            anchors.horizontalCenter: parent.horizontalCenter
+                        Row {
+                            width: parent.width
+                            Button {
+                                id: isoImport
+                                text: isoFileUrl === "" ? "Pick an ISO" : getFileName(isoFileUrl)
+                                onClicked: openIsoPicker()
+                                width: parent.width - clearIsoButton.width
+                            }
+                            Button {
+                                id: clearIsoButton
+                                iconName: "edit-clear"
+                                width: units.gu(4)
+                                onClicked: {
+                                    isoFileUrl = ""
+                                }
+                            }
                         }
                     }
                 }
@@ -436,6 +524,16 @@ MainView {
                     id: aboutMainColumn
                     width: parent.width
                     spacing: typicalMargin
+                    anchors.topMargin: typicalMargin
+
+                    UbuntuShape {
+                        width: Math.min(parent.width, parent.height) / 2
+                        height: width
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        source: Image {
+                            source: "qrc:/assets/logo.svg"
+                        }
+                    }
 
                     Label {
                         width: parent.width
@@ -546,6 +644,18 @@ MainView {
                     }
                     Label {
                         text: qsTr("CuteVNC QML controls by Alberto Mardegan (GPL v3)")
+                        textSize: Label.XSmall
+                        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                        horizontalAlignment: Text.AlignHCenter
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            leftMargin: typicalMargin
+                            rightMargin: typicalMargin
+                        }
+                    }
+                    Label {
+                        text: qsTr("Icon by Mateo Salta")
                         textSize: Label.XSmall
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         horizontalAlignment: Text.AlignHCenter

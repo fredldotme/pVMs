@@ -48,8 +48,6 @@ const QStringList VALID_ARCHES = {
     QStringLiteral("aarch64"),
 };
 
-static int port_counter = 0;
-
 VMManager::VMManager() {
 
 }
@@ -102,7 +100,6 @@ Machine* VMManager::fromQml(QVariantMap vm)
     machine->dvd = vm.value(KEY_DVD).toString();
     machine->flash1 = vm.value(KEY_FLASH1).toString();
     machine->flash2 = vm.value(KEY_FLASH2).toString();
-    machine->number = ++port_counter;
 
     return machine;
 }
@@ -171,6 +168,20 @@ bool VMManager::createVM(Machine* machine)
         }
 
         machine->flash1 = efiFwTarget;
+    }
+
+    // Copy the EFI NVRAM to storage
+    {
+        const QString varsArch = (machine->arch == QStringLiteral("aarch64")) ?
+                    QStringLiteral("arm") : QStringLiteral("i386");
+        const QString efiVars = QStringLiteral("%1/share/qemu/edk2-%2-vars.fd").arg(pwd, varsArch);
+        const QString efiVarsTarget = QStringLiteral("%1/efi_nvram.fd").arg(vmDirPath);
+        if (!QFile::copy(efiVars, efiVarsTarget)) {
+            qWarning() << "Failed to copy" << efiVars << "EFI NVRAM to target" << efiVarsTarget;
+            return false;
+        }
+
+        machine->flash2 = efiVarsTarget;
     }
 
     // Finally, create the VM metadata
@@ -263,6 +274,26 @@ QByteArray VMManager::machineToJSON(const Machine* machine)
 
     QJsonDocument doc(rootObject);
     return doc.toJson();
+}
+
+bool VMManager::editVM(Machine* machine)
+{
+    if (!machine) {
+        qWarning() << "nullptr machine provided";
+        return false;
+    }
+
+    // Edit the VM metadata
+    {
+        const QString jsonFilePath = QStringLiteral("%1/info.json").arg(machine->storage);
+        QFile jsonFile(jsonFilePath);
+        if (!jsonFile.open(QFile::ReadWrite | QFile::Truncate)) {
+            qWarning() << "Failed to open JSON file for writing";
+            return false;
+        }
+
+        jsonFile.write(machineToJSON(machine));
+    }
 }
 
 bool VMManager::deleteVM(Machine* machine)
