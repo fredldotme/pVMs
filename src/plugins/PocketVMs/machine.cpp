@@ -33,9 +33,11 @@ Machine::Machine()
             return;
         }
 
-        QTimer::singleShot(1000, this, [=](){
-            emit started();
-        });
+        if (newState == QProcess::Running) {
+            QTimer::singleShot(1000, this, [=](){
+                emit started();
+            });
+        }
     });
 
     QObject::connect(this, &Machine::started, this, [=](){
