@@ -34,7 +34,8 @@ MainView {
 
     readonly property int typicalMargin : units.gu(2)
     property var runningMachineRefs : []
-
+    property Page selectedMachinePage : null
+    readonly property Machine selectedMachine : selectedMachinePage ? selectedMachinePage.machine : null
 
     function isRegisteredMachine(storage) {
         for (var i = 0; i < runningMachineRefs.length; i++) {
@@ -138,6 +139,8 @@ MainView {
                                 iconName: "delete"
                                 enabled: !machine.running
                                 onTriggered: {
+                                    if (machine.storage === selectedMachine.storage)
+                                        mainPage.pageStack.removePages(selectedMachinePage)
                                     VMManager.deleteVM(machine)
                                     VMManager.refreshVMs()
                                 }
@@ -156,9 +159,10 @@ MainView {
                         }
                     }
                     onClicked: {
-                        mainPage.pageStack.addPageToNextColumn(mainPage,
-                                                               vmDetailsComponent.createObject(mainPage,
-                                                                                               { machine : machine }))
+                        var newPage = vmDetailsComponent.createObject(mainPage,
+                                                                      { machine : machine })
+                        mainPage.pageStack.addPageToNextColumn(mainPage, newPage)
+                        selectedMachinePage = newPage;
                     }
                 }
             }
@@ -325,6 +329,7 @@ MainView {
                                         if (VMManager.createVM(newMachine)) {
                                             VMManager.refreshVMs();
                                             addVm.pageStack.removePages(addVm)
+                                            selectedMachinePage = null
                                         }
                                     } else {
                                         existingMachine.cores = coresSlider.value.toFixed(0)
@@ -334,6 +339,7 @@ MainView {
                                         if (VMManager.editVM(existingMachine)) {
                                             VMManager.refreshVMs();
                                             addVm.pageStack.removePages(addVm)
+                                            selectedMachinePage = null
                                         }
                                     }
                                 }
