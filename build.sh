@@ -5,15 +5,11 @@ set -e
 SRC_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 cd $SRC_PATH
 
-source common.sh
-
-if [ "$SNAPCRAFT_PART_INSTALL" != "" ]; then
-    INSTALL=$SNAPCRAFT_PART_INSTALL/opt/${PROJECT}
-elif [ "$INSTALL_DIR" != "" ]; then
-    INSTALL=$INSTALL_DIR
-else
-    INSTALL=/opt/${PROJECT}-${VERSION}
+if [ "$INSTALL_DIR" == "" ]; then
+    echo "Cannot find INSTALL_DIR, bailing..."
+    exit 1
 fi
+INSTALL=$INSTALL_DIR
 
 # Argument variables
 CLEAN=0
