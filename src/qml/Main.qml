@@ -227,7 +227,7 @@ MainView {
                             Action {
                                 iconName: "settings"
                                 text: "Settings"
-                                enabled: !machine.running
+                                enabled: !machine.running && !starting
                                 onTriggered: {
                                     mainPage.pageStack.addPageToNextColumn(mainPage,
                                                                            addVmComponent.createObject(mainPage,
