@@ -27,6 +27,10 @@ Machine::Machine()
 {
     this->m_process = new QProcess(this);
     QObject::connect(this->m_process, &QProcess::stateChanged, this, [=](QProcess::ProcessState newState){
+        if (newState == QProcess::NotRunning && this->m_process->exitCode() != 0) {
+            emit error(this->m_process->readAllStandardError());
+        }
+
         if (newState != QProcess::Running) {
             qWarning() << this->m_process->readAllStandardError();
             emit stopped();
