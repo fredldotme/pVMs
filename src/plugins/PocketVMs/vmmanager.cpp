@@ -158,30 +158,16 @@ bool VMManager::createVM(Machine* machine)
     }
 #endif
 
-    // Copy the EFI firmware to storage
     {
-        const QString efiFw = QStringLiteral("%1/share/qemu/edk2-%2-code.fd").arg(pwd, machine->arch);
-        const QString efiFwTarget = QStringLiteral("%1/efi.fd").arg(vmDirPath);
-        if (!QFile::copy(efiFw, efiFwTarget)) {
-            qWarning() << "Failed to copy" << efiFw << "EFI firmware to target" << efiFwTarget;
+        const bool ret = resetEFIFirmware(machine);
+        if (!ret)
             return false;
-        }
-
-        machine->flash1 = efiFwTarget;
     }
 
-    // Copy the EFI NVRAM to storage
     {
-        const QString varsArch = (machine->arch == QStringLiteral("aarch64")) ?
-                    QStringLiteral("arm") : QStringLiteral("i386");
-        const QString efiVars = QStringLiteral("%1/share/qemu/edk2-%2-vars.fd").arg(pwd, varsArch);
-        const QString efiVarsTarget = QStringLiteral("%1/efi_nvram.fd").arg(vmDirPath);
-        if (!QFile::copy(efiVars, efiVarsTarget)) {
-            qWarning() << "Failed to copy" << efiVars << "EFI NVRAM to target" << efiVarsTarget;
+        const bool ret = resetEFINVRAM(machine);
+        if (!ret)
             return false;
-        }
-
-        machine->flash2 = efiVarsTarget;
     }
 
     // Finally, create the VM metadata
@@ -198,6 +184,36 @@ bool VMManager::createVM(Machine* machine)
 
     return true;
 }
+
+
+// Copy the EFI firmware to storage
+{
+    const QString efiFw = QStringLiteral("%1/share/qemu/edk2-%2-code.fd").arg(pwd, machine->arch);
+    const QString efiFwTarget = QStringLiteral("%1/efi.fd").arg(vmDirPath);
+    if (!QFile::copy(efiFw, efiFwTarget)) {
+        qWarning() << "Failed to copy" << efiFw << "EFI firmware to target" << efiFwTarget;
+        return false;
+    }
+
+    machine->flash1 = efiFwTarget;
+    return true;
+}
+
+// Copy the EFI NVRAM to storage
+{
+    const QString varsArch = (machine->arch == QStringLiteral("aarch64")) ?
+                QStringLiteral("arm") : QStringLiteral("i386");
+    const QString efiVars = QStringLiteral("%1/share/qemu/edk2-%2-vars.fd").arg(pwd, varsArch);
+    const QString efiVarsTarget = QStringLiteral("%1/efi_nvram.fd").arg(vmDirPath);
+    if (!QFile::copy(efiVars, efiVarsTarget)) {
+        qWarning() << "Failed to copy" << efiVars << "EFI NVRAM to target" << efiVarsTarget;
+        return false;
+    }
+
+    machine->flash2 = efiVarsTarget;
+    return true;
+}
+
 
 QVariantMap VMManager::listEntryForJSON(const QString& path, const QString& storage)
 {

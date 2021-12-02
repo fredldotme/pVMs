@@ -40,6 +40,9 @@ public:
     Q_INVOKABLE bool createVM(Machine* machine);
     Q_INVOKABLE bool editVM(Machine* machine);
     Q_INVOKABLE bool deleteVM(Machine* machine);
+    Q_INVOKABLE bool resetEFIFirmware(Machine* machine);
+    Q_INVOKABLE bool resetEFINVRAM(Machine* machine);
+
 
 private:
     QVariantMap listEntryForJSON(const QString& path, const QString& storage);

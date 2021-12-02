@@ -326,11 +326,14 @@ MainView {
                     client: client
                     anchors.fill: parent
                     visible: machine.running && fullscreenVm.visible
+                    onRemoteScreenSizeChanged: {
+                        viewer.updateScale();
+                    }
                 }
 
                 Component.onCompleted: {
                     reconnect(machine, client)
-                    fullscreenVm.showFullScreen();
+                    //fullscreenVm.showFullScreen();
                 }
             }
         }
@@ -568,6 +571,21 @@ MainView {
                                 onClicked: {
                                     isoFileUrl = ""
                                 }
+                            }
+                        }
+
+                        Row {
+                            width: parent.width
+                            visible: editMode
+                            Button {
+                                text: "Reset EFI Firmware"
+                                width: parent.width / 2
+                                onClicked: VMManager.resetEFIFirmware(machine)
+                            }
+                            Button {
+                                text: "Reset EFI NVRAM"
+                                width: parent / 2
+                                onClicked: VMManager.resetEFINVRAM(machine)
                             }
                         }
                     }
