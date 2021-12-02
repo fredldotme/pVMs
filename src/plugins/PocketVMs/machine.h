@@ -87,6 +87,7 @@ signals:
 
     void started();
     void stopped();
+    void error(QString err);
 };
 
 #endif

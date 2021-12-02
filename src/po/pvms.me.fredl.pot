@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pvms.me.fredl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-30 15:23+0000\n"
+"POT-Creation-Date: 2021-12-02 00:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,15 +17,15 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../qml/Main.qml:278
+#: ../qml/Main.qml:347
 msgid "aarch64"
 msgstr ""
 
-#: ../qml/Main.qml:279
+#: ../qml/Main.qml:348
 msgid "x86_64"
 msgstr ""
 
-#: ../qml/Main.qml:424
+#: ../qml/Main.qml:493
 msgid "Architecture"
 msgstr ""
 

@@ -16,9 +16,11 @@
 
 import QtQuick 2.7
 import Ubuntu.Components 1.3
+import Ubuntu.Components.Popups 1.3
 import Ubuntu.Components.Themes 1.3
 import Ubuntu.Content 1.1
 import QtQuick.Layouts 1.3
+import QtQuick.Window 2.12
 import PocketVMs 1.0
 
 MainView {
@@ -36,6 +38,7 @@ MainView {
     property var runningMachineRefs : []
     property Page selectedMachinePage : null
     readonly property Machine selectedMachine : selectedMachinePage ? selectedMachinePage.machine : null
+    property string errorString : ""
 
     function isRegisteredMachine(storage) {
         for (var i = 0; i < runningMachineRefs.length; i++) {
@@ -68,6 +71,10 @@ MainView {
                 runningMachineRefs.splice(i, 1);
             }
         }
+    }
+    function reconnect(machine, vncClient) {
+        const socket = machine.storage + "/vnc.sock";
+        vncClient.connectToServer(socket, "");
     }
 
     width: units.gu(45)
@@ -173,29 +180,43 @@ MainView {
                 id: vmDetails
                 property Machine machine : null
                 property bool starting : false
-
-                function reconnect() {
-                    const socket = machine.storage + "/vnc.sock";
-                    vncClient.connectToServer(socket, "");
-                }
+                property Window fullscreenWindow : null
+                readonly property bool isFullscreen : fullscreenWindow != null
 
                 Connections {
                     target: machine
                     onStarted: {
                         starting = false
                         registerMachine(machine)
-                        reconnect()
+                        reconnect(machine, vncClient)
                     }
                     onStopped: {
                         starting = false
                         unregisterMachine(machine)
                         vncClient.disconnect();
+
+                        if (fullscreenWindow) {
+                            fullscreenWindow.close();
+                            fullscreenWindow.destroy();
+                            fullscreenWindow = null
+                        }
+                    }
+                    onError: {
+                        errorString = err;
+                        PopupUtils.open(dialog)
+                    }
+                }
+
+                Connections {
+                    target: fullscreenWindow
+                    onClosing: {
+                        fullscreenWindow = null
                     }
                 }
 
                 Component.onCompleted: {
                     if (machine.running) {
-                        reconnect()
+                        reconnect(machine, vncClient)
                     }
                 }
 
@@ -206,7 +227,7 @@ MainView {
                             Action {
                                 iconName: "settings"
                                 text: "Settings"
-                                enabled: !machine.running
+                                enabled: !machine.running && !starting
                                 onTriggered: {
                                     mainPage.pageStack.addPageToNextColumn(mainPage,
                                                                            addVmComponent.createObject(mainPage,
@@ -223,8 +244,20 @@ MainView {
                                     if (!machine.running) {
                                         starting = machine.start()
                                     } else {
+                                        vncClient.disconnect();
                                         machine.stop()
                                     }
+                                }
+                            },
+                            Action {
+                                iconName: "view-fullscreen"
+                                text: "Show fullscreen"
+                                enabled: machine.running && !isFullscreen
+                                onTriggered: {
+                                    fullscreenWindow = fullscreenVmComponent.createObject(mainPage, {
+                                                                                              machine: machine,
+                                                                                              client: vncClient
+                                                                                          });
                                 }
                             },
                             Action {
@@ -237,13 +270,13 @@ MainView {
                                 }
                             }
                         ]
-                        numberOfSlots: 3
+                        numberOfSlots: 4
                     }
                 }
                 VncClient {
                     id: vncClient
                     onConnectedChanged: {
-                        console.log("Connected to instance")
+                        console.log("Connected: " + vncClient.isConnected)
                     }
                 }
                 Label {
@@ -251,6 +284,12 @@ MainView {
                     text: "VM is not running"
                     textSize: Label.Large
                     visible: !machine.running
+                }
+                Label {
+                    anchors.centerIn: parent
+                    text: "VM is fullscreen & detached"
+                    textSize: Label.Large
+                    visible: isFullscreen
                 }
                 ActivityIndicator {
                     id: startingActivity
@@ -261,7 +300,40 @@ MainView {
                     id: viewer
                     client: vncClient
                     anchors.fill: parent
-                    visible: machine.running
+                    visible: machine.running && !isFullscreen
+                }
+            }
+        }
+
+        Component {
+            id: fullscreenVmComponent
+            Window {
+                id: fullscreenVm
+                property Machine machine : null
+                visibility: Window.FullScreen
+                onClosing: {
+                    client.disconnect()
+                }
+
+                VncClient {
+                    id: client
+                    onConnectedChanged: {
+                        console.log("Connected: " + client.isConnected)
+                    }
+                }
+                VncOutput {
+                    id: viewer
+                    client: client
+                    anchors.fill: parent
+                    visible: machine.running && fullscreenVm.visible
+                    onRemoteScreenSizeChanged: {
+                        viewer.updateScale();
+                    }
+                }
+
+                Component.onCompleted: {
+                    reconnect(machine, client)
+                    //fullscreenVm.showFullScreen();
                 }
             }
         }
@@ -501,10 +573,26 @@ MainView {
                                 }
                             }
                         }
+
+                        Row {
+                            width: parent.width
+                            visible: editMode
+                            Button {
+                                text: "Reset EFI Firmware"
+                                width: parent.width / 2
+                                onClicked: VMManager.resetEFIFirmware(machine)
+                            }
+                            Button {
+                                text: "Reset EFI NVRAM"
+                                width: parent / 2
+                                onClicked: VMManager.resetEFINVRAM(machine)
+                            }
+                        }
                     }
                 }
             }
         }
+
         Page {
             id: about
             header: PageHeader {
@@ -666,6 +754,25 @@ MainView {
                             rightMargin: typicalMargin
                         }
                     }
+                }
+            }
+        }
+    }
+
+
+    // First start password entry
+    Component {
+        id: dialog
+
+        Dialog {
+            id: dialogue
+            title: qsTr("QEMU quit unexpectedly!")
+            text: qsTr("Error: " + errorString)
+            Button {
+                text: qsTr("Ok")
+                color: theme.palette.normal.positive
+                onClicked: {
+                    PopupUtils.close(dialogue);
                 }
             }
         }
