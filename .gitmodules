@@ -3,7 +3,7 @@
 	url = git://anongit.freedesktop.org/virglrenderer
 [submodule "3rdparty/qemu"]
 	path = 3rdparty/qemu
-	url = git://git.qemu.org/qemu.git
+	url = https://github.com/fredldotme/qemu.git
 [submodule "3rdparty/SDL"]
 	path = 3rdparty/SDL
 	url = https://github.com/libsdl-org/SDL.git
