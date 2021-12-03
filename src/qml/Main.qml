@@ -317,9 +317,6 @@ MainView {
 
                 VncClient {
                     id: client
-                    onConnectedChanged: {
-                        console.log("Connected: " + client.isConnected)
-                    }
                 }
                 VncOutput {
                     id: viewer
@@ -327,13 +324,12 @@ MainView {
                     anchors.fill: parent
                     visible: machine.running && fullscreenVm.visible
                     onRemoteScreenSizeChanged: {
-                        viewer.updateScale();
+                        viewer.updateScale()
                     }
                 }
 
                 Component.onCompleted: {
                     reconnect(machine, client)
-                    //fullscreenVm.showFullScreen();
                 }
             }
         }
@@ -405,6 +401,7 @@ MainView {
                                             selectedMachinePage = null
                                         }
                                     } else {
+                                        existingMachine.name = description.text
                                         existingMachine.cores = coresSlider.value.toFixed(0)
                                         existingMachine.mem = memSlider.value.toFixed(0)
                                         existingMachine.dvd = stripFilePath(isoFileUrl);
@@ -472,6 +469,7 @@ MainView {
                     // Hack around OptionSelector imploding when pressed
                     // Allows scrolling past the edge but better than nothing...
                     contentHeight: addVmMainColumn.height * 2
+                    //contentHeight: contentItem.childrenRect.height
 
                     ActivityIndicator {
                         id: creatingActivity
@@ -488,7 +486,6 @@ MainView {
                             id: description
                             placeholderText: "Description"
                             width: parent.width
-                            enabled: !editMode
                             text: !editMode ? "" : existingMachine.name
                         }
 
@@ -576,16 +573,23 @@ MainView {
                                     iconName: "edit-clear"
                                     width: units.gu(4)
                                     onClicked: {
+                                        isoFileUrl = ""
                                     }
                                 }
                             }
                         }
 
-                        CheckBox {
-                            id: fileSharingCheckbox
-                            text: "Enable file sharing"
-                            enabled: !editMode
-                            checked: editMode ? existingMachine.enableFileSharing : false
+                        Row {
+                            width: parent.width
+                            //enabled: !editMode
+                            spacing: typicalMargin
+                            Switch {
+                                id: fileSharingCheckbox
+                                checked: editMode ? existingMachine.enableFileSharing : false
+                            }
+                            Label {
+                                text: "Enable file sharing"
+                            }
                         }
 
                         Column {
@@ -599,12 +603,12 @@ MainView {
                                 Button {
                                     text: "Reset EFI Firmware"
                                     width: parent.width / 2
-                                    onClicked: VMManager.resetEFIFirmware(machine)
+                                    onClicked: VMManager.resetEFIFirmware(existingMachine)
                                 }
                                 Button {
                                     text: "Reset EFI NVRAM"
                                     width: parent.width / 2
-                                    onClicked: VMManager.resetEFINVRAM(machine)
+                                    onClicked: VMManager.resetEFINVRAM(existingMachine)
                                 }
                             }
                         }
