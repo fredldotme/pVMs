@@ -585,7 +585,7 @@ MainView {
                             id: fileSharingCheckbox
                             text: "Enable file sharing"
                             enabled: !editMode
-                            checked: false
+                            checked: editMode ? existingMachine.enableFileSharing : false
                         }
 
                         Column {
