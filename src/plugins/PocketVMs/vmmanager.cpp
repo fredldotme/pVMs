@@ -194,6 +194,14 @@ bool VMManager::resetEFIFirmware(Machine* machine)
     const QString pwd = QCoreApplication::applicationDirPath();
     const QString efiFw = QStringLiteral("%1/share/qemu/edk2-%2-code.fd").arg(pwd, machine->arch);
     const QString efiFwTarget = QStringLiteral("%1/efi.fd").arg(machine->storage);
+
+    if (QFile::exists(efiFwTarget)) {
+        qDebug() << "Attempting to remove existing target" << efiFwTarget;
+        if (!QFile::remove(efiFwTarget)) {
+            qWarning() << "Failed to remove existing target" << efiFwTarget;
+        }
+    }
+
     if (!QFile::copy(efiFw, efiFwTarget)) {
         qWarning() << "Failed to copy" << efiFw << "EFI firmware to target" << efiFwTarget;
         return false;
@@ -211,6 +219,14 @@ bool VMManager::resetEFINVRAM(Machine* machine)
                 QStringLiteral("arm") : QStringLiteral("i386");
     const QString efiVars = QStringLiteral("%1/share/qemu/edk2-%2-vars.fd").arg(pwd, varsArch);
     const QString efiVarsTarget = QStringLiteral("%1/efi_nvram.fd").arg(machine->storage);
+
+    if (QFile::exists(efiVarsTarget)) {
+        qDebug() << "Attempting to remove existing target" << efiVarsTarget;
+        if (!QFile::remove(efiVarsTarget)) {
+            qWarning() << "Failed to remove existing target" << efiVarsTarget;
+        }
+    }
+
     if (!QFile::copy(efiVars, efiVarsTarget)) {
         qWarning() << "Failed to copy" << efiVars << "EFI NVRAM to target" << efiVarsTarget;
         return false;
