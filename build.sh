@@ -104,7 +104,10 @@ function build_project {
 }
 
 # Build direct dependencies
-# build_3rdparty_autogen virglrenderer # Build on focal ASAP
+#if [ ! -f $INSTALL/.virglrenderer_built ]; then
+#    build_3rdparty_autogen virglrenderer # Build on focal ASAP
+#    touch $INSTALL/.virglrenderer_built
+#fi
 
 # Care about SPICE when VNC is not enough
 #if [ ! -f $INSTALL/.spice-protocol_built ]; then
@@ -130,9 +133,15 @@ function build_project {
 #fi
 
 if [ ! -f $INSTALL/.qemu_built ]; then
-    build_3rdparty_autogen qemu "--python=/usr/bin/python3.6 --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu --disable-strip"
+    build_3rdparty_autogen qemu "--python=/usr/bin/python3.6 --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu --disable-strip --enable-virtiofsd"
     touch $INSTALL/.qemu_built
 fi
+
+# Attempt to strip binaries manually for improved file sizes
+# Some files might be shell scripts so fail gracefully
+for f in $(ls $INSTALL/bin/); do
+    ${ARCH_TRIPLET}-strip $INSTALL/bin/$f || true
+done
 
 # Build main sources
 build_project
