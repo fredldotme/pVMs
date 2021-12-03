@@ -1,6 +1,6 @@
 [submodule "3rdparty/virglrenderer"]
 	path = 3rdparty/virglrenderer
-	url = git://anongit.freedesktop.org/virglrenderer
+	url = https://github.com/fredldotme/virglrenderer.git
 [submodule "3rdparty/qemu"]
 	path = 3rdparty/qemu
 	url = https://github.com/fredldotme/qemu.git
