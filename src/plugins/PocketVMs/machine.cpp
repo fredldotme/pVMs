@@ -16,10 +16,13 @@
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QProcessEnvironment>
 #include <QSysInfo>
 #include <QTimer>
+#include <QThread>
 
 #include "machine.h"
 
@@ -27,8 +30,10 @@ Machine::Machine()
 {
     this->m_process = new QProcess(this);
     QObject::connect(this->m_process, &QProcess::stateChanged, this, [=](QProcess::ProcessState newState){
-        if (newState == QProcess::NotRunning && this->m_process->exitCode() != 0) {
-            emit error(this->m_process->readAllStandardError());
+        if (newState == QProcess::NotRunning) {
+            qWarning() << this->m_process->readAllStandardOutput();
+            if (this->m_process->exitCode() != 0)
+                emit error(this->m_process->readAllStandardError());
         }
 
         if (newState != QProcess::Running) {
@@ -41,6 +46,24 @@ Machine::Machine()
             QTimer::singleShot(1000, this, [=](){
                 emit started();
             });
+        }
+    });
+
+    this->m_fileSharingProcess = new QProcess(this);
+    QObject::connect(this->m_fileSharingProcess, &QProcess::stateChanged, this, [=](QProcess::ProcessState newState) {
+        qDebug() << "virtiofsd new state:" << newState;
+        qDebug() << this->m_fileSharingProcess->readAllStandardOutput();
+        qWarning() << this->m_fileSharingProcess->readAllStandardError();
+
+        if (newState == QProcess::NotRunning) {
+            if(this->m_fileSharingProcess->exitCode() != 0)
+                emit fileSharingError(this->m_fileSharingProcess->readAllStandardError());
+            emit stopped();
+            return;
+        }
+
+        if (newState == QProcess::Running) {
+            startQemu();
         }
     });
 
@@ -70,26 +93,97 @@ bool Machine::start()
         return false;
     }
 
-    const QString pwd = QCoreApplication::applicationDirPath();
-    const QString qemuBin = QStringLiteral("%1/bin/qemu-system-%2").arg(pwd, this->arch);
-    const QStringList args = getLaunchArguments();
+    if (this->m_fileSharingProcess->state() == QProcess::Starting ||
+            this->m_process->state() == QProcess::Starting)
+    {
+        // Return true as the VM is already starting and should
+        // put the UI into a "make it killable" state.
+        qWarning() << "VM processes already starting";
+        return true;
+    }
 
-    qDebug() << "Start:" << qemuBin << args;
+    // If file sharing is enabled, start QEMU *after* virtiofsd is up
+    // Start directly otherwise.
+    if (this->enableFileSharing) {
+        const QString pwd = QCoreApplication::applicationDirPath();
+        const QString fsdBin = QStringLiteral("%1/libexec/virtiofsd").arg(pwd);
+        const QString directory = getFileSharingDirectory();
+        const QString runtimeDirPath = QStringLiteral("%1/run").arg(this->storage);
 
-    this->m_process->start(qemuBin, args);
+        // Create sharing directory if necessary
+        {
+            QDir sharingDir(directory);
+            if (!sharingDir.exists()) {
+                sharingDir.mkpath(directory);
+            }
+        }
+
+        // Also create virtiofsd runtime dir
+        {
+            QDir sharingRuntimeDir(runtimeDirPath);
+            if (!sharingRuntimeDir.exists()) {
+                sharingRuntimeDir.mkpath(runtimeDirPath);
+            }
+        }
+
+        const QStringList fsdArgs = {
+            QStringLiteral("--socket-path=%1").arg(getFileSharingSocket()),
+            "-o", QStringLiteral("source=%2").arg(directory),
+            "-o", "allow_root",
+            "-o", "allow_direct_io",
+            "-o", "xattr",
+            "-o", "writeback",
+            "-o", "readdirplus",
+            "-o", "posix_lock",
+            "-o", "flock",
+            "-f"
+        };
+
+        // Set virtiofsd runtime dir to something it can write to
+        QProcessEnvironment fsdEnv = QProcessEnvironment::systemEnvironment();
+        fsdEnv.insert("XDG_RUNTIME_DIR", runtimeDirPath);
+        this->m_fileSharingProcess->setProcessEnvironment(fsdEnv);
+
+        qDebug() << "Starting:" << fsdBin << fsdArgs;
+        QFile::remove(getFileSharingSocket()); // May fail if it doesn't exist
+        this->m_fileSharingProcess->start(fsdBin, fsdArgs);
+    } else {
+        if (!startQemu())
+            return false;
+    }
     return true;
 }
 
 void Machine::stop()
 {
-    if (this->m_process->state() == QProcess::NotRunning) {
-        qWarning() << "VM process already stopped";
-        return;
-    }
-
     this->m_process->terminate();
     this->m_process->waitForFinished();
     emit stopped();
+}
+
+bool Machine::startQemu()
+{
+    const QString pwd = QCoreApplication::applicationDirPath();
+    const QString qemuBin = QStringLiteral("%1/bin/qemu-system-%2").arg(pwd, this->arch);
+    const QStringList args = getLaunchArguments();
+
+    if (this->enableFileSharing) {
+        int counter = 0;
+        static const int MAX_RETRIES = 3;
+        const QString socket = getFileSharingSocket();
+        while (!QFile::exists(socket) && counter < MAX_RETRIES) {
+            QThread::msleep(1000);
+            ++counter;
+        }
+        if (counter >= MAX_RETRIES && !QFile::exists(socket)) {
+            qWarning() << "Waited 3 seconds for socket" << socket;
+            return false;
+        }
+    }
+
+    qDebug() << "Start:" << qemuBin << args;
+    this->m_process->start(qemuBin, args);
+    return true;
 }
 
 QStringList Machine::getLaunchArguments()
@@ -123,7 +217,11 @@ QStringList Machine::getLaunchArguments()
     }
 
     // Display
-    ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu");
+    if ((this->arch == QStringLiteral("aarch64")) && useKvm) {
+        ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci");
+    } else {
+        ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu");
+    }
 
     // ISO/DVD drive
     // This one likes to get lost due to content-hub clearing each app's cache during boot,
@@ -149,6 +247,14 @@ QStringList Machine::getLaunchArguments()
         ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,unit=0,file=%1").arg(this->flash1);
     if (!this->flash2.isEmpty())
         ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,unit=1,file=%1").arg(this->flash2);
+
+    // Optional file sharing
+    if (this->enableFileSharing) {
+        ret << QStringLiteral("-chardev") << QStringLiteral("socket,id=char0,path=%1").arg(getFileSharingSocket())
+            << QStringLiteral("-device") << QStringLiteral("vhost-user-fs-pci,chardev=char0,tag=pocketvms")
+            << QStringLiteral("-object") << QStringLiteral("memory-backend-memfd,id=mem,size=%1M,share=on").arg(this->mem)
+            << QStringLiteral("-numa") << QStringLiteral("node,memdev=mem");
+    }
 
     ret << QStringLiteral("-vnc") << QStringLiteral("unix:%1").arg(QStringLiteral("%1/vnc.sock").arg(this->storage));
     return ret;
@@ -185,4 +291,16 @@ bool Machine::canVirtualize()
     qDebug() << "uname" << machineType << "vs arch" << this->arch;
 
     return (machineType == this->arch);
+}
+
+QString Machine::getFileSharingDirectory()
+{
+    const QString path = QStringLiteral("%1/shared").arg(this->storage);
+    return path;
+}
+
+QString Machine::getFileSharingSocket()
+{
+    const QString path = QStringLiteral("%1/virtiofsd.sock").arg(this->storage);
+    return path;
 }

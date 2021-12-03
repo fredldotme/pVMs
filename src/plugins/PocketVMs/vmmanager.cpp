@@ -42,6 +42,7 @@ const QString KEY_DVD = QStringLiteral("dvd");
 const QString KEY_HDD = QStringLiteral("hdd");
 const QString KEY_FLASH1 = QStringLiteral("flash1");
 const QString KEY_FLASH2 = QStringLiteral("flash2");
+const QString KEY_ENABLEFILESHARING = QStringLiteral("enableFileSharing");
 
 const QStringList VALID_ARCHES = {
     QStringLiteral("x86_64"),
@@ -100,6 +101,7 @@ Machine* VMManager::fromQml(QVariantMap vm)
     machine->dvd = vm.value(KEY_DVD).toString();
     machine->flash1 = vm.value(KEY_FLASH1).toString();
     machine->flash2 = vm.value(KEY_FLASH2).toString();
+    machine->enableFileSharing = vm.value(KEY_ENABLEFILESHARING).toBool();
 
     return machine;
 }
@@ -187,9 +189,11 @@ bool VMManager::createVM(Machine* machine)
 
 
 // Copy the EFI firmware to storage
+bool VMManager::resetEFIFirmware(Machine* machine)
 {
+    const QString pwd = QCoreApplication::applicationDirPath();
     const QString efiFw = QStringLiteral("%1/share/qemu/edk2-%2-code.fd").arg(pwd, machine->arch);
-    const QString efiFwTarget = QStringLiteral("%1/efi.fd").arg(vmDirPath);
+    const QString efiFwTarget = QStringLiteral("%1/efi.fd").arg(machine->storage);
     if (!QFile::copy(efiFw, efiFwTarget)) {
         qWarning() << "Failed to copy" << efiFw << "EFI firmware to target" << efiFwTarget;
         return false;
@@ -199,12 +203,14 @@ bool VMManager::createVM(Machine* machine)
     return true;
 }
 
+bool VMManager::resetEFINVRAM(Machine* machine)
 // Copy the EFI NVRAM to storage
 {
+    const QString pwd = QCoreApplication::applicationDirPath();
     const QString varsArch = (machine->arch == QStringLiteral("aarch64")) ?
                 QStringLiteral("arm") : QStringLiteral("i386");
     const QString efiVars = QStringLiteral("%1/share/qemu/edk2-%2-vars.fd").arg(pwd, varsArch);
-    const QString efiVarsTarget = QStringLiteral("%1/efi_nvram.fd").arg(vmDirPath);
+    const QString efiVarsTarget = QStringLiteral("%1/efi_nvram.fd").arg(machine->storage);
     if (!QFile::copy(efiVars, efiVarsTarget)) {
         qWarning() << "Failed to copy" << efiVars << "EFI NVRAM to target" << efiVarsTarget;
         return false;
@@ -273,6 +279,12 @@ QVariantMap VMManager::listEntryForJSON(const QString& path, const QString& stor
         throw "Missing 'flash2'";
     ret.insert("flash2", rootObject.value(KEY_FLASH2).toString());
 
+    // Optional arguments
+    if (rootObject.contains(KEY_ENABLEFILESHARING))
+        ret.insert("enableFileSharing", rootObject.value(KEY_ENABLEFILESHARING).toBool());
+    else
+        ret.insert("enableFileSharing", false);
+
     return ret;
 }
 
@@ -287,6 +299,7 @@ QByteArray VMManager::machineToJSON(const Machine* machine)
     rootObject.insert(KEY_HDD, QJsonValue(machine->hdd).toString());
     rootObject.insert(KEY_FLASH1, QJsonValue(machine->flash1).toString());
     rootObject.insert(KEY_FLASH2, QJsonValue(machine->flash2).toString());
+    rootObject.insert(KEY_ENABLEFILESHARING, QJsonValue(machine->enableFileSharing));
 
     QJsonDocument doc(rootObject);
     return doc.toJson();

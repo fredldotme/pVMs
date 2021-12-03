@@ -137,8 +137,8 @@ MainView {
                 }
                 delegate: ListItem {
                     property Machine machine : isRegisteredMachine(modelData.storage) ?
-                                                    getRegisteredMachine(modelData.storage) :
-                                                    VMManager.fromQml(modelData);
+                                                   getRegisteredMachine(modelData.storage) :
+                                                   VMManager.fromQml(modelData);
 
                     leadingActions: ListItemActions {
                         actions: [
@@ -397,6 +397,7 @@ MainView {
                                         newMachine.mem = memSlider.value.toFixed(0)
                                         newMachine.hddSize = hddSizeSlider.value.toFixed(0)
                                         newMachine.dvd = stripFilePath(isoFileUrl);
+                                        newMachine.enableFileSharing = fileSharingCheckbox.checked;
 
                                         if (VMManager.createVM(newMachine)) {
                                             VMManager.refreshVMs();
@@ -470,7 +471,7 @@ MainView {
 
                     // Hack around OptionSelector imploding when pressed
                     // Allows scrolling past the edge but better than nothing...
-                    contentHeight: addVmMainColumn.height + architecture.height
+                    contentHeight: addVmMainColumn.height * 2
 
                     ActivityIndicator {
                         id: creatingActivity
@@ -556,36 +557,55 @@ MainView {
                             }
                         }
 
-                        Row {
+                        Column {
                             width: parent.width
-                            Button {
-                                id: isoImport
-                                text: isoFileUrl === "" ? "Pick an ISO" : getFileName(isoFileUrl)
-                                onClicked: openIsoPicker()
-                                width: parent.width - clearIsoButton.width
+                            Label {
+                                text: "DVD drive"
                             }
-                            Button {
-                                id: clearIsoButton
-                                iconName: "edit-clear"
-                                width: units.gu(4)
-                                onClicked: {
-                                    isoFileUrl = ""
+
+                            Row {
+                                width: parent.width
+                                Button {
+                                    id: isoImport
+                                    text: isoFileUrl === "" ? "Pick an ISO" : getFileName(isoFileUrl)
+                                    onClicked: openIsoPicker()
+                                    width: parent.width - clearIsoButton.width
+                                }
+                                Button {
+                                    id: clearIsoButton
+                                    iconName: "edit-clear"
+                                    width: units.gu(4)
+                                    onClicked: {
+                                    }
                                 }
                             }
                         }
 
-                        Row {
+                        CheckBox {
+                            id: fileSharingCheckbox
+                            text: "Enable file sharing"
+                            enabled: !editMode
+                            checked: false
+                        }
+
+                        Column {
                             width: parent.width
                             visible: editMode
-                            Button {
-                                text: "Reset EFI Firmware"
-                                width: parent.width / 2
-                                onClicked: VMManager.resetEFIFirmware(machine)
+                            Label {
+                                text: "Reset EFI"
                             }
-                            Button {
-                                text: "Reset EFI NVRAM"
-                                width: parent / 2
-                                onClicked: VMManager.resetEFINVRAM(machine)
+                            Row {
+                                width: parent.width
+                                Button {
+                                    text: "Reset EFI Firmware"
+                                    width: parent.width / 2
+                                    onClicked: VMManager.resetEFIFirmware(machine)
+                                }
+                                Button {
+                                    text: "Reset EFI NVRAM"
+                                    width: parent.width / 2
+                                    onClicked: VMManager.resetEFINVRAM(machine)
+                                }
                             }
                         }
                     }

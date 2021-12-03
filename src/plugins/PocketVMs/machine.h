@@ -35,6 +35,7 @@ class Machine: public QObject {
     Q_PROPERTY(int mem MEMBER mem NOTIFY memChanged)
     Q_PROPERTY(QString display MEMBER display NOTIFY displayChanged)
     Q_PROPERTY(QString storage MEMBER storage NOTIFY storageChanged)
+    Q_PROPERTY(bool enableFileSharing MEMBER enableFileSharing NOTIFY enableFileSharingChanged)
 
     Q_PROPERTY(bool running MEMBER running NOTIFY runningChanged)
 
@@ -50,6 +51,8 @@ public:
     int cores;
     int mem; // MB
     QString display;
+    bool enableFileSharing = false;
+
     bool running = false;
 
     // Storage path
@@ -66,11 +69,15 @@ public:
     Q_INVOKABLE void stop();
 
 private:
+    bool startQemu();
     QStringList getLaunchArguments();
     bool hasKvm();
     bool canVirtualize();
+    QString getFileSharingDirectory();
+    QString getFileSharingSocket();
 
     QProcess* m_process = nullptr;
+    QProcess* m_fileSharingProcess = nullptr;
 
 signals:
     void nameChanged();
@@ -83,11 +90,14 @@ signals:
     void memChanged();
     void displayChanged();
     void storageChanged();
+    void enableFileSharingChanged();
+
     void runningChanged();
 
     void started();
     void stopped();
     void error(QString err);
+    void fileSharingError(QString err);
 };
 
 #endif
