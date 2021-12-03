@@ -28,6 +28,7 @@ MainView {
     objectName: 'mainView'
     applicationName: 'pvms.me.fredl'
     automaticOrientation: true
+    anchorToKeyboard: true
 
     // TODO: Make this pretty with a dark-purplish background and white text
     /*theme.palette: Palette {
@@ -221,6 +222,7 @@ MainView {
                 }
 
                 header: PageHeader {
+                    id: vmDetailsHeader
                     title: "VM: " + machine.name
                     trailingActionBar {
                         actions: [
@@ -276,7 +278,7 @@ MainView {
                 VncClient {
                     id: vncClient
                     onConnectedChanged: {
-                        console.log("Connected: " + vncClient.isConnected)
+                        console.log("Connected: " + vncClient.connected)
                     }
                 }
                 Label {
@@ -299,7 +301,12 @@ MainView {
                 VncOutput {
                     id: viewer
                     client: vncClient
-                    anchors.fill: parent
+                    anchors {
+                        top: vmDetailsHeader.bottom
+                        left: parent.left
+                        right: parent.right
+                        bottom: parent.bottom
+                    }
                     visible: machine.running && !isFullscreen
                 }
             }
@@ -323,9 +330,6 @@ MainView {
                     client: client
                     anchors.fill: parent
                     visible: machine.running && fullscreenVm.visible
-                    onRemoteScreenSizeChanged: {
-                        viewer.updateScale()
-                    }
                 }
 
                 Component.onCompleted: {
@@ -405,6 +409,7 @@ MainView {
                                         existingMachine.cores = coresSlider.value.toFixed(0)
                                         existingMachine.mem = memSlider.value.toFixed(0)
                                         existingMachine.dvd = stripFilePath(isoFileUrl);
+                                        existingMachine.enableFileSharing = fileSharingCheckbox.checked;
 
                                         if (VMManager.editVM(existingMachine)) {
                                             VMManager.refreshVMs();
@@ -468,7 +473,7 @@ MainView {
 
                     // Hack around OptionSelector imploding when pressed
                     // Allows scrolling past the edge but better than nothing...
-                    contentHeight: addVmMainColumn.height * 2
+                    contentHeight: addVmMainColumn.height + architecture.height
                     //contentHeight: contentItem.childrenRect.height
 
                     ActivityIndicator {
