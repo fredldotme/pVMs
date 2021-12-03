@@ -20,6 +20,8 @@
         "libxrandr-dev",
         "libxss-dev",
         "libjpeg-dev",
+        "libcap-ng-dev",
+        "libseccomp-dev",
         "mesa-common-dev",
         "autoconf-archive:amd64",
         "bison",
