@@ -382,7 +382,7 @@ MainView {
                                 iconName: "ok"
                                 text: "Save"
                                 enabled: !editMode ? (description.text !== "" && isoFileUrl !== "")
-                                                   : true
+                                                   : (description.text !== "")
                                 onTriggered: {
                                     creating = true
 
