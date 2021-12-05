@@ -102,6 +102,7 @@ Machine* VMManager::fromQml(QVariantMap vm)
     machine->dvd = vm.value(KEY_DVD).toString();
     machine->flash1 = vm.value(KEY_FLASH1).toString();
     machine->flash2 = vm.value(KEY_FLASH2).toString();
+    machine->useVirglrenderer = vm.value(KEY_VIRGLRENDERER).toBool();
     machine->enableFileSharing = vm.value(KEY_ENABLEFILESHARING).toBool();
 
     return machine;
