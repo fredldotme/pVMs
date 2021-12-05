@@ -397,6 +397,7 @@ MainView {
                                         newMachine.mem = memSlider.value.toFixed(0)
                                         newMachine.hddSize = hddSizeSlider.value.toFixed(0)
                                         newMachine.dvd = stripFilePath(isoFileUrl);
+                                        newMachine.useVirglrenderer = virglrendererCheckbox.checked;
                                         newMachine.enableFileSharing = fileSharingCheckbox.checked;
 
                                         if (VMManager.createVM(newMachine)) {
@@ -409,6 +410,7 @@ MainView {
                                         existingMachine.cores = coresSlider.value.toFixed(0)
                                         existingMachine.mem = memSlider.value.toFixed(0)
                                         existingMachine.dvd = stripFilePath(isoFileUrl);
+                                        existingMachine.useVirglrenderer = virglrendererCheckbox.checked;
                                         existingMachine.enableFileSharing = fileSharingCheckbox.checked;
 
                                         if (VMManager.editVM(existingMachine)) {
@@ -586,7 +588,18 @@ MainView {
 
                         Row {
                             width: parent.width
-                            //enabled: !editMode
+                            spacing: typicalMargin
+                            Switch {
+                                id: virglrendererCheckbox
+                                checked: editMode ? existingMachine.useVirglrenderer : false
+                            }
+                            Label {
+                                text: "Enable virtual OpenGL"
+                            }
+                        }
+
+                        Row {
+                            width: parent.width
                             spacing: typicalMargin
                             Switch {
                                 id: fileSharingCheckbox

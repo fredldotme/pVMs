@@ -43,6 +43,7 @@ const QString KEY_HDD = QStringLiteral("hdd");
 const QString KEY_FLASH1 = QStringLiteral("flash1");
 const QString KEY_FLASH2 = QStringLiteral("flash2");
 const QString KEY_ENABLEFILESHARING = QStringLiteral("enableFileSharing");
+const QString KEY_VIRGLRENDERER = QStringLiteral("useVirglrenderer");
 
 const QStringList VALID_ARCHES = {
     QStringLiteral("x86_64"),
@@ -296,10 +297,16 @@ QVariantMap VMManager::listEntryForJSON(const QString& path, const QString& stor
     ret.insert("flash2", rootObject.value(KEY_FLASH2).toString());
 
     // Optional arguments
-    if (rootObject.contains(KEY_ENABLEFILESHARING))
-        ret.insert("enableFileSharing", rootObject.value(KEY_ENABLEFILESHARING).toBool());
+    if (rootObject.contains(KEY_VIRGLRENDERER))
+        ret.insert(KEY_VIRGLRENDERER, rootObject.value(KEY_VIRGLRENDERER).toBool());
     else
-        ret.insert("enableFileSharing", false);
+        ret.insert(KEY_VIRGLRENDERER, false);
+
+    // Optional arguments
+    if (rootObject.contains(KEY_ENABLEFILESHARING))
+        ret.insert(KEY_ENABLEFILESHARING, rootObject.value(KEY_ENABLEFILESHARING).toBool());
+    else
+        ret.insert(KEY_ENABLEFILESHARING, false);
 
     return ret;
 }
@@ -315,6 +322,7 @@ QByteArray VMManager::machineToJSON(const Machine* machine)
     rootObject.insert(KEY_HDD, QJsonValue(machine->hdd).toString());
     rootObject.insert(KEY_FLASH1, QJsonValue(machine->flash1).toString());
     rootObject.insert(KEY_FLASH2, QJsonValue(machine->flash2).toString());
+    rootObject.insert(KEY_VIRGLRENDERER, QJsonValue(machine->useVirglrenderer));
     rootObject.insert(KEY_ENABLEFILESHARING, QJsonValue(machine->enableFileSharing));
 
     QJsonDocument doc(rootObject);
