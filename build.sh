@@ -48,10 +48,11 @@ function build_3rdparty_autogen {
     PKG_CONF_SYSTEM=/usr/lib/$MULTIARCH/pkgconfig
     PKG_CONF_INSTALL=$INSTALL/lib/pkgconfig:$INSTALL/share/pkgconfig:$INSTALL/lib/$MULTIARCH/pkgconfig
     PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PKG_CONF_SYSTEM:$PKG_CONF_INSTALL
+    ACLOCAL_PATH=$INSTALL/share/aclocal
     if [ -f ./autogen.sh ]; then
-        env PKG_CONFIG_PATH=$PKG_CONFIG_PATH ./autogen.sh --prefix=$INSTALL $2
+        env PKG_CONFIG_PATH=$PKG_CONFIG_PATH ACLOCAL_PATH=$ACLOCAL_PATH ./autogen.sh --prefix=$INSTALL $2
     fi
-    env PKG_CONFIG_PATH=$PKG_CONFIG_PATH ./configure --prefix=$INSTALL $2
+    env PKG_CONFIG_PATH=$PKG_CONFIG_PATH ACLOCAL_PATH=$ACLOCAL_PATH ./configure --prefix=$INSTALL $2
     make -j$NUM_PROCS
     if [ -f /usr/bin/sudo ]; then
         sudo make install
@@ -104,10 +105,21 @@ function build_project {
 }
 
 # Build direct dependencies
-#if [ ! -f $INSTALL/.virglrenderer_built ]; then
-#    build_3rdparty_autogen virglrenderer # Build on focal ASAP
-#    touch $INSTALL/.virglrenderer_built
-#fi
+if [ ! -f $INSTALL/.xorg-macros_built ]; then
+    build_3rdparty_autogen xorg-macros
+    touch $INSTALL/.xorg-macros_built
+fi
+
+# Build direct dependencies
+if [ ! -f $INSTALL/.libepoxy_built ]; then
+    build_3rdparty_autogen libepoxy "--enable-egl"
+    touch $INSTALL/.libepoxy_built
+fi
+
+if [ ! -f $INSTALL/.virglrenderer_built ]; then
+    build_3rdparty_autogen virglrenderer
+    touch $INSTALL/.virglrenderer_built
+fi
 
 # Care about SPICE when VNC is not enough
 #if [ ! -f $INSTALL/.spice-protocol_built ]; then
