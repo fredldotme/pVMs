@@ -10,7 +10,6 @@
     "dependencies_target": [
         "libgbm-dev",
         "libdrm-dev",
-        "libepoxy-dev",
         "libdbus-1-dev",
         "libasound2-dev",
         "libsndio-dev",
