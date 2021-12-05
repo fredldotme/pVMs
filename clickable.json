@@ -21,6 +21,7 @@
         "libjpeg-dev",
         "libcap-ng-dev",
         "libseccomp-dev",
+        "libtool",
         "mesa-common-dev",
         "autoconf-archive:amd64",
         "bison",

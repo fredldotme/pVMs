@@ -1,6 +1,7 @@
 #/bin/bash
 
 set -e
+set -x
 
 SRC_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 cd $SRC_PATH
@@ -20,6 +21,16 @@ if [ -f /usr/bin/dpkg-architecture ]; then
 else
     MULTIARCH=""
 fi
+
+# pkg-config & m4 macros
+PKG_CONF_SYSTEM=/usr/lib/$MULTIARCH/pkgconfig
+PKG_CONF_INSTALL=$INSTALL/lib/pkgconfig:$INSTALL/share/pkgconfig:$INSTALL/lib/$MULTIARCH/pkgconfig
+PKG_CONF_EXIST=$PKG_CONFIG_PATH
+PKG_CONFIG_PATH=$PKG_CONF_INSTALL:$PKG_CONF_SYSTEM
+if [ "$PKG_CONF_EXIST" != "" ]; then
+    PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$PKG_CONF_EXIST"
+fi
+ACLOCAL_PATH=$INSTALL/share/aclocal
 
 # Overridable number of build processors
 if [ "$NUM_PROCS" == "" ]; then
@@ -45,15 +56,11 @@ function build_3rdparty_autogen {
     echo "Building: $1"
     cd $SRC_PATH
     cd 3rdparty/$1
-    PKG_CONF_SYSTEM=/usr/lib/$MULTIARCH/pkgconfig
-    PKG_CONF_INSTALL=$INSTALL/lib/pkgconfig:$INSTALL/share/pkgconfig:$INSTALL/lib/$MULTIARCH/pkgconfig
-    PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PKG_CONF_SYSTEM:$PKG_CONF_INSTALL
-    ACLOCAL_PATH=$INSTALL/share/aclocal
     if [ -f ./autogen.sh ]; then
         env PKG_CONFIG_PATH=$PKG_CONFIG_PATH ACLOCAL_PATH=$ACLOCAL_PATH ./autogen.sh --prefix=$INSTALL $2
     fi
     env PKG_CONFIG_PATH=$PKG_CONFIG_PATH ACLOCAL_PATH=$ACLOCAL_PATH ./configure --prefix=$INSTALL $2
-    make -j$NUM_PROCS
+    make VERBOSE=1 -j$NUM_PROCS
     if [ -f /usr/bin/sudo ]; then
         sudo make install
     else
@@ -71,11 +78,8 @@ function build_cmake {
         mkdir build
     fi
     cd build
-    PKG_CONF_SYSTEM=/usr/lib/$MULTIARCH/pkgconfig
-    PKG_CONF_INSTALL=$INSTALL/lib/pkgconfig:$INSTALL/share/pkgconfig:$INSTALL/lib/$MULTIARCH/pkgconfig
-    PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PKG_CONF_SYSTEM:$PKG_CONF_INSTALL
     env PKG_CONFIG_PATH=$PKG_CONFIG_PATH LDFLAGS="-L$INSTALL/lib" \
-    	cmake .. \
+        cmake .. \
         -DCMAKE_INSTALL_PREFIX=$INSTALL \
         -DCMAKE_MODULE_PATH=$INSTALL \
         -DCMAKE_CXX_FLAGS="-isystem $INSTALL/include -L$INSTALL/lib -Wno-deprecated-declarations -Wl,-rpath-link,$INSTALL/lib" \
@@ -112,12 +116,12 @@ fi
 
 # Build direct dependencies
 if [ ! -f $INSTALL/.libepoxy_built ]; then
-    build_3rdparty_autogen libepoxy "--enable-egl"
+    build_3rdparty_autogen libepoxy "--enable-egl --disable-static --enable-shared --host=$ARCH_TRIPLET"
     touch $INSTALL/.libepoxy_built
 fi
 
 if [ ! -f $INSTALL/.virglrenderer_built ]; then
-    build_3rdparty_autogen virglrenderer
+    build_3rdparty_autogen virglrenderer "--disable-static --enable-shared --host=$ARCH_TRIPLET"
     touch $INSTALL/.virglrenderer_built
 fi
 
@@ -145,7 +149,7 @@ fi
 #fi
 
 if [ ! -f $INSTALL/.qemu_built ]; then
-    build_3rdparty_autogen qemu "--python=/usr/bin/python3.6 --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu --disable-strip --enable-virtiofsd"
+    build_3rdparty_autogen qemu "--python=/usr/bin/python3.6 --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu --disable-strip --enable-virtiofsd --enable-virglrenderer"
     touch $INSTALL/.qemu_built
 fi
 
