@@ -217,7 +217,7 @@ QStringList Machine::getLaunchArguments()
     }
 
     if (this->useVirglrenderer) {
-        ret << QStringLiteral("-display") << QStringLiteral("egl-headless");
+        ret << QStringLiteral("-display") << QStringLiteral("egl-headless,gl=es");
     }
 
     // Display
