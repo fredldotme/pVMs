@@ -143,13 +143,13 @@ fi
 #    touch $INSTALL/.spice_built
 #fi
 
-#if [ ! -f $INSTALL/.SDL_built ]; then
-#    build_3rdparty_cmake SDL
-#    touch $INSTALL/.SDL_built
-#fi
+if [ ! -f $INSTALL/.SDL_built ]; then
+    build_3rdparty_cmake SDL
+    touch $INSTALL/.SDL_built
+fi
 
 if [ ! -f $INSTALL/.qemu_built ]; then
-    build_3rdparty_autogen qemu "--python=/usr/bin/python3.6 --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu --disable-strip --enable-virtiofsd --enable-opengl --enable-virglrenderer"
+    build_3rdparty_autogen qemu "--python=/usr/bin/python3.6 --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu --disable-strip --enable-virtiofsd --enable-opengl --enable-virglrenderer --enable-sdl"
     touch $INSTALL/.qemu_built
 fi
 
