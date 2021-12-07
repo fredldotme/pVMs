@@ -18,7 +18,6 @@ import QtQuick 2.7
 import Ubuntu.Components 1.3
 import Ubuntu.Components.Popups 1.3
 import Ubuntu.Components.Themes 1.3
-import Ubuntu.Content 1.1
 import QtQuick.Layouts 1.3
 import QtQuick.Window 2.12
 import PocketVMs 1.0
@@ -40,6 +39,14 @@ MainView {
     property Page selectedMachinePage : null
     readonly property Machine selectedMachine : selectedMachinePage ? selectedMachinePage.machine : null
     property string errorString : ""
+
+    readonly property Component legacyFilePicker :
+        Qt.createComponent("qrc:/LegacyFilePicker.qml",
+                           Component.PreferSynchronous);
+    readonly property Component lomiriFilePicker :
+        Qt.createComponent("qrc:/LomiriFilePicker.qml",
+                           Component.PreferSynchronous);
+
 
     function isRegisteredMachine(storage) {
         for (var i = 0; i < runningMachineRefs.length; i++) {
@@ -355,6 +362,7 @@ MainView {
                 property list<ContentItem> importItems
                 property var activeTransfer
                 property string isoFileUrl : !editMode ? "" : existingMachine.dvd
+                property var filePicker : null
 
                 function getFileName(path) {
                     var crumbs = path.split("/").filter(function (element) {
@@ -371,6 +379,22 @@ MainView {
                     if (path.indexOf("file://") !== 0)
                         return path
                     return path.substring(7)
+                }
+
+                Component.onCompleted: {
+                    // Ubuntu Touch
+                    if (osIsUbuntuTouch) {
+                        filePicker = lomiriFilePicker.createObject(root)
+                    }
+                    // Generic/legacy
+                    else {
+                        filePicker = legacyFilePicker.createObject(root)
+                    }
+                    filePicker.accepted.connect(function (){
+                        for (var i = 0; i < filePicker.fileUrls.length; i++) {
+                            isoFileUrl = filePicker.fileUrls[i]
+                        }
+                    })
                 }
 
                 Machine {
@@ -425,43 +449,8 @@ MainView {
                     }
                 }
 
-                onImportItemsChanged: {
-                    if (importItems.length < 1 || importItems > 1)
-                        return;
-                    isoFileUrl = importItems[0].url
-                }
-
                 function openIsoPicker() {
-                    var peer = null
-                    for (var i = 0; i < contentPeerModel.peers.length; ++i) {
-                        var p = contentPeerModel.peers[i]
-                        if (p.appId.indexOf("com.ubuntu.filemanager_") === 0) {
-                            peer = p
-                        }
-                    }
-
-                    peer.selectionType = ContentTransfer.Single
-                    activeTransfer = peer.request()
-                }
-
-                ContentPeerModel {
-                    id: contentPeerModel
-                    contentType: ContentType.Documents
-                    handler: ContentHandler.Source
-                }
-                ContentTransferHint {
-                    id: importHint
-                    anchors.fill: parent
-                    activeTransfer: activeTransfer
-                }
-
-                Connections {
-                    target: activeTransfer
-                    onStateChanged: {
-                        if (activeTransfer.state === ContentTransfer.Charged) {
-                            importItems = activeTransfer.items;
-                        }
-                    }
+                    filePicker.open()
                 }
 
                 Flickable {

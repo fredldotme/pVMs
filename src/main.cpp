@@ -28,6 +28,11 @@ int main(int argc, char *argv[])
     qDebug() << "Starting app from main.cpp";
 
     QQuickView *view = new QQuickView();
+#ifdef PVMS_LEGACY
+    view->rootContext()->setContextProperty("legacy", true);
+#else
+    view->rootContext()->setContextProperty("legacy", false);
+#endif
     view->setSource(QUrl("qrc:/Main.qml"));
     view->setResizeMode(QQuickView::SizeRootObjectToView);
     view->show();

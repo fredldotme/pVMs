@@ -129,7 +129,7 @@ function build_project {
     echo "Building project"
     cd $SRC_PATH
     cd src
-    build_cmake
+    build_cmake $1
 }
 
 # Build direct dependencies
@@ -186,5 +186,9 @@ for f in $(ls $INSTALL/bin/); do
     ${ARCH_TRIPLET}-strip $INSTALL/bin/$f || true
 done
 
+if [ "$LEGACY" == "1" ]; then
+    LEGACY_ARG="-DPVMS_LEGACY=ON"
+fi
+
 # Build main sources
-build_project
+build_project "$LEGACY_ARG"

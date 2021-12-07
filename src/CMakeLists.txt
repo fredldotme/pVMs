@@ -44,6 +44,11 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/manifest.json DESTINATION ${CMAKE_INST
 install(FILES ${PROJECT_NAME}.apparmor DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(FILES assets/logo.svg DESTINATION assets)
 
+option(PVMS_LEGACY "Build with legacy compatibility" OFF)
+if (PVMS_LEGACY)
+    add_compile_definitions(PVMS_LEGACY)
+endif()
+
 qt5_add_resources(QT_RESOURCES qml/qml.qrc)
 qt5_add_resources(QT_RESOURCES assets/assets.qrc)
 add_executable(${PROJECT_NAME} main.cpp ${QT_RESOURCES})
