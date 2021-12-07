@@ -2,9 +2,15 @@ name: pocketvms
 version: "0.6"
 summary: A convergent QEMU frontend for desktop and mobile
 description: |
- A development environment for creating the Ubuntu Touch platform.
- Includes a set of tools to manage and run Ubuntu Touch VMs with
- compilers and packaging tools for making creating the platform a breeze.
+  Pocket VMs is a QEMU frontend for Ubuntu Touch & Ubuntu Desktop
+  
+  Features:
+  - A custom build of QEMU
+  - A native & convergent GUI
+  - Emulation (x86_64 on aarch64)
+  - Virtualization (aarch64 on aarch64) using KVM
+  - File sharing support
+  - Easy to use machine management
 
 grade: stable
 confinement: strict
