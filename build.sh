@@ -6,14 +6,34 @@ set -x
 SRC_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 cd $SRC_PATH
 
-if [ "$INSTALL_DIR" == "" ]; then
-    echo "Cannot find INSTALL_DIR, bailing..."
+if [ "$SNAPCRAFT_PART_INSTALL" != "" ]; then
+    INSTALL=$SNAPCRAFT_PART_INSTALL
+elif [ "$INSTALL_DIR" != "" ]; then
+    INSTALL=$INSTALL_DIR
+fi
+
+if [ "$SNAPCRAFT_ARCH_TRIPLET" != "" ]; then
+    ARCH_TRIPLET="$SNAPCRAFT_ARCH_TRIPLET"
+fi
+
+if [ -f /usr/bin/python3.8 ]; then
+    PYTHON_BIN=/usr/bin/python3.8
+elif [ -f /usr/bin/python3.6 ]; then
+    PYTHON_BIN=/usr/bin/python3.6
+fi
+
+if [ "$PYTHON_BIN" == "" ]; then
+    echo "PYTHON_BIN not found, bailing..."
+fi
+
+if [ "$INSTALL" == "" ]; then
+    echo "Cannot find INSTALL, bailing..."
     exit 1
 fi
-INSTALL=$INSTALL_DIR
 
 # Argument variables
 CLEAN=0
+LEGACY=0
 
 # Internal variables
 if [ -f /usr/bin/dpkg-architecture ]; then
@@ -43,6 +63,10 @@ while [[ $# -gt 0 ]]; do
     case $arg in
         -c|--clean)
             CLEAN=1
+            shift
+        ;;
+        -l|--legacy)
+            LEGACY=1
             shift
         ;;
         *)
@@ -116,6 +140,9 @@ fi
 
 # Build direct dependencies
 if [ ! -f $INSTALL/.libepoxy_built ]; then
+    if [ -d $SRC_PATH/3rdparty/libepoxy/m4 ]; then
+        rm -rf $SRC_PATH/3rdparty/libepoxy/m4
+    fi
     build_3rdparty_autogen libepoxy "--enable-egl --disable-static --enable-shared --host=$ARCH_TRIPLET"
     touch $INSTALL/.libepoxy_built
 fi
@@ -149,7 +176,7 @@ if [ ! -f $INSTALL/.SDL_built ]; then
 fi
 
 if [ ! -f $INSTALL/.qemu_built ]; then
-    build_3rdparty_autogen qemu "--python=/usr/bin/python3.6 --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu --disable-strip --enable-virtiofsd --enable-opengl --enable-virglrenderer --enable-sdl"
+    build_3rdparty_autogen qemu "--python=$PYTHON_BIN --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu --disable-strip --enable-virtiofsd --enable-opengl --enable-virglrenderer --enable-sdl"
     touch $INSTALL/.qemu_built
 fi
 

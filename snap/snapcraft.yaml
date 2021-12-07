@@ -1,0 +1,385 @@
+name: pocketvms
+version: "0.6"
+summary: A convergent QEMU frontend for desktop and mobile
+description: |
+ A development environment for creating the Ubuntu Touch platform.
+ Includes a set of tools to manage and run Ubuntu Touch VMs with
+ compilers and packaging tools for making creating the platform a breeze.
+
+grade: stable
+confinement: strict
+base: core20
+
+architectures:
+  - build-on: amd64
+    run-on: amd64
+  - build-on: arm64
+    run-on: arm64
+
+apps:
+  pvms:
+    environment:
+      LD_LIBRARY_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/ceph:${SNAP}/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib
+      QT_PLUGIN_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/plugins
+      QML2_IMPORT_PATH: ${SNAP}/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/qml
+    command: bin/desktop-launch pvms -platform xcb
+    command-chain: [ bin/runner ]
+    plugs:
+      - audio-playback
+      - audio-record
+      - kvm
+      - home
+      - opengl
+      - raw-usb
+      - removable-media
+      - screen-inhibit-control
+      - network
+      - network-bind
+      - network-control
+      - unity7
+      - x11
+      - wayland
+
+layout:
+  /usr/sbin/smbd:
+    bind-file: $SNAP/usr/sbin/smbd
+
+parts:
+  qtsystems:
+    plugin: qmake
+    qmake-project-file: qtsystems.pro
+    source: https://github.com/qt/qtsystems.git
+    source-commit: e3332ee38d27a134cef6621fdaf36687af1b6f4a
+    override-build: |
+      snapcraftctl build
+      cp -a $SNAPCRAFT_PART_INSTALL/* /
+    build-packages:
+        - dbus
+        - dbus-test-runner
+        - devscripts
+        - gdb
+        - libdbus-1-dev
+        - liblttng-ust-dev
+        - libqt5svg5-dev
+        - qtdeclarative5-dev
+        - qtdeclarative5-private-dev
+        - qtbase5-private-dev
+  qtfeedback:
+    plugin: qmake
+    after: [ qtsystems ]
+    qmake-project-file: qtfeedback.pro
+    source: https://github.com/qt/qtfeedback.git
+    source-commit: a14bd0bb1373cde86e09e3619fb9dc70f34c71f2
+    override-build: |
+      snapcraftctl build
+      cp -a $SNAPCRAFT_PART_INSTALL/* /
+    build-packages:
+        - dbus
+        - dbus-test-runner
+        - devscripts
+        - gdb
+        - libdbus-1-dev
+        - liblttng-ust-dev
+        - libqt5svg5-dev
+        - qtdeclarative5-dev
+        - qtdeclarative5-private-dev
+        - qtbase5-private-dev
+  qtpim:
+    after: [ qtfeedback ]
+    plugin: qmake
+    qmake-project-file: qtpim.pro
+    source: https://github.com/qt/qtpim.git
+    source-commit: 8fec622c186d254bc9750606d54c32670a9046a5
+    override-build: |
+      snapcraftctl build
+      cp -a $SNAPCRAFT_PART_INSTALL/* /
+    build-packages:
+        - dbus
+        - dbus-test-runner
+        - devscripts
+        - gdb
+        - libdbus-1-dev
+        - liblttng-ust-dev
+        - libqt5svg5-dev
+        - qtdeclarative5-dev
+        - qtdeclarative5-private-dev
+        - qtbase5-private-dev
+  lomiri-ui-toolkit:
+    plugin: qmake
+    after: [ qtpim ]
+    qmake-project-file: lomiri-sdk.pro
+    qmake-parameters:
+        - CONFIG+=ubuntu-uitk-compat
+    source: https://gitlab.com/ubports/core/lomiri-ui-toolkit.git
+    source-branch: main
+    override-build: |
+      snapcraftctl build
+      cp -a $SNAPCRAFT_PART_INSTALL/* /
+    build-packages:
+        - dbus
+        - dbus-test-runner
+        - devscripts
+        - gdb
+        - libdbus-1-dev
+        - liblttng-ust-dev
+        - libqt5svg5-dev
+        - qtdeclarative5-dev
+        - qtdeclarative5-private-dev
+        - qtbase5-private-dev
+        - qml-module-qtquick2
+        - qml-module-qtquick-window2
+        - qml-module-qtquick-layouts
+        - qml-module-qtgraphicaleffects
+        - qml-module-qttest
+    stage-packages:
+        - suru-icon-theme
+        - ttf-ubuntu-font-family
+        - qml-module-qtquick2
+        - qml-module-qtquick-window2
+        - qml-module-qtquick-layouts
+        - qml-module-qtgraphicaleffects
+        - qml-module-qttest
+  pvms:
+    source: .
+    plugin: cmake
+    override-build: |
+      cd $SNAPCRAFT_PART_SRC
+      ./build.sh -c -l
+    after: [ lomiri-ui-toolkit ]
+    build-packages:
+      - autoconf
+      - automake
+      - bison
+      - flex
+      - gettext
+      - libtool
+      - libaio-dev
+      - libbluetooth-dev
+      - libbrlapi-dev
+      - libbz2-dev
+      - libcap-dev
+      - libcap-ng-dev
+      - libcurl4-gnutls-dev
+      - libdrm-dev
+      - libgbm-dev
+      - libgtk-3-dev
+      - libibverbs-dev
+      - libjemalloc-dev
+      - libjpeg8-dev
+      - libncurses5-dev
+      - libnuma-dev
+      - librbd-dev
+      - librdmacm-dev
+      - libsasl2-dev
+      - libsdl2-dev
+      - libsdl2-image-dev
+      - libseccomp-dev
+      - libsnappy-dev
+      - libspice-protocol-dev
+      - libspice-server-dev
+      - libusb-1.0-0-dev
+      - libusbredirparser-dev
+      - libvde-dev
+      - libvdeplug-dev
+      - libvte-2.91-dev
+      - libxen-dev
+      - liblzo2-dev
+      - libx11-dev
+      - libxml2-dev
+      - libepoxy-dev
+      - libglib2.0-dev
+      - libfdt-dev
+      - libpixman-1-dev
+      - xfslibs-dev
+      - zlib1g-dev
+      - libnfs-dev
+      - libiscsi-dev
+      - libpulse-dev
+      - ninja-build
+      - qml-module-qtquick2
+      - qt5-qmake
+      - qttools5-dev
+      - qtdeclarative5-dev
+      - libqt5svg5-dev
+      - qttools5-dev-tools
+      - libqt5xmlpatterns5-dev
+      - libqt5webkit5-dev
+      - qtbase5-dev
+      - qtquickcontrols2-5-dev
+      - intltool
+      - libvncserver-dev
+    stage-packages:
+      - libaio1
+      - libbluetooth3
+      - libboost-iostreams1.67.0
+      - libboost-random1.67.0
+      - libboost-thread1.67.0
+      - libbrlapi0.7
+      - libflac8
+      - libiscsi7
+      - libjemalloc2
+      - libnfs13
+      - libnuma1
+      - librados2
+      - librbd1
+      - libsdl2-2.0-0
+      - libsdl2-image-2.0-0
+      - libsnappy1v5
+      - libsndio7.0
+      - libspice-server1
+      - libusb-1.0-0
+      - libusbredirparser1
+      - libvdeplug2
+      - libxencall1
+      - libxendevicemodel1
+      - libxenevtchn1
+      - libxenforeignmemory1
+      - libxengnttab1
+      - libxenmisc4.11
+      - libxenstore3.0
+      - libxentoolcore1
+      - libxentoollog1
+      - libyajl2
+      - libxi6
+      - libxss1
+      - libasn1-8-heimdal
+      - libatk-bridge2.0-0
+      - libatk1.0-0
+      - libatspi2.0-0
+      - libbrotli1
+      - libcairo-gobject2
+      - libcairo2
+      - libcurl3-gnutls
+      - libdatrie1
+      - libdrm2
+      - libepoxy0
+      - libfdt1
+      - libfontconfig1
+      - libfreetype6
+      - libfribidi0
+      - libgbm1
+      - libgdk-pixbuf2.0-0
+      - libgraphite2-3
+      - libgssapi3-heimdal
+      - libgtk-3-0
+      - libharfbuzz0b
+      - libhcrypto4-heimdal
+      - libheimbase1-heimdal
+      - libheimntlm0-heimdal
+      - libhx509-5-heimdal
+      - libicu66
+      - libkrb5-26-heimdal
+      - libldap-2.4-2
+      - libnghttp2-14
+      - libpango-1.0-0
+      - libpangocairo-1.0-0
+      - libpangoft2-1.0-0
+      - libroken18-heimdal
+      - librtmp1
+      - libssh-4
+      - libthai0
+      - libvte-2.91-0
+      - libvncclient1
+      - libwayland-server0
+      - libwind0-heimdal
+      - libxcb-render0
+      - libxcb-shm0
+      - libxcomposite1
+      - libxdamage1
+      - qml-module-qtquick2
+      - qml-module-qtquick-window2
+    prime:
+      # Fix execstack warnings
+      - -usr/share/qemu/s390-ccw.img
+      - -usr/share/qemu/s390-netboot.img
+      - -usr/share/qemu/openbios-ppc
+      # Remove cruft
+      - -usr/share/qemu/qemu-nsis.bmp
+  runner:
+    after: [ pvms ]
+    source: snap/local
+    plugin: nil
+    override-build: |
+      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
+      cp -av runner $SNAPCRAFT_PART_INSTALL/bin/
+  smbd:
+    after: [ runner ]
+    plugin: nil
+    stage-packages:
+      - samba
+    prime:
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libdcerpc.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libdcerpc-binding.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libdcerpc-server.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libjansson.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libldb.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libndr-krb5pac.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libndr-nbt.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libndr.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libndr-standard.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libnetapi.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libpopt.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libpython2.7.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libpytalloc-util.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libsamba-*.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libsamdb.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libsmbconf.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libsmbldap.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libtalloc.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libtevent.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libtevent-util.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libwbclient.so*
+      - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/samba/*
+      - usr/sbin/smbd
+  desktop-gtk3:
+    build-packages:
+      - build-essential
+      - libgtk-3-dev
+    make-parameters:
+      - FLAVOR=gtk3
+    plugin: make
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: gtk
+    stage-packages:
+      - libxkbcommon0
+      - ttf-ubuntu-font-family
+      - dmz-cursor-theme
+      - light-themes
+      - adwaita-icon-theme
+      - gnome-themes-standard
+      - shared-mime-info
+      - libgtk-3-0
+      - libgdk-pixbuf2.0-0
+      - libglib2.0-bin
+      - libgtk-3-bin
+      - unity-gtk3-module
+      - libappindicator3-1
+      - locales-all
+      - xdg-user-dirs
+      - ibus-gtk3
+      - libibus-1.0-5
+      - fcitx-frontend-gtk3
+  mesa:
+    plugin: nil
+    stage-packages:
+      - libegl1
+      - libgl1
+      - libgl1-mesa-dri
+      - libglx-mesa0
+    build-attributes:
+      - no-patchelf
+    prime:
+      - -lib/udev
+      - -usr/doc
+      - -usr/doc-base
+      - -usr/share/applications
+      - -usr/share/apport
+      - -usr/share/bug
+      - -usr/share/doc
+      - -usr/share/doc-base
+      - -usr/share/icons
+      - -usr/share/libdrm
+      - -usr/share/libwacom
+      - -usr/share/lintian
+      - -usr/share/man
+      - -usr/share/pkgconfig
