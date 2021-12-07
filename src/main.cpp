@@ -19,6 +19,7 @@
 #include <QUrl>
 #include <QString>
 #include <QQuickView>
+#include <QQmlContext>
 
 int main(int argc, char *argv[])
 {
