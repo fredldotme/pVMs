@@ -359,7 +359,6 @@ MainView {
                 ]
 
                 property bool creating : false
-                property list<ContentItem> importItems
                 property var activeTransfer
                 property string isoFileUrl : !editMode ? "" : existingMachine.dvd
                 property var filePicker : null
@@ -383,7 +382,7 @@ MainView {
 
                 Component.onCompleted: {
                     // Ubuntu Touch
-                    if (osIsUbuntuTouch) {
+                    if (!legacy) {
                         filePicker = lomiriFilePicker.createObject(root)
                     }
                     // Generic/legacy
