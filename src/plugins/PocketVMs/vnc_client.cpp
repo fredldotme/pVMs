@@ -233,6 +233,7 @@ uint32_t VncClientPrivate::qKeyToVnc(int key)
         case Qt::Key_Minus: code = XK_minus; break;
         case Qt::Key_Period: code = XK_period; break;
         case Qt::Key_Slash: code = XK_slash; break;
+        case 32: code = XK_KP_Space; break;
 
         default:
             qWarning() << "Unsupported key:" << key;
