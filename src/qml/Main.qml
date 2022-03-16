@@ -341,6 +341,8 @@ MainView {
 
                 Component.onCompleted: {
                     reconnect(machine, client)
+                    viewer.forceActiveFocus()
+                    Qt.inputMethod.show()
                 }
             }
         }
