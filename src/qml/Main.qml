@@ -100,19 +100,19 @@ MainView {
             id: mainPage
             header: PageHeader {
                 id: header
-                title: "Pocket VMs"
+                title: i18n.tr("Pocket VMs"
                 trailingActionBar {
                     actions: [
                         Action {
                             iconName: "info"
-                            text: "Info"
+                            text: i18n.tr("Info")
                             onTriggered: {
                                 mainPage.pageStack.addPageToNextColumn(mainPage, about)
                             }
                         },
                         Action {
                             iconName: "add"
-                            text: "Add VM"
+                            text: i18n.tr("Add VM")
                             onTriggered: {
                                 mainPage.pageStack.addPageToNextColumn(mainPage,
                                                                        addVmComponent.createObject(mainPage))
@@ -124,7 +124,7 @@ MainView {
             }
             Label {
                 anchors.centerIn: parent
-                text: "Please add a VM to continue"
+                text: i18n.tr("Please add a VM to continue")
                 textSize: Label.Large
                 visible: vmListView.model.length <= 0
             }
@@ -230,12 +230,12 @@ MainView {
 
                 header: PageHeader {
                     id: vmDetailsHeader
-                    title: "VM: " + machine.name
+                    title: i18n.tr("VM: ") + machine.name
                     trailingActionBar {
                         actions: [
                             Action {
                                 iconName: "settings"
-                                text: "Settings"
+                                text: i18n.tr("Settings")
                                 enabled: !machine.running && !starting
                                 onTriggered: {
                                     mainPage.pageStack.addPageToNextColumn(mainPage,
@@ -247,7 +247,7 @@ MainView {
                             },
                             Action {
                                 iconName: !machine.running ? "media-playback-start" : "media-playback-stop"
-                                text: !machine.running ? "Start" : "Stop"
+                                text: !machine.running ? i18n.tr("Start") : i18n.tr("Stop")
                                 enabled: !starting
                                 onTriggered: {
                                     if (!machine.running) {
@@ -260,7 +260,7 @@ MainView {
                             },
                             Action {
                                 iconName: "view-fullscreen"
-                                text: "Show fullscreen"
+                                text: i18n.tr("Show fullscreen")
                                 enabled: machine.running && !isFullscreen
                                 onTriggered: {
                                     fullscreenWindow = fullscreenVmComponent.createObject(mainPage, {
@@ -271,7 +271,7 @@ MainView {
                             },
                             Action {
                                 iconName: "input-keyboard-symbolic"
-                                text: "Keyboard"
+                                text: i18n.tr("Keyboard")
                                 enabled: machine.running
                                 onTriggered: {
                                     viewer.forceActiveFocus()
@@ -290,13 +290,13 @@ MainView {
                 }
                 Label {
                     anchors.centerIn: parent
-                    text: "VM is not running"
+                    text: i18n.tr("VM is not running")
                     textSize: Label.Large
                     visible: !machine.running
                 }
                 Label {
                     anchors.centerIn: parent
-                    text: "VM is fullscreen & detached"
+                    text: i18n.tr("VM is fullscreen & detached")
                     textSize: Label.Large
                     visible: isFullscreen
                 }
@@ -404,12 +404,12 @@ MainView {
 
                 header: PageHeader {
                     id: addVmHeader
-                    title: !editMode ? "Add VM" : "Edit VM"
+                    title: !editMode ? i18n.tr("Add VM") : i18n.tr("Edit VM")
                     trailingActionBar {
                         actions: [
                             Action {
                                 iconName: "ok"
-                                text: "Save"
+                                text: i18n.tr("Save")
                                 enabled: !editMode ? (description.text !== "" && isoFileUrl !== "")
                                                    : (description.text !== "")
                                 onTriggered: {
@@ -481,7 +481,7 @@ MainView {
 
                         TextField {
                             id: description
-                            placeholderText: "Description"
+                            placeholderText: i18n.tr("Description")
                             width: parent.width
                             text: !editMode ? "" : existingMachine.name
                         }
@@ -497,7 +497,7 @@ MainView {
                         Column {
                             width: parent.width
                             Label {
-                                text: "CPU cores: " + coresSlider.value.toFixed(0)
+                                text: i18n.tr("CPU cores: ") + coresSlider.value.toFixed(0)
                             }
 
                             Slider {
@@ -517,7 +517,7 @@ MainView {
                         Column {
                             width: parent.width
                             Label {
-                                text: "RAM: " + memSlider.value.toFixed(0) + "MB"
+                                text: i18n.tr("RAM: ") + memSlider.value.toFixed(0) + i18n.tr("MB")
                             }
 
                             Slider {
@@ -538,7 +538,7 @@ MainView {
                             width: parent.width
                             visible: !editMode
                             Label {
-                                text: "HDD size: " + hddSizeSlider.value.toFixed(0) + "GB"
+                                text: i18n.tr("HDD size: ") + hddSizeSlider.value.toFixed(0) + i18n.tr("GB")
                             }
 
                             Slider {
@@ -554,14 +554,14 @@ MainView {
                         Column {
                             width: parent.width
                             Label {
-                                text: "DVD drive"
+                                text: i18n.tr("DVD drive")
                             }
 
                             Row {
                                 width: parent.width
                                 Button {
                                     id: isoImport
-                                    text: isoFileUrl === "" ? "Pick an ISO" : getFileName(isoFileUrl)
+                                    text: isoFileUrl === "" ? i18n.tr("Pick an ISO") : getFileName(isoFileUrl)
                                     onClicked: openIsoPicker()
                                     width: parent.width - clearIsoButton.width
                                 }
@@ -584,7 +584,7 @@ MainView {
                                 checked: editMode ? existingMachine.useVirglrenderer : false
                             }
                             Label {
-                                text: "Enable virtual OpenGL"
+                                text: i18n.tr("Enable virtual OpenGL")
                             }
                         }
 
@@ -596,7 +596,7 @@ MainView {
                                 checked: editMode ? existingMachine.enableFileSharing : false
                             }
                             Label {
-                                text: "Enable file sharing"
+                                text: i18n.tr("Enable file sharing")
                             }
                         }
 
@@ -604,17 +604,17 @@ MainView {
                             width: parent.width
                             visible: editMode
                             Label {
-                                text: "Reset EFI"
+                                text: i18n.tr("Reset EFI")
                             }
                             Row {
                                 width: parent.width
                                 Button {
-                                    text: "Reset EFI Firmware"
+                                    text: i18n.tr("Reset EFI Firmware")
                                     width: parent.width / 2
                                     onClicked: VMManager.resetEFIFirmware(existingMachine)
                                 }
                                 Button {
-                                    text: "Reset EFI NVRAM"
+                                    text: i18n.tr("Reset EFI NVRAM")
                                     width: parent.width / 2
                                     onClicked: VMManager.resetEFINVRAM(existingMachine)
                                 }
@@ -629,7 +629,7 @@ MainView {
             id: about
             header: PageHeader {
                 id: aboutHeader
-                title: "About Pocket VMs"
+                title: i18n.tr("About Pocket VMs")
             }
             Flickable {
                 anchors {
@@ -657,7 +657,7 @@ MainView {
 
                     Label {
                         width: parent.width
-                        text: qsTr("Pocket VMs")
+                        text: i18n.tr("Pocket VMs")
                         textSize: Label.Large
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         horizontalAlignment: Text.AlignHCenter
@@ -665,7 +665,7 @@ MainView {
 
                     Label {
                         width: parent.width
-                        text: qsTr("Virtual Machines for your Ubuntu Touch device")
+                        text: i18n.tr("Virtual Machines for your Ubuntu Touch device")
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         horizontalAlignment: Text.AlignHCenter
                         anchors {
@@ -677,7 +677,7 @@ MainView {
                     }
 
                     Label {
-                        text: qsTr("Donation")
+                        text: i18n.tr("Donation")
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.leftMargin: 16
@@ -688,7 +688,7 @@ MainView {
                         spacing: typicalMargin
 
                         Label {
-                            text: qsTr("Via PayPal")
+                            text: i18n.tr("Via PayPal")
                             font.underline: true
                             textSize: Label.Large
                             MouseArea {
@@ -700,7 +700,7 @@ MainView {
                         }
 
                         /*Label {
-                            text: qsTr("Via Flattr")
+                            text: i18n.tr("Via Flattr")
                             font.underline: true
                             textSize: Label.Large
                             MouseArea {
@@ -713,14 +713,14 @@ MainView {
                     }
 
                     Label {
-                        text: qsTr("Copyright notices")
+                        text: i18n.tr("Copyright notices")
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.leftMargin: 16
                     }
 
                     Label {
-                        text: qsTr("Licensed under GPL v3")
+                        text: i18n.tr("Licensed under GPL v3")
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         horizontalAlignment: Text.AlignHCenter
                         anchors {
@@ -732,7 +732,7 @@ MainView {
                     }
 
                     Label {
-                        text: qsTr("Source code on GitHub")
+                        text: i18n.tr("Source code on GitHub")
                         font.underline: true
                         textSize: Label.Small
                         horizontalAlignment: Text.AlignHCenter
@@ -751,7 +751,7 @@ MainView {
                     }
 
                     Label {
-                        text: qsTr("QEMU (GPL v2 & GPL v3)")
+                        text: i18n.tr("QEMU (GPL v2 & GPL v3)")
                         textSize: Label.XSmall
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         horizontalAlignment: Text.AlignHCenter
@@ -763,7 +763,7 @@ MainView {
                         }
                     }
                     Label {
-                        text: qsTr("CuteVNC QML controls by Alberto Mardegan (GPL v3)")
+                        text: i18n.tr("CuteVNC QML controls by Alberto Mardegan (GPL v3)")
                         textSize: Label.XSmall
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         horizontalAlignment: Text.AlignHCenter
@@ -775,7 +775,7 @@ MainView {
                         }
                     }
                     Label {
-                        text: qsTr("Icon by Mateo Salta")
+                        text: i18n.tr("Icon by Mateo Salta")
                         textSize: Label.XSmall
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         horizontalAlignment: Text.AlignHCenter
@@ -798,10 +798,10 @@ MainView {
 
         Dialog {
             id: dialogue
-            title: qsTr("QEMU quit unexpectedly!")
-            text: qsTr("Error: " + errorString)
+            title: i18n.tr("QEMU quit unexpectedly!")
+            text: i18n.tr("Error: ") + errorString
             Button {
-                text: qsTr("Ok")
+                text: i18n.tr("Ok")
                 color: theme.palette.normal.positive
                 onClicked: {
                     PopupUtils.close(dialogue);
