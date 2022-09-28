@@ -3,7 +3,7 @@
     "default": "build",
     "kill": "pvms",
     "dependencies_ppa": [
-        "ppa:deadsnakes/ppa",
+        "ppa:beidl/python-threesix-xenial",
         "\"deb [arch=amd64] http://archive.ubuntu.com/ubuntu xenial-backports universe restricted multiverse main\"",
         "\"deb [arch=arm64,armhf] http://ports.ubuntu.com/ubuntu-ports xenial-backports universe restricted multiverse main\""
     ],
@@ -23,7 +23,7 @@
         "libseccomp-dev",
         "libtool",
         "mesa-common-dev",
-        "autoconf-archive:amd64",
+        "autoconf-archive:native",
         "bison",
         "flex",
         "gettext",
@@ -41,6 +41,7 @@
         "libpixman-1-dev",
         "libgles2-mesa-dev",
         "libegl1-mesa-dev",
+        "libmirclient-dev",
         "libvncserver-dev",
         "zlib1g-dev"
     ],

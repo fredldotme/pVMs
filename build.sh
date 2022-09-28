@@ -148,27 +148,19 @@ if [ ! -f $INSTALL/.libepoxy_built ]; then
 fi
 
 if [ ! -f $INSTALL/.virglrenderer_built ]; then
-    build_3rdparty_autogen virglrenderer "--disable-static --enable-shared --host=$ARCH_TRIPLET"
+    build_3rdparty_autogen virglrenderer "--disable-static --enable-shared --enable-gbm-allocation --host=$ARCH_TRIPLET"
     touch $INSTALL/.virglrenderer_built
 fi
 
-# Care about SPICE when VNC is not enough
-#if [ ! -f $INSTALL/.spice-protocol_built ]; then
-#    build_3rdparty_autogen spice-protocol
-#    touch $INSTALL/.spice-protocol_built
-#fi
+if [ ! -f $INSTALL/.spice-protocol_built ]; then
+    build_3rdparty_autogen spice-protocol
+    touch $INSTALL/.spice-protocol_built
+fi
 
-#if [ ! -f $INSTALL/.spice-server_built ]; then
-#    export GIT_SSL_NO_VERIFY=1
-#    build_3rdparty_autogen spice-server "--disable-opus"
-#    unset GIT_SSL_NO_VERIFY
-#    touch $INSTALL/.spice-server_built
-#fi
-
-#if [ ! -f $INSTALL/.spice_built ]; then
-#    build_3rdparty_autogen spice "--disable-opus"
-#    touch $INSTALL/.spice_built
-#fi
+if [ ! -f $INSTALL/.spice_built ]; then
+    build_3rdparty_autogen spice "--disable-opus"
+    touch $INSTALL/.spice_built
+fi
 
 if [ ! -f $INSTALL/.SDL_built ]; then
     build_3rdparty_cmake SDL
@@ -176,7 +168,7 @@ if [ ! -f $INSTALL/.SDL_built ]; then
 fi
 
 if [ ! -f $INSTALL/.qemu_built ]; then
-    build_3rdparty_autogen qemu "--python=$PYTHON_BIN --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu --disable-strip --enable-virtiofsd --enable-opengl --enable-virglrenderer --enable-sdl"
+    build_3rdparty_autogen qemu "--python=$PYTHON_BIN --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu --disable-strip --enable-virtiofsd --enable-opengl --enable-virglrenderer --enable-sdl --enable-spice --disable-werror"
     touch $INSTALL/.qemu_built
 fi
 
