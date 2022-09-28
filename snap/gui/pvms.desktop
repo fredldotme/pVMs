@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Icon=${SNAP}/meta/gui/pvms.svg
+Exec=pocketvms.pvms
+Name=Pocket VMs
