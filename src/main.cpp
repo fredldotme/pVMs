@@ -21,6 +21,10 @@
 #include <QQuickView>
 #include <QQmlContext>
 
+#ifdef PVMS_LEGACY
+#include <QIcon>
+#endif
+
 int main(int argc, char *argv[])
 {
     QGuiApplication *app = new QGuiApplication(argc, (char**)argv);
@@ -30,6 +34,11 @@ int main(int argc, char *argv[])
 
     QQuickView *view = new QQuickView();
 #ifdef PVMS_LEGACY
+    const QString snapPath = qgetenv("SNAP");
+    const QString snapThemePath = QStringLiteral("%1/usr/share/icons").arg(snapPath);
+    qDebug() << snapThemePath;
+    QIcon::setThemeSearchPaths(QStringList() << snapThemePath);
+    QIcon::setThemeName("suru");
     view->rootContext()->setContextProperty("legacy", true);
 #else
     view->rootContext()->setContextProperty("legacy", false);

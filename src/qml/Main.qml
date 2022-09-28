@@ -100,7 +100,7 @@ MainView {
             id: mainPage
             header: PageHeader {
                 id: header
-                title: i18n.tr("Pocket VMs"
+                title: i18n.tr("Pocket VMs")
                 trailingActionBar {
                     actions: [
                         Action {
@@ -314,6 +314,7 @@ MainView {
                         right: parent.right
                         bottom: parent.bottom
                     }
+                    center: Qt.point(width/2, height/2)
                     visible: machine.running && !isFullscreen
                 }
             }

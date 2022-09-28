@@ -181,6 +181,11 @@ bool Machine::startQemu()
         }
     }
 
+    // Pass proper and valid APP_ID as DESKTOP_FILE_HINT
+    QProcessEnvironment qemuEnv = QProcessEnvironment::systemEnvironment();
+    qemuEnv.insert("DESKTOP_FILE_HINT", qgetenv("APP_ID"));
+    this->m_process->setProcessEnvironment(qemuEnv);
+
     qDebug() << "Start:" << qemuBin << args;
     this->m_process->start(qemuBin, args);
     return true;
