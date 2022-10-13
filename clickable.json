@@ -49,7 +49,7 @@
         "/lib/${ARCH_TRIPLET}/libaio.so*",
         "/usr/lib/${ARCH_TRIPLET}/libvncclient.so.1*"
     ],
-    "build": "${ROOT}/build.sh -c",
+    "build": "${ROOT}/build.sh",
     "make_jobs": 6,
     "qt_version": "5.12"
 }

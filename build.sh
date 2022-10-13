@@ -12,6 +12,10 @@ elif [ "$INSTALL_DIR" != "" ]; then
     INSTALL=$INSTALL_DIR
 fi
 
+if [ "$BUILD_DIR" == "" ]; then
+    BUILD_DIR="$INSTALL"
+fi
+
 if [ "$SNAPCRAFT_ARCH_TRIPLET" != "" ]; then
     ARCH_TRIPLET="$SNAPCRAFT_ARCH_TRIPLET"
 fi
@@ -83,13 +87,16 @@ function build_3rdparty_autogen {
     if [ -f ./autogen.sh ]; then
         env PKG_CONFIG_PATH=$PKG_CONFIG_PATH ACLOCAL_PATH=$ACLOCAL_PATH ./autogen.sh --prefix=$INSTALL $2
     fi
-    env PKG_CONFIG_PATH=$PKG_CONFIG_PATH ACLOCAL_PATH=$ACLOCAL_PATH ./configure --prefix=$INSTALL $2
-    make VERBOSE=1 -j$NUM_PROCS
-    if [ -f /usr/bin/sudo ]; then
-        sudo make install
-    else
-        make install
+    if [ ! -f "$BUILD_DIR/.${1}_built" ]; then
+        env PKG_CONFIG_PATH=$PKG_CONFIG_PATH ACLOCAL_PATH=$ACLOCAL_PATH ./configure --prefix=$INSTALL $2
+        make VERBOSE=1 -j$NUM_PROCS
     fi
+    if [ -f /usr/bin/sudo ]; then
+        sudo make install -j$NUM_PROCS
+    else
+        make install -j$NUM_PROCS
+    fi
+    touch $BUILD_DIR/.${1}_built
 }
 
 function build_cmake {
@@ -102,27 +109,32 @@ function build_cmake {
         mkdir build
     fi
     cd build
-    env PKG_CONFIG_PATH=$PKG_CONFIG_PATH LDFLAGS="-L$INSTALL/lib" \
-        cmake .. \
-        -DCMAKE_INSTALL_PREFIX=$INSTALL \
-        -DCMAKE_MODULE_PATH=$INSTALL \
-        -DCMAKE_CXX_FLAGS="-isystem $INSTALL/include -L$INSTALL/lib -Wno-deprecated-declarations -Wl,-rpath-link,$INSTALL/lib" \
-        -DCMAKE_C_FLAGS="-isystem $INSTALL/include -L$INSTALL/lib -Wno-deprecated-declarations -Wl,-rpath-link,$INSTALL/lib" \
-        -DCMAKE_LD_FLAGS="-L$INSTALL/lib" \
-        -DCMAKE_LIBRARY_PATH=$INSTALL/lib $@
-    make VERBOSE=1 -j$NUM_PROCS
-    if [ -f /usr/bin/sudo ]; then
-        sudo make install
-    else
-        make install
+    if [ ! -f "$BUILD_DIR/.${1}_built" ]; then
+        env PKG_CONFIG_PATH=$PKG_CONFIG_PATH LDFLAGS="-L$INSTALL/lib" \
+            cmake .. \
+            -DCMAKE_INSTALL_PREFIX=$INSTALL \
+            -DCMAKE_MODULE_PATH=$INSTALL \
+            -DCMAKE_CXX_FLAGS="-isystem $INSTALL/include -L$INSTALL/lib -Wno-deprecated-declarations -Wl,-rpath-link,$INSTALL/lib" \
+            -DCMAKE_C_FLAGS="-isystem $INSTALL/include -L$INSTALL/lib -Wno-deprecated-declarations -Wl,-rpath-link,$INSTALL/lib" \
+            -DCMAKE_LD_FLAGS="-L$INSTALL/lib" \
+            -DCMAKE_LIBRARY_PATH=$INSTALL/lib $@
+        make VERBOSE=1 -j$NUM_PROCS
     fi
+
+    if [ -f /usr/bin/sudo ]; then
+        sudo make install -j$NUM_PROCS
+    else
+        make install -j$NUM_PROCS
+    fi
+
+    touch $BUILD_DIR/.${1}_built
 }
 
 function build_3rdparty_cmake {
     echo "Building: $1"
     cd $SRC_PATH
     cd 3rdparty/$1
-    build_cmake
+    build_cmake "$2"
 }
 
 function build_project {
@@ -133,50 +145,34 @@ function build_project {
 }
 
 # Build direct dependencies
-if [ ! -f $INSTALL/.xorg-macros_built ]; then
-    build_3rdparty_autogen xorg-macros
-    touch $INSTALL/.xorg-macros_built
-fi
+build_3rdparty_autogen xorg-macros
 
-# Build direct dependencies
-if [ ! -f $INSTALL/.libepoxy_built ]; then
-    if [ -d $SRC_PATH/3rdparty/libepoxy/m4 ]; then
-        rm -rf $SRC_PATH/3rdparty/libepoxy/m4
-    fi
-    build_3rdparty_autogen libepoxy "--enable-egl --disable-static --enable-shared --host=$ARCH_TRIPLET"
-    touch $INSTALL/.libepoxy_built
+if [ -d $SRC_PATH/3rdparty/libepoxy/m4 ]; then
+    rm -rf $SRC_PATH/3rdparty/libepoxy/m4
 fi
+build_3rdparty_autogen libepoxy "--enable-egl=yes --enable-glx=no --disable-static --enable-shared --host=$ARCH_TRIPLET"
 
-if [ ! -f $INSTALL/.virglrenderer_built ]; then
-    build_3rdparty_autogen virglrenderer "--disable-static --enable-shared --enable-gbm-allocation --host=$ARCH_TRIPLET"
-    touch $INSTALL/.virglrenderer_built
-fi
+build_3rdparty_autogen virglrenderer "--disable-static --enable-shared --enable-gbm-allocation --host=$ARCH_TRIPLET"
 
-if [ ! -f $INSTALL/.spice-protocol_built ]; then
-    build_3rdparty_autogen spice-protocol
-    touch $INSTALL/.spice-protocol_built
-fi
+build_3rdparty_autogen spice-protocol
 
-if [ ! -f $INSTALL/.spice_built ]; then
-    build_3rdparty_autogen spice "--disable-opus"
-    touch $INSTALL/.spice_built
-fi
+build_3rdparty_autogen spice "--disable-opus"
 
-if [ ! -f $INSTALL/.SDL_built ]; then
-    build_3rdparty_cmake SDL
-    touch $INSTALL/.SDL_built
-fi
+build_3rdparty_autogen SDL "--disable-video-x11 --enable-video-wayland --enable-wayland-shared \
+        --enable-video-mir --disable-mir-shared \
+        --enable-video-opengles  --disable-video-opengl --disable-video-vulkan \
+        --disable-alsa-shared --disable-pulseaudio-shared \
+        --enable-pulseaudio --enable-hidapi --enable-libudev --enable-dbus --disable-static"
 
-if [ ! -f $INSTALL/.qemu_built ]; then
-    build_3rdparty_autogen qemu "--python=$PYTHON_BIN --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu --disable-strip --enable-virtiofsd --enable-opengl --enable-virglrenderer --enable-sdl --enable-spice --disable-werror"
-    touch $INSTALL/.qemu_built
-fi
+build_3rdparty_autogen qemu "--python=$PYTHON_BIN --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu \
+        --disable-strip --enable-virtiofsd --enable-opengl --enable-virglrenderer \
+        --enable-sdl --enable-spice --disable-werror --disable-tests"
 
 # Attempt to strip binaries manually for improved file sizes
 # Some files might be shell scripts so fail gracefully
-for f in $(ls $INSTALL/bin/); do
-    ${ARCH_TRIPLET}-strip $INSTALL/bin/$f || true
-done
+#for f in $(ls $INSTALL/bin/); do
+#    ${ARCH_TRIPLET}-strip $INSTALL/bin/$f || true
+#done
 
 if [ "$LEGACY" == "1" ]; then
     LEGACY_ARG="-DPVMS_LEGACY=ON"
