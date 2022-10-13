@@ -226,11 +226,11 @@ QStringList Machine::getLaunchArguments()
     }
 
     // Display
-    //if ((this->arch == QStringLiteral("aarch64")) && useKvm) {
-        ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci%1").arg(this->useVirglrenderer ? QStringLiteral(",virgl=on") : "");
-    //} else {
-    //    ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu");
-    //}
+    if (!this->useVirglrenderer) {
+        ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci");
+    } else {
+        ret << QStringLiteral("-device") << QStringLiteral("virtio-ramfb-gl");
+    }
 
     // ISO/DVD drive
     // This one likes to get lost due to content-hub clearing each app's cache during boot,
