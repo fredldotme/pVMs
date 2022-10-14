@@ -184,6 +184,12 @@ bool Machine::startQemu()
     // Pass proper and valid APP_ID as DESKTOP_FILE_HINT
     QProcessEnvironment qemuEnv = QProcessEnvironment::systemEnvironment();
     qemuEnv.insert("DESKTOP_FILE_HINT", qgetenv("APP_ID"));
+
+    if (this->useVirglrenderer) {
+        // With OpenGL enabled we use SDL video output
+        qemuEnv.insert("SDL_VIDEODRIVER", "mir");
+        qemuEnv.insert("SDL_RENDER_VSYNC", "0");
+    }
     this->m_process->setProcessEnvironment(qemuEnv);
 
     qDebug() << "Start:" << qemuBin << args;
@@ -207,7 +213,7 @@ QStringList Machine::getLaunchArguments()
 
     // Use "virt" machine on aarch64
     if (this->arch == QStringLiteral("aarch64")) {
-        ret << QStringLiteral("-machine") << QStringLiteral("virt");
+        ret << QStringLiteral("-machine") << QStringLiteral("virt%1").arg(useKvm ? ",gic-version=host,iommu=smmuv3" : "");
 
         // Enable host CPU mode when virtualization is possible
         if (useKvm)
@@ -221,15 +227,18 @@ QStringList Machine::getLaunchArguments()
             ret << QStringLiteral("-cpu") << QStringLiteral("host");
     }
 
-    if (this->useVirglrenderer) {
-        ret << QStringLiteral("-display") << QStringLiteral("egl-headless,gl=es");
+    // Disable VGA mode on aarch64 machines since "virt" usually has no VGA port
+    if (this->arch == QStringLiteral("aarch64")) {
+        ret << "-vga" << "none";
     }
 
-    // Display
+    // Display (with or without OpenGL support)
     if (!this->useVirglrenderer) {
+        ret << QStringLiteral("-display") << QStringLiteral("egl-headless");
         ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci");
     } else {
-        ret << QStringLiteral("-device") << QStringLiteral("virtio-ramfb-gl");
+        ret << QStringLiteral("-display") << QStringLiteral("sdl,gl=es");
+        ret << QStringLiteral("-device") << QStringLiteral("virtio-ramfb-gl%1").arg(useKvm ? ",iommu_platform=on" : "");
     }
 
     // ISO/DVD drive
@@ -253,7 +262,7 @@ QStringList Machine::getLaunchArguments()
 
     // Setup firmware
     if (!this->flash1.isEmpty())
-        ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,unit=0,file=%1").arg(this->flash1);
+        ret << QStringLiteral("-bios") << this->flash1;
     if (!this->flash2.isEmpty())
         ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,unit=1,file=%1").arg(this->flash2);
 
@@ -265,7 +274,22 @@ QStringList Machine::getLaunchArguments()
             << QStringLiteral("-numa") << QStringLiteral("node,memdev=mem");
     }
 
-    ret << QStringLiteral("-vnc") << QStringLiteral("unix:%1").arg(QStringLiteral("%1/vnc.sock").arg(this->storage));
+    // Audio over PulseAudio
+    ret << "-audiodev" << "pa,id=snd0";
+    ret << "-device" << "intel-hda" << "-device" << "hda-output,audiodev=snd0";
+
+    // RNG device based on host's /dev/urandom
+    ret << "-object" << "rng-random,id=rng0,filename=/dev/urandom";
+    ret << "-device" << "virtio-rng-pci,rng=rng0";
+
+    // We don't embedd the VM monitor in the main app when using OpenGL
+    if (!this->useVirglrenderer) {
+        ret << QStringLiteral("-vnc") << QStringLiteral("unix:%1").arg(QStringLiteral("%1/vnc.sock").arg(this->storage));
+    }
+
+    // Disable all the unnecessary QEMU windows & consoles we don't use
+    ret << "-parallel" << "none" << "-serial" << "none" << "-monitor" << "none";
+
     return ret;
 }
 
