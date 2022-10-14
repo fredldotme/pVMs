@@ -202,6 +202,7 @@ QStringList Machine::getLaunchArguments()
     QStringList ret;
 
     const bool useKvm = hasKvm() && canVirtualize();
+    const bool isAarch64 = this->arch == QStringLiteral("aarch64");
 
     // Machine setup
     ret << QStringLiteral("-smp") << QString::number(this->cores);
@@ -212,7 +213,7 @@ QStringList Machine::getLaunchArguments()
         ret << QStringLiteral("-enable-kvm");
 
     // Use "virt" machine on aarch64
-    if (this->arch == QStringLiteral("aarch64")) {
+    if (isAarch64) {
         ret << QStringLiteral("-machine") << QStringLiteral("virt%1").arg(useKvm ? ",gic-version=host,iommu=smmuv3" : "");
 
         // Enable host CPU mode when virtualization is possible
@@ -229,16 +230,20 @@ QStringList Machine::getLaunchArguments()
 
     // Disable VGA mode on aarch64 machines since "virt" usually has no VGA port
     // and attaching one confuses virtio-gpu(-gl)
-    if (this->arch == QStringLiteral("aarch64") && this->useVirglrenderer) {
+    if (isAarch64 && this->useVirglrenderer) {
         ret << "-vga" << "none";
+    } else {
+        ret << "-vga" << "std";
     }
 
     // Display (with or without OpenGL support)
     if (!this->useVirglrenderer) {
-        ret << QStringLiteral("-device") << QStringLiteral("virtio-ramfb");
+        ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci");
     } else {
         ret << QStringLiteral("-display") << QStringLiteral("sdl,gl=es");
-        ret << QStringLiteral("-device") << QStringLiteral("virtio-ramfb-gl%1").arg(useKvm ? ",iommu_platform=on,max_hostmem=128M" : ",max_hostmem=128M");
+        ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci,virgl=on%1").arg(useKvm && isAarch64
+                                                                                              ? ",iommu_platform=on,max_hostmem=128M"
+                                                                                              : ",max_hostmem=128M");
     }
 
     // ISO/DVD drive
@@ -261,10 +266,17 @@ QStringList Machine::getLaunchArguments()
         << QStringLiteral("-device") << QStringLiteral("virtio-net-pci,netdev=net0");
 
     // Setup firmware
-    if (!this->flash1.isEmpty())
-        ret << QStringLiteral("-bios") << this->flash1;
-    if (!this->flash2.isEmpty())
-        ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,unit=1,file=%1").arg(this->flash2);
+    if (isAarch64) {
+        if (!this->flash1.isEmpty())
+            ret << QStringLiteral("-bios") << this->flash1;
+        if (!this->flash2.isEmpty())
+            ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,unit=1,file=%1").arg(this->flash2);
+    } else {
+        if (!this->flash1.isEmpty())
+            ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,unit=0,file=%1").arg(this->flash1);
+        if (!this->flash2.isEmpty())
+            ret << QStringLiteral("-drive") << QStringLiteral("if=pflash,format=raw,unit=1,file=%1").arg(this->flash2);
+    }
 
     // Optional file sharing
     if (this->enableFileSharing) {
