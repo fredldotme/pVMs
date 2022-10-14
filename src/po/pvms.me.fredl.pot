@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pvms.me.fredl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-14 03:35+0000\n"
+"POT-Creation-Date: 2022-10-14 13:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,15 +17,15 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../qml/Main.qml:103 ../qml/Main.qml:662 pvms.desktop.in.h:1
-msgid "Pocket VMs"
+#: ../qml/Main.qml:103
+msgid "Virtual machines"
 msgstr ""
 
 #: ../qml/Main.qml:108
 msgid "Info"
 msgstr ""
 
-#: ../qml/Main.qml:115 ../qml/Main.qml:409
+#: ../qml/Main.qml:115 ../qml/Main.qml:415
 msgid "Add VM"
 msgstr ""
 
@@ -33,158 +33,162 @@ msgstr ""
 msgid "Please add a VM to continue"
 msgstr ""
 
-#: ../qml/Main.qml:234
+#: ../qml/Main.qml:240
 msgid "VM: "
 msgstr ""
 
-#: ../qml/Main.qml:239
+#: ../qml/Main.qml:245
 msgid "Settings"
 msgstr ""
 
-#: ../qml/Main.qml:251
+#: ../qml/Main.qml:257
 msgid "Start"
 msgstr ""
 
-#: ../qml/Main.qml:251
+#: ../qml/Main.qml:257
 msgid "Stop"
 msgstr ""
 
-#: ../qml/Main.qml:264
+#: ../qml/Main.qml:270
 msgid "Show fullscreen"
 msgstr ""
 
-#: ../qml/Main.qml:275
+#: ../qml/Main.qml:281
 msgid "Keyboard"
 msgstr ""
 
-#: ../qml/Main.qml:294
+#: ../qml/Main.qml:300
 msgid "VM is not running"
 msgstr ""
 
-#: ../qml/Main.qml:300
+#: ../qml/Main.qml:306
 msgid "VM window is detached"
 msgstr ""
 
-#: ../qml/Main.qml:361
+#: ../qml/Main.qml:367
 msgid "aarch64"
 msgstr ""
 
-#: ../qml/Main.qml:362
+#: ../qml/Main.qml:368
 msgid "x86_64"
 msgstr ""
 
-#: ../qml/Main.qml:409
+#: ../qml/Main.qml:415
 msgid "Edit VM"
 msgstr ""
 
-#: ../qml/Main.qml:414
+#: ../qml/Main.qml:420
 msgid "Save"
 msgstr ""
 
-#: ../qml/Main.qml:486
+#: ../qml/Main.qml:492
 msgid "Description"
 msgstr ""
 
-#: ../qml/Main.qml:493
+#: ../qml/Main.qml:499
 msgid "Architecture"
 msgstr ""
 
-#: ../qml/Main.qml:502
+#: ../qml/Main.qml:508
 msgid "CPU cores: "
 msgstr ""
 
-#: ../qml/Main.qml:522
+#: ../qml/Main.qml:528
 msgid "MB"
 msgstr ""
 
-#: ../qml/Main.qml:522
+#: ../qml/Main.qml:528
 msgid "RAM: "
 msgstr ""
 
-#: ../qml/Main.qml:543
+#: ../qml/Main.qml:549
 msgid "GB"
 msgstr ""
 
-#: ../qml/Main.qml:543
+#: ../qml/Main.qml:549
 msgid "HDD size: "
 msgstr ""
 
-#: ../qml/Main.qml:559
+#: ../qml/Main.qml:565
 msgid "DVD drive"
 msgstr ""
 
-#: ../qml/Main.qml:566
+#: ../qml/Main.qml:572
 msgid "Pick an ISO"
 msgstr ""
 
-#: ../qml/Main.qml:589
+#: ../qml/Main.qml:595
 msgid "Enable virtual OpenGL (EXPERIMENTAL)"
 msgstr ""
 
-#: ../qml/Main.qml:601
+#: ../qml/Main.qml:607
 msgid "Enable file sharing"
 msgstr ""
 
-#: ../qml/Main.qml:609
+#: ../qml/Main.qml:615
 msgid "Reset EFI"
 msgstr ""
 
-#: ../qml/Main.qml:614
+#: ../qml/Main.qml:620
 msgid "Reset EFI Firmware"
 msgstr ""
 
-#: ../qml/Main.qml:619
+#: ../qml/Main.qml:625
 msgid "Reset EFI NVRAM"
 msgstr ""
 
-#: ../qml/Main.qml:634
+#: ../qml/Main.qml:640
 msgid "About Pocket VMs"
 msgstr ""
 
-#: ../qml/Main.qml:670
+#: ../qml/Main.qml:668 pvms.desktop.in.h:1
+msgid "Pocket VMs"
+msgstr ""
+
+#: ../qml/Main.qml:676
 msgid "Virtual Machines for your Ubuntu Touch device"
 msgstr ""
 
-#: ../qml/Main.qml:682
+#: ../qml/Main.qml:688
 msgid "Donation"
 msgstr ""
 
-#: ../qml/Main.qml:693
+#: ../qml/Main.qml:699
 msgid "Via PayPal"
 msgstr ""
 
-#: ../qml/Main.qml:718
+#: ../qml/Main.qml:724
 msgid "Copyright notices"
 msgstr ""
 
-#: ../qml/Main.qml:725
+#: ../qml/Main.qml:731
 msgid "Licensed under GPL v3"
 msgstr ""
 
-#: ../qml/Main.qml:737
+#: ../qml/Main.qml:743
 msgid "Source code on GitHub"
 msgstr ""
 
-#: ../qml/Main.qml:756
+#: ../qml/Main.qml:762
 msgid "QEMU (GPL v2 & GPL v3)"
 msgstr ""
 
-#: ../qml/Main.qml:768
+#: ../qml/Main.qml:774
 msgid "CuteVNC QML controls by Alberto Mardegan (GPL v3)"
 msgstr ""
 
-#: ../qml/Main.qml:780
+#: ../qml/Main.qml:786
 msgid "Icon by Mateo Salta"
 msgstr ""
 
-#: ../qml/Main.qml:803
+#: ../qml/Main.qml:809
 msgid "QEMU quit unexpectedly!"
 msgstr ""
 
-#: ../qml/Main.qml:804
+#: ../qml/Main.qml:810
 msgid "Error: "
 msgstr ""
 
-#: ../qml/Main.qml:806
+#: ../qml/Main.qml:812
 msgid "Ok"
 msgstr ""
