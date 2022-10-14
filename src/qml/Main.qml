@@ -100,7 +100,7 @@ MainView {
             id: mainPage
             header: PageHeader {
                 id: header
-                title: i18n.tr("Pocket VMs")
+                title: i18n.tr("Virtual machines")
                 trailingActionBar {
                     actions: [
                         Action {
@@ -163,9 +163,16 @@ MainView {
                         ]
                     }
 
+                    Rectangle {
+                        visible: selectedMachine && machine.storage === selectedMachine.storage
+                        color: theme.palette.selected.base
+                        anchors.fill: parent
+                    }
+
                     ListItemLayout {
                         title.text: machine.name
                         summary.text: machine.arch + ", " + machine.cores + " cores, " + machine.mem + "MB RAM"
+
                         Icon {
                             id: icon
                             width: units.gu(2)
@@ -173,6 +180,7 @@ MainView {
                             color: !machine.running ? theme.palette.normal.base : theme.palette.normal.activity
                         }
                     }
+
                     onClicked: {
                         var newPage = vmDetailsComponent.createObject(mainPage,
                                                                       { machine : machine })
@@ -297,7 +305,7 @@ MainView {
                 }
                 Label {
                     anchors.centerIn: parent
-                    text: i18n.tr("VM window is detached")
+                    text: i18n.tr("VM window is running & detached")
                     textSize: Label.Large
                     visible: machine.running && (isFullscreen || machine.useVirglrenderer)
                 }
@@ -315,7 +323,6 @@ MainView {
                         right: parent.right
                         bottom: parent.bottom
                     }
-                    center: Qt.point(width/2, height/2)
                     visible: machine.running && !(isFullscreen || machine.useVirglrenderer)
                 }
             }
@@ -332,17 +339,17 @@ MainView {
                 }
 
                 VncClient {
-                    id: client
+                    id: vncClient
                 }
                 VncOutput {
                     id: viewer
-                    client: client
+                    client: vncClient
                     anchors.fill: parent
                     visible: machine.running && fullscreenVm.visible
                 }
 
                 Component.onCompleted: {
-                    reconnect(machine, client)
+                    reconnect(machine, vncClient)
                     viewer.forceActiveFocus()
                     Qt.inputMethod.show()
                 }
