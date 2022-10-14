@@ -194,7 +194,7 @@ bool VMManager::createVM(Machine* machine)
 bool VMManager::resetEFIFirmware(Machine* machine)
 {
     const QString pwd = QCoreApplication::applicationDirPath();
-    const QString efiFw = QStringLiteral("%1/share/qemu/edk2-%2-code.fd").arg(pwd, machine->arch);
+    const QString efiFw = QStringLiteral("%1/efi/%2/code.fd").arg(pwd, machine->arch);
     const QString efiFwTarget = QStringLiteral("%1/efi.fd").arg(machine->storage);
 
     if (QFile::exists(efiFwTarget)) {
@@ -213,8 +213,8 @@ bool VMManager::resetEFIFirmware(Machine* machine)
     return true;
 }
 
-bool VMManager::resetEFINVRAM(Machine* machine)
 // Copy the EFI NVRAM to storage
+bool VMManager::resetEFINVRAM(Machine* machine)
 {
     const QString pwd = QCoreApplication::applicationDirPath();
     const QString varsArch = (machine->arch == QStringLiteral("aarch64")) ?
