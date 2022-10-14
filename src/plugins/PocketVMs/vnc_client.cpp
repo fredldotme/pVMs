@@ -275,6 +275,7 @@ void VncClientPrivate::onResize()
     m_client->format.redMax=0xff;
     m_client->format.greenMax=0xff;
     m_client->format.blueMax=0xff;
+    m_client->canHandleNewFBSize=true;
     bool ok = SetFormatAndEncodings(m_client);
     if (Q_UNLIKELY(!ok)) {
         qWarning() << "Could not set format to server";
