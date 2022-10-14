@@ -228,16 +228,13 @@ QStringList Machine::getLaunchArguments()
     }
 
     // Disable VGA mode on aarch64 machines since "virt" usually has no VGA port
-    // and attaching one confuses virtio-gpu-gl
+    // and attaching one confuses virtio-gpu(-gl)
     if (this->arch == QStringLiteral("aarch64") && this->useVirglrenderer) {
         ret << "-vga" << "none";
     }
 
     // Display (with or without OpenGL support)
-    // Note that the "non-GL" variant still needs egl-headless with GLES, though
-    // doesn't receive any actual GLES draw calls from the guest virtio device.
     if (!this->useVirglrenderer) {
-        ret << QStringLiteral("-display") << QStringLiteral("egl-headless,gl=es");
         ret << QStringLiteral("-device") << QStringLiteral("virtio-ramfb");
     } else {
         ret << QStringLiteral("-display") << QStringLiteral("sdl,gl=es");
