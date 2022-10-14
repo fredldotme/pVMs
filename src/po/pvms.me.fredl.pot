@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pvms.me.fredl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-14 19:10+0000\n"
+"POT-Creation-Date: 2022-10-14 22:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-#: ../qml/Main.qml:115 ../qml/Main.qml:417
+#: ../qml/Main.qml:115 ../qml/Main.qml:416
 msgid "Add VM"
 msgstr ""
 
@@ -65,130 +65,130 @@ msgstr ""
 msgid "VM window is running & detached"
 msgstr ""
 
-#: ../qml/Main.qml:369
+#: ../qml/Main.qml:368
 msgid "aarch64"
 msgstr ""
 
-#: ../qml/Main.qml:370
+#: ../qml/Main.qml:369
 msgid "x86_64"
 msgstr ""
 
-#: ../qml/Main.qml:417
+#: ../qml/Main.qml:416
 msgid "Edit VM"
 msgstr ""
 
-#: ../qml/Main.qml:422
+#: ../qml/Main.qml:421
 msgid "Save"
 msgstr ""
 
-#: ../qml/Main.qml:494
+#: ../qml/Main.qml:493
 msgid "Description"
 msgstr ""
 
-#: ../qml/Main.qml:501
+#: ../qml/Main.qml:500
 msgid "Architecture"
 msgstr ""
 
-#: ../qml/Main.qml:510
+#: ../qml/Main.qml:509
 msgid "CPU cores: "
 msgstr ""
 
-#: ../qml/Main.qml:530
+#: ../qml/Main.qml:529
 msgid "MB"
 msgstr ""
 
-#: ../qml/Main.qml:530
+#: ../qml/Main.qml:529
 msgid "RAM: "
 msgstr ""
 
-#: ../qml/Main.qml:551
+#: ../qml/Main.qml:550
 msgid "GB"
 msgstr ""
 
-#: ../qml/Main.qml:551
+#: ../qml/Main.qml:550
 msgid "HDD size: "
 msgstr ""
 
-#: ../qml/Main.qml:567
+#: ../qml/Main.qml:566
 msgid "DVD drive"
 msgstr ""
 
-#: ../qml/Main.qml:574
+#: ../qml/Main.qml:573
 msgid "Pick an ISO"
 msgstr ""
 
-#: ../qml/Main.qml:597
+#: ../qml/Main.qml:596
 msgid "Enable virtual OpenGL (EXPERIMENTAL)"
 msgstr ""
 
-#: ../qml/Main.qml:609
+#: ../qml/Main.qml:608
 msgid "Enable file sharing"
 msgstr ""
 
-#: ../qml/Main.qml:617
+#: ../qml/Main.qml:616
 msgid "Reset EFI"
 msgstr ""
 
-#: ../qml/Main.qml:622
+#: ../qml/Main.qml:621
 msgid "Reset EFI Firmware"
 msgstr ""
 
-#: ../qml/Main.qml:627
+#: ../qml/Main.qml:626
 msgid "Reset EFI NVRAM"
 msgstr ""
 
-#: ../qml/Main.qml:642
+#: ../qml/Main.qml:641
 msgid "About Pocket VMs"
 msgstr ""
 
-#: ../qml/Main.qml:670 pvms.desktop.in.h:1
+#: ../qml/Main.qml:669 pvms.desktop.in.h:1
 msgid "Pocket VMs"
 msgstr ""
 
-#: ../qml/Main.qml:678
+#: ../qml/Main.qml:677
 msgid "Virtual Machines for your Ubuntu Touch device"
 msgstr ""
 
-#: ../qml/Main.qml:690
+#: ../qml/Main.qml:689
 msgid "Donation"
 msgstr ""
 
-#: ../qml/Main.qml:701
+#: ../qml/Main.qml:700
 msgid "Via PayPal"
 msgstr ""
 
-#: ../qml/Main.qml:726
+#: ../qml/Main.qml:725
 msgid "Copyright notices"
 msgstr ""
 
-#: ../qml/Main.qml:733
+#: ../qml/Main.qml:732
 msgid "Licensed under GPL v3"
 msgstr ""
 
-#: ../qml/Main.qml:745
+#: ../qml/Main.qml:744
 msgid "Source code on GitHub"
 msgstr ""
 
-#: ../qml/Main.qml:764
+#: ../qml/Main.qml:763
 msgid "QEMU (GPL v2 & GPL v3)"
 msgstr ""
 
-#: ../qml/Main.qml:776
+#: ../qml/Main.qml:775
 msgid "CuteVNC QML controls by Alberto Mardegan (GPL v3)"
 msgstr ""
 
-#: ../qml/Main.qml:788
+#: ../qml/Main.qml:787
 msgid "Icon by Mateo Salta"
 msgstr ""
 
-#: ../qml/Main.qml:811
+#: ../qml/Main.qml:810
 msgid "QEMU quit unexpectedly!"
 msgstr ""
 
-#: ../qml/Main.qml:812
+#: ../qml/Main.qml:811
 msgid "Error: "
 msgstr ""
 
-#: ../qml/Main.qml:814
+#: ../qml/Main.qml:813
 msgid "Ok"
 msgstr ""
