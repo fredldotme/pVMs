@@ -196,7 +196,8 @@ MainView {
                     onStarted: {
                         starting = false
                         registerMachine(machine)
-                        reconnect(machine, vncClient)
+                        if (!machine.useVirglrenderer)
+                            reconnect(machine, vncClient)
                     }
                     onStopped: {
                         starting = false
@@ -223,7 +224,7 @@ MainView {
                 }
 
                 Component.onCompleted: {
-                    if (machine.running) {
+                    if (machine.running && !machine.useVirglrenderer) {
                         reconnect(machine, vncClient)
                     }
                 }
@@ -261,7 +262,7 @@ MainView {
                             Action {
                                 iconName: "view-fullscreen"
                                 text: i18n.tr("Show fullscreen")
-                                enabled: machine.running && !isFullscreen
+                                enabled: machine.running && (!isFullscreen && !machine.useVirglrenderer)
                                 onTriggered: {
                                     fullscreenWindow = fullscreenVmComponent.createObject(mainPage, {
                                                                                               machine: machine,
@@ -272,7 +273,7 @@ MainView {
                             Action {
                                 iconName: "input-keyboard-symbolic"
                                 text: i18n.tr("Keyboard")
-                                enabled: machine.running
+                                enabled: machine.running && (!isFullscreen && !machine.useVirglrenderer)
                                 onTriggered: {
                                     viewer.forceActiveFocus()
                                     Qt.inputMethod.show()
@@ -296,9 +297,9 @@ MainView {
                 }
                 Label {
                     anchors.centerIn: parent
-                    text: i18n.tr("VM is fullscreen & detached")
+                    text: i18n.tr("VM window is detached")
                     textSize: Label.Large
-                    visible: isFullscreen
+                    visible: machine.running && (isFullscreen || machine.useVirglrenderer)
                 }
                 ActivityIndicator {
                     id: startingActivity
@@ -315,7 +316,7 @@ MainView {
                         bottom: parent.bottom
                     }
                     center: Qt.point(width/2, height/2)
-                    visible: machine.running && !isFullscreen
+                    visible: machine.running && !(isFullscreen || machine.useVirglrenderer)
                 }
             }
         }
@@ -585,7 +586,7 @@ MainView {
                                 checked: editMode ? existingMachine.useVirglrenderer : false
                             }
                             Label {
-                                text: i18n.tr("Enable virtual OpenGL")
+                                text: i18n.tr("Enable virtual OpenGL (EXPERIMENTAL)")
                             }
                         }
 
