@@ -154,9 +154,9 @@ build_3rdparty_autogen libepoxy "--enable-egl=yes --enable-glx=no --disable-stat
 
 build_3rdparty_autogen virglrenderer "--disable-static --enable-shared --enable-gbm-allocation --host=$ARCH_TRIPLET"
 
-build_3rdparty_autogen spice-protocol
+#build_3rdparty_autogen spice-protocol
 
-build_3rdparty_autogen spice "--disable-opus"
+#build_3rdparty_autogen spice "--disable-opus"
 
 build_3rdparty_autogen SDL "--disable-video-x11 --enable-video-wayland --enable-wayland-shared \
         --enable-video-mir --disable-mir-shared \
@@ -166,17 +166,32 @@ build_3rdparty_autogen SDL "--disable-video-x11 --enable-video-wayland --enable-
 
 build_3rdparty_autogen qemu "--python=$PYTHON_BIN --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu \
         --disable-strip --enable-virtiofsd --enable-opengl --enable-virglrenderer \
-        --enable-sdl --enable-spice --disable-werror --disable-tests"
+        --enable-sdl --disable-spice --disable-werror --disable-tests"
 
 # Attempt to strip binaries manually for improved file sizes
 # Some files might be shell scripts so fail gracefully
-#for f in $(ls $INSTALL/bin/); do
-#    ${ARCH_TRIPLET}-strip $INSTALL/bin/$f || true
-#done
+for f in $(ls $INSTALL/bin/); do
+    ${ARCH_TRIPLET}-strip $INSTALL/bin/$f || true
+done
 
 if [ "$LEGACY" == "1" ]; then
     LEGACY_ARG="-DPVMS_LEGACY=ON"
 fi
+
+# Download different builds from EDK2
+# They seem to handle OpenGL usecases better
+# (not looping endlessly while initializing PCI, etc.)
+if [ -d $INSTALL/efi ]; then
+    rm -rf $INSTALL/efi
+fi
+mkdir $INSTALL/efi
+mkdir $INSTALL/efi/aarch64
+mkdir $INSTALL/efi/x86_64
+
+wget -O $INSTALL/efi/x86_64/code.fd https://github.com/fredldotme/edk2-nightly/raw/master/bin/RELEASEX64_OVMF_CODE.fd
+# ... But not for aarch64
+# Use older OVMF from Linaro without buggy PCI enumeration at bootup
+wget -O $INSTALL/efi/aarch64/code.fd https://releases.linaro.org/components/kernel/uefi-linaro/16.02/release/qemu64/QEMU_EFI.fd
 
 # Build main sources
 build_project "$LEGACY_ARG"
