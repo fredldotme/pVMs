@@ -225,6 +225,7 @@ parts:
       - qtquickcontrols2-5-dev
       - intltool
       - libvncserver-dev
+      - libssl-dev
     stage-packages:
       - libaio1
       - libbluetooth3
