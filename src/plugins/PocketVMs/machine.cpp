@@ -238,7 +238,7 @@ QStringList Machine::getLaunchArguments()
         ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci");
     } else {
         ret << QStringLiteral("-display") << QStringLiteral("sdl,gl=es");
-        ret << QStringLiteral("-device") << QStringLiteral("virtio-ramfb-gl%1").arg(useKvm ? ",iommu_platform=on" : "");
+        ret << QStringLiteral("-device") << QStringLiteral("virtio-ramfb-gl%1").arg(useKvm ? ",iommu_platform=on,max_hostmem=64M" : ",max_hostmem=64M");
     }
 
     // ISO/DVD drive
@@ -282,7 +282,7 @@ QStringList Machine::getLaunchArguments()
     ret << "-object" << "rng-random,id=rng0,filename=/dev/urandom";
     ret << "-device" << "virtio-rng-pci,rng=rng0";
 
-    // We don't embedd the VM monitor in the main app when using OpenGL
+    // We don't embed the VM monitor in the main app when using OpenGL
     if (!this->useVirglrenderer) {
         ret << QStringLiteral("-vnc") << QStringLiteral("unix:%1").arg(QStringLiteral("%1/vnc.sock").arg(this->storage));
     }
