@@ -189,9 +189,7 @@ mkdir $INSTALL/efi/aarch64
 mkdir $INSTALL/efi/x86_64
 
 wget -O $INSTALL/efi/x86_64/code.fd https://github.com/fredldotme/edk2-nightly/raw/master/bin/RELEASEX64_OVMF_CODE.fd
-# ... But not for aarch64
-# Use older OVMF from Linaro without buggy PCI enumeration at bootup
-wget -O $INSTALL/efi/aarch64/code.fd https://releases.linaro.org/components/kernel/uefi-linaro/16.02/release/qemu64/QEMU_EFI.fd
+wget -O $INSTALL/efi/aarch64/code.fd https://github.com/fredldotme/edk2-nightly/raw/master/bin/RELEASEAARCH64_QEMU_EFI.fd
 
 # Build main sources
 build_project "$LEGACY_ARG"
