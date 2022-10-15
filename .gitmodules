@@ -22,3 +22,12 @@
 [submodule "3rdparty/xorg-macros"]
 	path = 3rdparty/xorg-macros
 	url = https://github.com/freedesktop/xorg-macros.git
+[submodule "3rdparty/gtk"]
+	path = 3rdparty/gtk
+	url = https://gitlab.gnome.org/GNOME/gtk.git
+[submodule "3rdparty/glib"]
+	path = 3rdparty/glib
+	url = https://gitlab.gnome.org/GNOME/glib.git
+[submodule "3rdparty/wayland-protocols"]
+	path = 3rdparty/wayland-protocols
+	url = https://gitlab.freedesktop.org/wayland/wayland-protocols.git
