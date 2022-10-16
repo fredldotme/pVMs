@@ -130,6 +130,7 @@ MainView {
             }
             UbuntuListView {
                 id: vmListView
+                clip: true
                 anchors {
                     top: header.bottom
                     left: parent.left
@@ -268,6 +269,14 @@ MainView {
                                 }
                             },
                             Action {
+                                iconName: "terminal-app-symbolic"
+                                text: i18n.tr("Serial console")
+                                enabled: !starting
+                                onTriggered: {
+
+                                }
+                            },
+                            Action {
                                 iconName: "view-fullscreen"
                                 text: i18n.tr("Show fullscreen")
                                 enabled: machine.running && (!isFullscreen && !machine.useVirglrenderer)
@@ -297,17 +306,49 @@ MainView {
                         console.log("Connected: " + vncClient.connected)
                     }
                 }
-                Label {
+                Column {
                     anchors.centerIn: parent
-                    text: i18n.tr("VM is not running")
-                    textSize: Label.Large
                     visible: !machine.running
+                    anchors {
+                        top: vmDetailsHeader.bottom
+                        left: parent.left
+                        right: parent.right
+                        bottom: parent.bottom
+                    }
+                    anchors.topMargin: typicalMargin
+                    Icon {
+                        width: units.gu(16)
+                        name: "system-suspend"
+                        color: theme.palette.normal.base
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                    Label {
+                        text: i18n.tr("VM is not running")
+                        textSize: Label.Large
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
                 }
-                Label {
+                Column {
                     anchors.centerIn: parent
-                    text: i18n.tr("VM window is running & detached")
-                    textSize: Label.Large
                     visible: machine.running && (isFullscreen || machine.useVirglrenderer)
+                    anchors {
+                        top: vmDetailsHeader.bottom
+                        left: parent.left
+                        right: parent.right
+                        bottom: parent.bottom
+                    }
+                    anchors.topMargin: typicalMargin
+                    Icon {
+                        width: units.gu(16)
+                        name: "torch-on"
+                        color: theme.palette.normal.activity
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                    Label {
+                        text: i18n.tr("VM window is running & detached")
+                        textSize: Label.Large
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
                 }
                 ActivityIndicator {
                     id: startingActivity
@@ -486,6 +527,8 @@ MainView {
                     Column {
                         id: addVmMainColumn
                         anchors.fill: parent
+                        anchors.leftMargin: typicalMargin
+                        anchors.rightMargin: typicalMargin
                         spacing: typicalMargin
 
                         TextField {

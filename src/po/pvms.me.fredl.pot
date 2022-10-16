@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pvms.me.fredl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-15 00:57+0000\n"
+"POT-Creation-Date: 2022-10-16 20:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-#: ../qml/Main.qml:115 ../qml/Main.qml:416
+#: ../qml/Main.qml:115 ../qml/Main.qml:449
 msgid "Add VM"
 msgstr ""
 
@@ -33,162 +33,162 @@ msgstr ""
 msgid "Please add a VM to continue"
 msgstr ""
 
-#: ../qml/Main.qml:242
+#: ../qml/Main.qml:243
 msgid "VM: "
 msgstr ""
 
-#: ../qml/Main.qml:247
+#: ../qml/Main.qml:248
 msgid "Settings"
 msgstr ""
 
-#: ../qml/Main.qml:259
+#: ../qml/Main.qml:260
 msgid "Start"
 msgstr ""
 
-#: ../qml/Main.qml:259
+#: ../qml/Main.qml:260
 msgid "Stop"
 msgstr ""
 
-#: ../qml/Main.qml:272
+#: ../qml/Main.qml:273
 msgid "Show fullscreen"
 msgstr ""
 
-#: ../qml/Main.qml:283
+#: ../qml/Main.qml:284
 msgid "Keyboard"
 msgstr ""
 
-#: ../qml/Main.qml:302
+#: ../qml/Main.qml:318
 msgid "VM is not running"
 msgstr ""
 
-#: ../qml/Main.qml:308
+#: ../qml/Main.qml:340
 msgid "VM window is running & detached"
 msgstr ""
 
-#: ../qml/Main.qml:368
+#: ../qml/Main.qml:401
 msgid "aarch64"
 msgstr ""
 
-#: ../qml/Main.qml:369
+#: ../qml/Main.qml:402
 msgid "x86_64"
 msgstr ""
 
-#: ../qml/Main.qml:416
+#: ../qml/Main.qml:449
 msgid "Edit VM"
 msgstr ""
 
-#: ../qml/Main.qml:421
+#: ../qml/Main.qml:454
 msgid "Save"
 msgstr ""
 
-#: ../qml/Main.qml:493
+#: ../qml/Main.qml:528
 msgid "Description"
 msgstr ""
 
-#: ../qml/Main.qml:500
+#: ../qml/Main.qml:535
 msgid "Architecture"
 msgstr ""
 
-#: ../qml/Main.qml:509
+#: ../qml/Main.qml:544
 msgid "CPU cores: "
 msgstr ""
 
-#: ../qml/Main.qml:529
+#: ../qml/Main.qml:564
 msgid "MB"
 msgstr ""
 
-#: ../qml/Main.qml:529
+#: ../qml/Main.qml:564
 msgid "RAM: "
 msgstr ""
 
-#: ../qml/Main.qml:550
+#: ../qml/Main.qml:585
 msgid "GB"
 msgstr ""
 
-#: ../qml/Main.qml:550
+#: ../qml/Main.qml:585
 msgid "HDD size: "
 msgstr ""
 
-#: ../qml/Main.qml:566
+#: ../qml/Main.qml:601
 msgid "DVD drive"
 msgstr ""
 
-#: ../qml/Main.qml:573
+#: ../qml/Main.qml:608
 msgid "Pick an ISO"
 msgstr ""
 
-#: ../qml/Main.qml:596
+#: ../qml/Main.qml:631
 msgid "Enable virtual OpenGL (EXPERIMENTAL)"
 msgstr ""
 
-#: ../qml/Main.qml:608
+#: ../qml/Main.qml:643
 msgid "Enable file sharing"
 msgstr ""
 
-#: ../qml/Main.qml:616
+#: ../qml/Main.qml:651
 msgid "Reset EFI"
 msgstr ""
 
-#: ../qml/Main.qml:621
+#: ../qml/Main.qml:656
 msgid "Reset EFI Firmware"
 msgstr ""
 
-#: ../qml/Main.qml:626
+#: ../qml/Main.qml:661
 msgid "Reset EFI NVRAM"
 msgstr ""
 
-#: ../qml/Main.qml:641
+#: ../qml/Main.qml:676
 msgid "About Pocket VMs"
 msgstr ""
 
-#: ../qml/Main.qml:669 pvms.desktop.in.h:1
+#: ../qml/Main.qml:704 pvms.desktop.in.h:1
 msgid "Pocket VMs"
 msgstr ""
 
-#: ../qml/Main.qml:677
+#: ../qml/Main.qml:712
 msgid "Virtual Machines for your Ubuntu Touch device"
 msgstr ""
 
-#: ../qml/Main.qml:689
+#: ../qml/Main.qml:724
 msgid "Donation"
 msgstr ""
 
-#: ../qml/Main.qml:700
+#: ../qml/Main.qml:735
 msgid "Via PayPal"
 msgstr ""
 
-#: ../qml/Main.qml:725
+#: ../qml/Main.qml:760
 msgid "Copyright notices"
 msgstr ""
 
-#: ../qml/Main.qml:732
+#: ../qml/Main.qml:767
 msgid "Licensed under GPL v3"
 msgstr ""
 
-#: ../qml/Main.qml:744
+#: ../qml/Main.qml:779
 msgid "Source code on GitHub"
 msgstr ""
 
-#: ../qml/Main.qml:763
+#: ../qml/Main.qml:798
 msgid "QEMU (GPL v2 & GPL v3)"
 msgstr ""
 
-#: ../qml/Main.qml:775
+#: ../qml/Main.qml:810
 msgid "CuteVNC QML controls by Alberto Mardegan (GPL v3)"
 msgstr ""
 
-#: ../qml/Main.qml:787
+#: ../qml/Main.qml:822
 msgid "Icon by Mateo Salta"
 msgstr ""
 
-#: ../qml/Main.qml:810
+#: ../qml/Main.qml:845
 msgid "QEMU quit unexpectedly!"
 msgstr ""
 
-#: ../qml/Main.qml:811
+#: ../qml/Main.qml:846
 msgid "Error: "
 msgstr ""
 
-#: ../qml/Main.qml:813
+#: ../qml/Main.qml:848
 msgid "Ok"
 msgstr ""
