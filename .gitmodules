@@ -24,7 +24,7 @@
 	url = https://github.com/freedesktop/xorg-macros.git
 [submodule "3rdparty/gtk"]
 	path = 3rdparty/gtk
-	url = https://gitlab.gnome.org/GNOME/gtk.git
+	url = https://github.com/fredldotme/gtk3.git
 [submodule "3rdparty/glib"]
 	path = 3rdparty/glib
 	url = https://gitlab.gnome.org/GNOME/glib.git
