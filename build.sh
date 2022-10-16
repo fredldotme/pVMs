@@ -149,6 +149,15 @@ function build_project {
 export CCACHE_DIR=$BUILD_DIR/ccache
 export PATH=/usr/lib/ccache:$PATH
 
+# Mirclient enablement
+MIRCLIENT_GTK=""
+MIRCLIENT_SDL=""
+if [ "$LEGACY" == "0" ]; then
+    MIRCLIENT_GTK="--enable-mir-backend"
+    MIRCLIENT_SDL="--enable-video-mir --disable-mir-shared"
+fi
+
+
 # Build direct dependencies
 build_3rdparty_autogen xorg-macros
 if [ ! -f "$BUILD_DIR/.libepoxy_built" ] && [ -d $SRC_PATH/3rdparty/libepoxy/m4 ]; then
@@ -158,11 +167,11 @@ build_3rdparty_autogen libepoxy "--enable-egl=yes --enable-glx=no --disable-stat
 build_3rdparty_autogen virglrenderer "--disable-static --enable-shared --enable-gbm-allocation --host=$ARCH_TRIPLET"
 build_3rdparty_autogen wayland-protocols "--host=$ARCH_TRIPLET"
 build_3rdparty_autogen glib "--host=$ARCH_TRIPLET --disable-gtk-doc --disable-installed-tests"
-build_3rdparty_autogen gtk "--disable-x11-backend --enable-wayland-backend --enable-mir-backend \
+build_3rdparty_autogen gtk "--disable-x11-backend --enable-wayland-backend $MIRCLIENT_GTK \
         --disable-installed-tests --disable-gtk-doc \
         --host=$ARCH_TRIPLET"
 build_3rdparty_autogen SDL "--disable-video-x11 --enable-video-wayland --enable-wayland-shared \
-        --enable-video-mir --disable-mir-shared \
+        $MIRCLIENT_SDL \
         --enable-video-opengles  --disable-video-opengl --disable-video-vulkan \
         --disable-alsa-shared --disable-pulseaudio-shared \
         --enable-pulseaudio --enable-hidapi --enable-libudev --enable-dbus --disable-static"
