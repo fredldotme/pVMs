@@ -84,11 +84,11 @@ function build_3rdparty_autogen {
     echo "Building: $1"
     cd $SRC_PATH
     cd 3rdparty/$1
-    if [ -f ./autogen.sh ]; then
-        env PKG_CONFIG_PATH=$PKG_CONFIG_PATH ACLOCAL_PATH=$ACLOCAL_PATH ./autogen.sh --prefix=$INSTALL $2
-    fi
     if [ ! -f "$BUILD_DIR/.${1}_built" ]; then
-        env PKG_CONFIG_PATH=$PKG_CONFIG_PATH ACLOCAL_PATH=$ACLOCAL_PATH ./configure --prefix=$INSTALL $2
+        if [ -f ./autogen.sh ]; then
+            env PKG_CONFIG_PATH=$PKG_CONFIG_PATH ACLOCAL_PATH=$ACLOCAL_PATH LD_LIBRARY_PATH=$INSTALL/lib:$LD_LIBRARY_PATH ./autogen.sh --prefix=$INSTALL $2
+        fi
+        env PKG_CONFIG_PATH=$PKG_CONFIG_PATH ACLOCAL_PATH=$ACLOCAL_PATH LD_LIBRARY_PATH=$INSTALL/lib:$LD_LIBRARY_PATH ./configure --prefix=$INSTALL $2
         make VERBOSE=1 -j$NUM_PROCS
     fi
     if [ -f /usr/bin/sudo ]; then
@@ -110,7 +110,7 @@ function build_cmake {
     fi
     cd build
     if [ ! -f "$BUILD_DIR/.${1}_built" ]; then
-        env PKG_CONFIG_PATH=$PKG_CONFIG_PATH LDFLAGS="-L$INSTALL/lib" \
+        env PKG_CONFIG_PATH=$PKG_CONFIG_PATH LD_LIBRARY_PATH=$INSTALL/lib:$LD_LIBRARY_PATH LDFLAGS="-L$INSTALL/lib" \
             cmake .. \
             -DCMAKE_INSTALL_PREFIX=$INSTALL \
             -DCMAKE_MODULE_PATH=$INSTALL \
@@ -144,43 +144,44 @@ function build_project {
     build_cmake $1
 }
 
+
+# Use ccache as much as possible
+export CCACHE_DIR=$BUILD_DIR/ccache
+export PATH=/usr/lib/ccache:$PATH
+
 # Build direct dependencies
 build_3rdparty_autogen xorg-macros
-
-if [ -d $SRC_PATH/3rdparty/libepoxy/m4 ]; then
+if [ ! -f "$BUILD_DIR/.libepoxy_built" ] && [ -d $SRC_PATH/3rdparty/libepoxy/m4 ]; then
     rm -rf $SRC_PATH/3rdparty/libepoxy/m4
 fi
 build_3rdparty_autogen libepoxy "--enable-egl=yes --enable-glx=no --disable-static --enable-shared --host=$ARCH_TRIPLET"
-
 build_3rdparty_autogen virglrenderer "--disable-static --enable-shared --enable-gbm-allocation --host=$ARCH_TRIPLET"
-
-#build_3rdparty_autogen spice-protocol
-
-#build_3rdparty_autogen spice "--disable-opus"
-
+build_3rdparty_autogen wayland-protocols "--host=$ARCH_TRIPLET"
+build_3rdparty_autogen glib "--host=$ARCH_TRIPLET --disable-gtk-doc --disable-installed-tests"
+build_3rdparty_autogen gtk "--disable-x11-backend --enable-wayland-backend --enable-mir-backend \
+        --disable-installed-tests --disable-gtk-doc \
+        --host=$ARCH_TRIPLET"
 build_3rdparty_autogen SDL "--disable-video-x11 --enable-video-wayland --enable-wayland-shared \
         --enable-video-mir --disable-mir-shared \
         --enable-video-opengles  --disable-video-opengl --disable-video-vulkan \
         --disable-alsa-shared --disable-pulseaudio-shared \
         --enable-pulseaudio --enable-hidapi --enable-libudev --enable-dbus --disable-static"
-
-build_3rdparty_autogen qemu "--python=$PYTHON_BIN --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu \
+build_3rdparty_autogen qemu "--python=$PYTHON_BIN \
+        --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu \
         --disable-strip --enable-virtiofsd --enable-opengl --enable-virglrenderer \
-        --enable-sdl --disable-spice --disable-werror --disable-tests"
+        --enable-sdl --enable-gtk --disable-spice --disable-werror --disable-tests"
 
 # Attempt to strip binaries manually for improved file sizes
 # Some files might be shell scripts so fail gracefully
-for f in $(ls $INSTALL/bin/); do
-    ${ARCH_TRIPLET}-strip $INSTALL/bin/$f || true
-done
+#for f in $(ls $INSTALL/bin/); do
+#    ${ARCH_TRIPLET}-strip $INSTALL/bin/$f || true
+#done
 
 if [ "$LEGACY" == "1" ]; then
     LEGACY_ARG="-DPVMS_LEGACY=ON"
 fi
 
-# Download different builds from EDK2
-# They seem to handle OpenGL usecases better
-# (not looping endlessly while initializing PCI, etc.)
+# Download newer builds from EDK2
 if [ -d $INSTALL/efi ]; then
     rm -rf $INSTALL/efi
 fi

@@ -7,6 +7,9 @@
         "\"deb [arch=amd64] http://archive.ubuntu.com/ubuntu xenial-backports universe restricted multiverse main\"",
         "\"deb [arch=arm64,armhf] http://ports.ubuntu.com/ubuntu-ports xenial-backports universe restricted multiverse main\""
     ],
+    "dependencies_host": [
+        "gtk-doc-tools",
+    ],
     "dependencies_target": [
         "libgbm-dev",
         "libdrm-dev",
@@ -21,10 +24,20 @@
         "libjpeg-dev",
         "libcap-ng-dev",
         "libseccomp-dev",
+        "libatk1.0-dev",
+        "libatk-bridge2.0-dev",
+        "libcairo2-dev",
+        "libepoxy-dev",
+        "libgirepository1.0-dev",
+        "libmount-dev",
+        "libpango1.0-dev",
+        "libwayland-dev",
+        "libxi-dev",
         "libtool",
         "mesa-common-dev",
         "autoconf-archive:native",
         "bison",
+        "ccache",
         "flex",
         "gettext",
         "python3.6",
@@ -42,12 +55,14 @@
         "libgles2-mesa-dev",
         "libegl1-mesa-dev",
         "libmirclient-dev",
+        "libcontent-hub-glib-dev",
         "libvncserver-dev",
         "zlib1g-dev"
     ],
     "install_lib": [
         "/lib/${ARCH_TRIPLET}/libaio.so*",
-        "/usr/lib/${ARCH_TRIPLET}/libvncclient.so.1*"
+        "/usr/lib/${ARCH_TRIPLET}/libvncclient.so.1*",
+        "/usr/lib/${ARCH_TRIPLET}/libcontent-hub-glib.so*"
     ],
     "build": "${ROOT}/build.sh",
     "make_jobs": 6,
