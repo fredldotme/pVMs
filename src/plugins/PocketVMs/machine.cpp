@@ -187,7 +187,11 @@ bool Machine::startQemu()
 
     if (this->useVirglrenderer) {
         // SDL video output preferences
+#ifdef PVMS_LEGACY
+        qemuEnv.insert("SDL_VIDEODRIVER", "wayland");
+#else
         qemuEnv.insert("SDL_VIDEODRIVER", "mir");
+#endif
         qemuEnv.insert("SDL_RENDER_VSYNC", "0");
         qemuEnv.insert("SDL_MOUSE_FOCUS_CLICKTHROUGH", "1");
 
