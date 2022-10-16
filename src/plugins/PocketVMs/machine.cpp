@@ -186,9 +186,16 @@ bool Machine::startQemu()
     qemuEnv.insert("DESKTOP_FILE_HINT", qgetenv("APP_ID"));
 
     if (this->useVirglrenderer) {
-        // With OpenGL enabled we use SDL video output
+        // SDL video output preferences
         qemuEnv.insert("SDL_VIDEODRIVER", "mir");
         qemuEnv.insert("SDL_RENDER_VSYNC", "0");
+        qemuEnv.insert("SDL_MOUSE_FOCUS_CLICKTHROUGH", "1");
+
+        // GTK preferences
+        qemuEnv.insert("GDK_BACKEND", "wayland");
+        qemuEnv.insert("GDK_GL", "gles");
+        qemuEnv.insert("QEMU_GTK_NO_MENU_BAR", "1");
+        qemuEnv.insert("GTK_CSD", "0");
     }
     this->m_process->setProcessEnvironment(qemuEnv);
 
@@ -228,7 +235,7 @@ QStringList Machine::getLaunchArguments()
             ret << QStringLiteral("-cpu") << QStringLiteral("host");
     }
 
-    // Disable VGA mode on aarch64 machines since "virt" usually has no VGA port
+    // Disable VGA on aarch64 machines since "virt" usually has no VGA port
     // and attaching one confuses virtio-gpu(-gl)
     if (isAarch64 && this->useVirglrenderer) {
         ret << "-vga" << "none";
