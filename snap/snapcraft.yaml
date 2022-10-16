@@ -169,6 +169,7 @@ parts:
       - bison
       - flex
       - gettext
+      - gtk-doc-tools
       - libtool
       - libaio-dev
       - libbluetooth-dev
