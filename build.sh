@@ -170,7 +170,7 @@ build_3rdparty_autogen glib "--host=$ARCH_TRIPLET --disable-gtk-doc --disable-in
 build_3rdparty_autogen gtk "--disable-x11-backend --enable-wayland-backend $MIRCLIENT_GTK \
         --disable-installed-tests --disable-gtk-doc \
         --host=$ARCH_TRIPLET"
-build_3rdparty_autogen SDL "--disable-video-x11 --enable-video-wayland --enable-wayland-shared \
+build_3rdparty_autogen SDL "--disable-video-x11 --enable-video-wayland --disable-wayland-shared \
         $MIRCLIENT_SDL \
         --enable-video-opengles  --disable-video-opengl --disable-video-vulkan \
         --disable-alsa-shared --disable-pulseaudio-shared \
