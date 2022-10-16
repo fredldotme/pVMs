@@ -268,6 +268,7 @@ MainView {
                                     }
                                 }
                             },
+/*
                             Action {
                                 iconName: "terminal-app-symbolic"
                                 text: i18n.tr("Serial console")
@@ -276,6 +277,7 @@ MainView {
 
                                 }
                             },
+*/
                             Action {
                                 iconName: "view-fullscreen"
                                 text: i18n.tr("Show fullscreen")
