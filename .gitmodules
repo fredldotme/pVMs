@@ -31,3 +31,6 @@
 [submodule "3rdparty/wayland-protocols"]
 	path = 3rdparty/wayland-protocols
 	url = https://gitlab.freedesktop.org/wayland/wayland-protocols.git
+[submodule "3rdparty/qmltermwidget"]
+	path = 3rdparty/qmltermwidget
+	url = https://github.com/Swordfish90/qmltermwidget.git
