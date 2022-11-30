@@ -238,13 +238,9 @@ QStringList Machine::getLaunchArguments()
             ret << QStringLiteral("-cpu") << QStringLiteral("host");
     }
 
-    // Disable VGA on aarch64 machines since "virt" usually has no VGA port
+    // Disable VGA on all machines since "virt" usually has no VGA port
     // and attaching one confuses virtio-gpu(-gl)
-    if (isAarch64 && this->useVirglrenderer) {
-        ret << "-vga" << "none";
-    } else {
-        ret << "-vga" << "std";
-    }
+    ret << "-vga" << "none";
 
     // Display (with or without OpenGL support)
     if (!this->useVirglrenderer) {
