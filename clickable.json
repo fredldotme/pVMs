@@ -2,20 +2,11 @@
     "builder": "custom",
     "default": "build",
     "kill": "pvms",
-    "dependencies_ppa": [
-        "ppa:beidl/python-threesix-xenial",
-        "\"deb [arch=amd64] http://archive.ubuntu.com/ubuntu xenial-backports universe restricted multiverse main\"",
-        "\"deb [arch=arm64,armhf] http://ports.ubuntu.com/ubuntu-ports xenial-backports universe restricted multiverse main\""
-    ],
-    "dependencies_host": [
-        "gtk-doc-tools",
-    ],
     "dependencies_target": [
         "libgbm-dev",
         "libdrm-dev",
         "libdbus-1-dev",
         "libasound2-dev",
-        "libsndio-dev",
         "libxcursor-dev",
         "libxinerama-dev",
         "libxi-dev",
@@ -40,13 +31,12 @@
         "ccache",
         "flex",
         "gettext",
-        "python3.6",
-        "python3-six:any",
+        "python3",
         "python3-pyparsing:any",
-        "python-six:any",
+        "python:any",
         "python-pyparsing:any",
         "meson:any",
-        "ninja-build:any/xenial-backports",
+        "ninja-build:any",
         "libtool",
         "libaio-dev",
         "libseccomp-dev",
@@ -55,16 +45,15 @@
         "libgles2-mesa-dev",
         "libegl1-mesa-dev",
         "libmirclient-dev",
-        "libcontent-hub-glib-dev",
         "libvncserver-dev",
         "zlib1g-dev"
     ],
     "install_lib": [
         "/lib/${ARCH_TRIPLET}/libaio.so*",
-        "/usr/lib/${ARCH_TRIPLET}/libvncclient.so.1*",
-        "/usr/lib/${ARCH_TRIPLET}/libcontent-hub-glib.so*"
+        "/usr/lib/${ARCH_TRIPLET}/libvncclient.so*"
     ],
     "build": "${ROOT}/build.sh",
     "make_jobs": 6,
-    "qt_version": "5.12"
+    "qt_version": "5.12",
+    "framework": "ubuntu-sdk-20.04"
 }

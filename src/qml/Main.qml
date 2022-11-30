@@ -15,9 +15,9 @@
  */
 
 import QtQuick 2.7
-import Ubuntu.Components 1.3
-import Ubuntu.Components.Popups 1.3
-import Ubuntu.Components.Themes 1.3
+import Lomiri.Components 1.3
+import Lomiri.Components.Popups 1.3
+import Lomiri.Components.Themes 1.3
 import QtQuick.Layouts 1.3
 import QtQuick.Window 2.12
 import PocketVMs 1.0
@@ -28,11 +28,7 @@ MainView {
     applicationName: 'pvms.me.fredl'
     automaticOrientation: true
     anchorToKeyboard: true
-
-    // TODO: Make this pretty with a dark-purplish background and white text
-    /*theme.palette: Palette {
-        normal.background: UbuntuColors.purple
-    }*/
+    theme.name: "Lomiri.Components.Themes.SuruDark"
 
     readonly property int typicalMargin : units.gu(2)
     property var runningMachineRefs : []
@@ -128,7 +124,7 @@ MainView {
                 textSize: Label.Large
                 visible: vmListView.model.length <= 0
             }
-            UbuntuListView {
+            LomiriListView {
                 id: vmListView
                 clip: true
                 anchors {
@@ -700,7 +696,7 @@ MainView {
                     spacing: typicalMargin
                     anchors.topMargin: typicalMargin
 
-                    UbuntuShape {
+                    LomiriShape {
                         width: Math.min(parent.width, parent.height) / 2
                         height: width
                         anchors.horizontalCenter: parent.horizontalCenter

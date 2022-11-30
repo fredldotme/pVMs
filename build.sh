@@ -153,7 +153,7 @@ export PATH=/usr/lib/ccache:$PATH
 MIRCLIENT_GTK=""
 MIRCLIENT_SDL=""
 if [ "$LEGACY" == "0" ]; then
-    MIRCLIENT_GTK="--enable-mir-backend"
+#    MIRCLIENT_GTK="--enable-mir-backend"
     MIRCLIENT_SDL="--enable-video-mir --disable-mir-shared"
 fi
 
@@ -166,10 +166,10 @@ fi
 build_3rdparty_autogen libepoxy "--enable-egl=yes --enable-glx=no --disable-static --enable-shared --host=$ARCH_TRIPLET"
 build_3rdparty_autogen virglrenderer "--disable-static --enable-shared --enable-gbm-allocation --host=$ARCH_TRIPLET"
 build_3rdparty_autogen wayland-protocols "--host=$ARCH_TRIPLET"
-build_3rdparty_autogen glib "--host=$ARCH_TRIPLET --disable-gtk-doc --disable-installed-tests"
-build_3rdparty_autogen gtk "--disable-x11-backend --enable-wayland-backend $MIRCLIENT_GTK \
-        --disable-installed-tests --disable-gtk-doc \
-        --host=$ARCH_TRIPLET"
+#build_3rdparty_autogen glib "--host=$ARCH_TRIPLET --disable-gtk-doc --disable-installed-tests"
+#build_3rdparty_autogen gtk "--disable-x11-backend --enable-wayland-backend $MIRCLIENT_GTK \
+#        --disable-installed-tests --disable-gtk-doc \
+#        --host=$ARCH_TRIPLET"
 build_3rdparty_autogen SDL "--disable-video-x11 --enable-video-wayland --disable-wayland-shared \
         $MIRCLIENT_SDL \
         --enable-video-opengles  --disable-video-opengl --disable-video-vulkan \
@@ -178,7 +178,7 @@ build_3rdparty_autogen SDL "--disable-video-x11 --enable-video-wayland --disable
 build_3rdparty_autogen qemu "--python=$PYTHON_BIN \
         --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu \
         --disable-strip --enable-virtiofsd --enable-opengl --enable-virglrenderer \
-        --enable-sdl --enable-gtk --disable-spice --disable-werror --disable-tests"
+        --enable-sdl --disable-spice --disable-werror --disable-tests"
 
 # Attempt to strip binaries manually for improved file sizes
 # Some files might be shell scripts so fail gracefully

@@ -186,12 +186,11 @@ bool Machine::startQemu()
     qemuEnv.insert("DESKTOP_FILE_HINT", qgetenv("APP_ID"));
 
     if (this->useVirglrenderer) {
+        // Common preferences
+        qemuEnv.insert("EGL_PLATFORM", "wayland");
+
         // SDL video output preferences
-#ifdef PVMS_LEGACY
         qemuEnv.insert("SDL_VIDEODRIVER", "wayland");
-#else
-        qemuEnv.insert("SDL_VIDEODRIVER", "mir");
-#endif
         qemuEnv.insert("SDL_RENDER_VSYNC", "0");
         qemuEnv.insert("SDL_MOUSE_FOCUS_CLICKTHROUGH", "1");
 

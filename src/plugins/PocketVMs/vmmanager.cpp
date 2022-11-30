@@ -348,6 +348,7 @@ bool VMManager::editVM(Machine* machine)
 
         jsonFile.write(machineToJSON(machine));
     }
+    return true;
 }
 
 bool VMManager::deleteVM(Machine* machine)
