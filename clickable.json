@@ -19,7 +19,6 @@
         "libatk-bridge2.0-dev",
         "libcairo2-dev",
         "libepoxy-dev",
-        "libgirepository1.0-dev",
         "libmount-dev",
         "libpango1.0-dev",
         "libwayland-dev",
