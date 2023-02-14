@@ -1,0 +1,194 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the pvms.me.fredl package.
+#
+# Heimen Stoffels <vistausss@fastmail.com>, 2022.
+msgid ""
+msgstr ""
+"Project-Id-Version: pvms.me.fredl\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-11-30 01:30+0000\n"
+"PO-Revision-Date: 2022-12-02 12:51+0100\n"
+"Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
+"Language-Team: Dutch\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Lokalize 22.11.90\n"
+
+#: ../qml/Main.qml:99
+msgid "Virtual machines"
+msgstr "Virtuele machines"
+
+#: ../qml/Main.qml:104
+msgid "Info"
+msgstr "Informatie"
+
+#: ../qml/Main.qml:111 ../qml/Main.qml:455
+msgid "Add VM"
+msgstr "VM toevoegen"
+
+#: ../qml/Main.qml:123
+msgid "Please add a VM to continue"
+msgstr "Voeg een VM om aan de slag te gaan"
+
+#: ../qml/Main.qml:239
+msgid "VM: "
+msgstr "VM: "
+
+#: ../qml/Main.qml:244
+msgid "Settings"
+msgstr "Instellingen"
+
+#: ../qml/Main.qml:256
+msgid "Start"
+msgstr "Starten"
+
+#: ../qml/Main.qml:256
+msgid "Stop"
+msgstr "Stoppen"
+
+#: ../qml/Main.qml:279
+msgid "Show fullscreen"
+msgstr "Schermvullende weergave"
+
+#: ../qml/Main.qml:290
+msgid "Keyboard"
+msgstr "Toetsenbord"
+
+#: ../qml/Main.qml:324
+msgid "VM is not running"
+msgstr "De VM is niet actief"
+
+#: ../qml/Main.qml:346
+msgid "VM window is running & detached"
+msgstr "De VM is actief en draait los"
+
+#: ../qml/Main.qml:407
+msgid "aarch64"
+msgstr "aarch64"
+
+#: ../qml/Main.qml:408
+msgid "x86_64"
+msgstr "x86_64"
+
+#: ../qml/Main.qml:455
+msgid "Edit VM"
+msgstr "VM bewerken"
+
+#: ../qml/Main.qml:460
+msgid "Save"
+msgstr "Opslaan"
+
+#: ../qml/Main.qml:534
+msgid "Description"
+msgstr "Beschrijving"
+
+#: ../qml/Main.qml:541
+msgid "Architecture"
+msgstr "Architectuur"
+
+#: ../qml/Main.qml:550
+msgid "CPU cores: "
+msgstr "Aantal cpu-kernen: "
+
+#: ../qml/Main.qml:570
+msgid "MB"
+msgstr "MB"
+
+#: ../qml/Main.qml:570
+msgid "RAM: "
+msgstr "Ram-geheugen: "
+
+#: ../qml/Main.qml:591
+msgid "GB"
+msgstr "GB"
+
+#: ../qml/Main.qml:591
+msgid "HDD size: "
+msgstr "Hdd-omvang:"
+
+#: ../qml/Main.qml:607
+msgid "DVD drive"
+msgstr "Dvd-speler"
+
+#: ../qml/Main.qml:614
+msgid "Pick an ISO"
+msgstr "Kies een iso-bestand"
+
+#: ../qml/Main.qml:637
+msgid "Enable virtual OpenGL (EXPERIMENTAL)"
+msgstr "Virtuele OpenGL-aandrijving gebruiken (EXPERIMENTEEL)"
+
+#: ../qml/Main.qml:649
+msgid "Enable file sharing"
+msgstr "Bestandsdeling inschakelen"
+
+#: ../qml/Main.qml:657
+msgid "Reset EFI"
+msgstr "Efi herstellen"
+
+#: ../qml/Main.qml:662
+msgid "Reset EFI Firmware"
+msgstr "Efi-firmware herstellen"
+
+#: ../qml/Main.qml:667
+msgid "Reset EFI NVRAM"
+msgstr "Efi-nvram herstellen"
+
+#: ../qml/Main.qml:682
+msgid "About Pocket VMs"
+msgstr "Over Pocket VMs"
+
+#: ../qml/Main.qml:710 pvms.desktop.in.h:1
+msgid "Pocket VMs"
+msgstr "Pocket VMs"
+
+#: ../qml/Main.qml:718
+msgid "Virtual Machines for your Ubuntu Touch device"
+msgstr "Virtuele machines op je Ubuntu Touch-apparaat"
+
+#: ../qml/Main.qml:730
+msgid "Donation"
+msgstr "Doneren"
+
+#: ../qml/Main.qml:741
+msgid "Via PayPal"
+msgstr "Via PayPal"
+
+#: ../qml/Main.qml:766
+msgid "Copyright notices"
+msgstr "Auteursrechten"
+
+#: ../qml/Main.qml:773
+msgid "Licensed under GPL v3"
+msgstr "Uitgebracht onder de GPLv3-licentie"
+
+#: ../qml/Main.qml:785
+msgid "Source code on GitHub"
+msgstr "Broncode op GitHub"
+
+#: ../qml/Main.qml:804
+msgid "QEMU (GPL v2 & GPL v3)"
+msgstr "QEMU (GPLv2 en GPLv3)"
+
+#: ../qml/Main.qml:816
+msgid "CuteVNC QML controls by Alberto Mardegan (GPL v3)"
+msgstr "CuteVNC QML-bediening van Alberto Mardegan (GPLv3)"
+
+#: ../qml/Main.qml:828
+msgid "Icon by Mateo Salta"
+msgstr "Pictogram van Mateo Salta"
+
+#: ../qml/Main.qml:851
+msgid "QEMU quit unexpectedly!"
+msgstr "QEMU is onverwachts afgesloten!"
+
+#: ../qml/Main.qml:852
+msgid "Error: "
+msgstr "Foutmelding: "
+
+#: ../qml/Main.qml:854
+msgid "Ok"
+msgstr "Oké"
