@@ -174,11 +174,11 @@ build_3rdparty_autogen SDL "--disable-video-x11 --enable-video-wayland --disable
         $MIRCLIENT_SDL \
         --enable-video-opengles  --disable-video-opengl --disable-video-vulkan \
         --disable-alsa-shared --disable-pulseaudio-shared \
-        --enable-pulseaudio --enable-hidapi --enable-libudev --enable-dbus --disable-static"
+        --enable-pulseaudio --enable-hidapi --enable-libudev --enable-dbus --disable-static --host=$ARCH_TRIPLET"
 build_3rdparty_autogen qemu "--python=$PYTHON_BIN \
         --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu \
         --disable-strip --enable-virtiofsd --enable-opengl --enable-virglrenderer \
-        --enable-sdl --disable-spice --disable-werror --disable-tests"
+        --enable-sdl --disable-spice --disable-werror --disable-tests --cross-prefix=$ARCH_TRIPLET-"
 
 # Attempt to strip binaries manually for improved file sizes
 # Some files might be shell scripts so fail gracefully
