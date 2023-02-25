@@ -9,7 +9,7 @@
             "desktop":  "pvms.desktop"
         }
     },
-    "version": "0.6.2",
+    "version": "0.6.3",
     "maintainer": "Alfred Neumayer <dev.beidl@gmail.com>",
     "framework" : "@CLICK_FRAMEWORK@"
 }
