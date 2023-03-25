@@ -61,6 +61,14 @@ if [ "$NUM_PROCS" == "" ]; then
     NUM_PROCS=$(nproc --all)
 fi
 
+# For Meson cross-compilation
+MESON_CROSS_FILE=""
+if [ "$(uname -m)" == "x86_64" ]; then
+    if [ "$MULTIARCH" == "aarch64-linux-gnu" ]; then
+        MESON_CROSS_FILE=$SRC_DIR/aux/meson-cross-file-arm64.txt
+    fi
+fi
+
 # Argument parsing
 while [[ $# -gt 0 ]]; do
     arg="$1"
@@ -111,15 +119,18 @@ function build_3rdparty_meson {
     if [ ! -d build ]; then
         mkdir build
     fi
-    cd build
     if [ ! -f "$BUILD_DIR/.${1}_built" ]; then
-        meson $2 ..
-        ninja -j$NUM_PROCS
+        CROSS_ARGS=""
+        if [ "$MESON_CROSS_FILE" != "" ]; then
+            CROSS_ARGS="--cross-file $MESON_CROSS_FILE"
+        fi
+        meson setup $2 build $CROSS_ARGS
+        ninja -C build
     fi
-    if [ -f /usr/bin/sudo ]; then   
-        sudo ninja install
+    if [ -f /usr/bin/sudo ]; then
+        sudo ninja -C build install
     else
-        ninja install
+        ninja -C build install
     fi
     touch $BUILD_DIR/.${1}_built
 }
@@ -143,13 +154,11 @@ function build_3rdparty_qmake {
         qmake -set prefix $INSTALL
         make VERBOSE=1 -j$NUM_PROCS
     fi
-    
     if [ -f /usr/bin/sudo ]; then
         sudo make install -j$NUM_PROCS
     else
         make install -j$NUM_PROCS
     fi
-    
     touch $BUILD_DIR/.${1}_built
 }
 
