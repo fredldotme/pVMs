@@ -6,7 +6,7 @@
 	url = https://github.com/fredldotme/qemu.git
 [submodule "3rdparty/SDL"]
 	path = 3rdparty/SDL
-	url = https://gitlab.com/abmyii/sdl.git
+	url = https://github.com/libsdl-org/SDL.git
 [submodule "3rdparty/spice"]
 	path = 3rdparty/spice
 	url = https://github.com/freedesktop/spice.git
