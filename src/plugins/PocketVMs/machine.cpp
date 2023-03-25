@@ -255,9 +255,13 @@ QStringList Machine::getLaunchArguments()
             ret << QStringLiteral("-cpu") << QStringLiteral("host");
     }
 
-    // Disable VGA on all machines since "virt" usually has no VGA port
-    // and attaching one confuses virtio-gpu(-gl)
-    ret << "-vga" << "none";
+    if (isAarch64) {
+        // Disable VGA on all machines since "virt" usually has no VGA port
+        // and attaching one confuses virtio-gpu(-gl)
+        ret << "-vga" << "none";
+    } else {
+        ret << "-vga" << "std";
+    }
 
     // Configuration-specific display options
     if (!this->useVirglrenderer) {
@@ -266,7 +270,7 @@ QStringList Machine::getLaunchArguments()
         else
             ret << QStringLiteral("-display") << QStringLiteral("egl-headless");
 
-        ret << QStringLiteral("-device") << QStringLiteral("virtio-ramfb");
+        ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci");
     } else {
         if (this->externalWindowOnly)
             ret << QStringLiteral("-display") << QStringLiteral("sdl,gl=es");
