@@ -40,11 +40,15 @@
         "libegl1-mesa-dev",
         "libmirclient-dev",
         "libvncserver-dev",
+        "libva-dev",
+        "libslirp-dev",
         "zlib1g-dev"
     ],
     "install_lib": [
-        "/lib/${ARCH_TRIPLET}/libaio.so*",
-        "/usr/lib/${ARCH_TRIPLET}/libvncclient.so*"
+        "/usr/lib/${ARCH_TRIPLET}/libaio.so*",
+        "/usr/lib/${ARCH_TRIPLET}/libvncclient.so*",
+        "/usr/lib/${ARCH_TRIPLET}/libslirp.so*",
+        "/usr/lib/${ARCH_TRIPLET}/libva.so*"
     ],
     "build": "${ROOT}/build.sh",
     "make_jobs": 6,

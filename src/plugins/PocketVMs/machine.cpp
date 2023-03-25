@@ -259,20 +259,21 @@ QStringList Machine::getLaunchArguments()
     // and attaching one confuses virtio-gpu(-gl)
     ret << "-vga" << "none";
 
-    // Display (with or without OpenGL support)
+    // Configuration-specific display options
     if (!this->useVirglrenderer) {
         if (this->externalWindowOnly)
             ret << QStringLiteral("-display") << QStringLiteral("sdl");
         else
             ret << QStringLiteral("-display") << QStringLiteral("egl-headless");
 
-        ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci,virgl=off");
+        ret << QStringLiteral("-device") << QStringLiteral("virtio-ramfb");
     } else {
         if (this->externalWindowOnly)
             ret << QStringLiteral("-display") << QStringLiteral("sdl,gl=es");
         else
             ret << QStringLiteral("-display") << QStringLiteral("egl-headless,gl=es");
-        ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci,virgl=on%1").arg(useKvm && isAarch64
+
+        ret << QStringLiteral("-device") << QStringLiteral("virtio-ramfb-gl%1").arg(useKvm && isAarch64
                                                                                               ? ",iommu_platform=on,max_hostmem=128M"
                                                                                               : ",max_hostmem=128M");
     }

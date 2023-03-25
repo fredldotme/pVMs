@@ -99,6 +99,60 @@ function build_3rdparty_autogen {
     touch $BUILD_DIR/.${1}_built
 }
 
+function build_3rdparty_meson {
+    echo "Building: $1"
+    cd $SRC_PATH
+    cd 3rdparty/$1
+    if [ "$CLEAN" == "1" ]; then
+        if [ -d build ]; then
+            rm -rf build
+        fi
+    fi
+    if [ ! -d build ]; then
+        mkdir build
+    fi
+    cd build
+    if [ ! -f "$BUILD_DIR/.${1}_built" ]; then
+        meson $2 ..
+        ninja -j$NUM_PROCS
+    fi
+    if [ -f /usr/bin/sudo ]; then   
+        sudo ninja install
+    else
+        ninja install
+    fi
+    touch $BUILD_DIR/.${1}_built
+}
+
+function build_3rdparty_qmake {
+    echo "Building: $1"
+    cd $SRC_PATH
+    cd 3rdparty/$1
+    if [ "$CLEAN" == "1" ]; then
+        if [ -d build ]; then
+            rm -rf build
+        fi
+    fi
+    if [ ! -d build ]; then
+        mkdir build
+    fi
+    cd build
+    if [ ! -f "$BUILD_DIR/.${1}_built" ]; then
+        env PKG_CONFIG_PATH=$PKG_CONFIG_PATH LD_LIBRARY_PATH=$INSTALL/lib:$LD_LIBRARY_PATH LDFLAGS="-L$INSTALL/lib" \
+        qmake .. $2
+        qmake -set prefix $INSTALL
+        make VERBOSE=1 -j$NUM_PROCS
+    fi
+    
+    if [ -f /usr/bin/sudo ]; then
+        sudo make install -j$NUM_PROCS
+    else
+        make install -j$NUM_PROCS
+    fi
+    
+    touch $BUILD_DIR/.${1}_built
+}
+
 function build_cmake {
     if [ "$CLEAN" == "1" ]; then
         if [ -d build ]; then
@@ -152,10 +206,10 @@ export PATH=/usr/lib/ccache:$PATH
 # Mirclient enablement
 MIRCLIENT_GTK=""
 MIRCLIENT_SDL=""
-if [ "$LEGACY" == "0" ]; then
+#if [ "$LEGACY" == "0" ]; then
 #    MIRCLIENT_GTK="--enable-mir-backend"
-    MIRCLIENT_SDL="--enable-video-mir --disable-mir-shared"
-fi
+#    MIRCLIENT_SDL="--enable-video-mir --disable-mir-shared"
+#fi
 
 
 # Build direct dependencies
@@ -163,9 +217,10 @@ build_3rdparty_autogen xorg-macros
 if [ ! -f "$BUILD_DIR/.libepoxy_built" ] && [ -d $SRC_PATH/3rdparty/libepoxy/m4 ]; then
     rm -rf $SRC_PATH/3rdparty/libepoxy/m4
 fi
-build_3rdparty_autogen libepoxy "--enable-egl=yes --enable-glx=no --disable-static --enable-shared --host=$ARCH_TRIPLET"
-build_3rdparty_autogen virglrenderer "--disable-static --enable-shared --enable-gbm-allocation --host=$ARCH_TRIPLET"
+build_3rdparty_autogen libepoxy "--enable-egl=yes --enable-glx=yes --disable-static --enable-shared --host=$ARCH_TRIPLET"
+build_3rdparty_meson virglrenderer "-Dvideo=true -Dprefix=$INSTALL"
 build_3rdparty_autogen wayland-protocols "--host=$ARCH_TRIPLET"
+#build_3rdparty_qmake qmltermwidget
 #build_3rdparty_autogen glib "--host=$ARCH_TRIPLET --disable-gtk-doc --disable-installed-tests"
 #build_3rdparty_autogen gtk "--disable-x11-backend --enable-wayland-backend $MIRCLIENT_GTK \
 #        --disable-installed-tests --disable-gtk-doc \
@@ -177,8 +232,8 @@ build_3rdparty_autogen SDL "--disable-video-x11 --enable-video-wayland --disable
         --enable-pulseaudio --enable-hidapi --enable-libudev --enable-dbus --disable-static --host=$ARCH_TRIPLET"
 build_3rdparty_autogen qemu "--python=$PYTHON_BIN \
         --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu \
-        --disable-strip --enable-virtiofsd --enable-opengl --enable-virglrenderer \
-        --enable-sdl --disable-spice --disable-werror --disable-tests --cross-prefix=$ARCH_TRIPLET-"
+        --disable-strip --enable-virtiofsd --enable-opengl --enable-virglrenderer --enable-slirp \
+        --enable-sdl --disable-spice --disable-werror --cross-prefix=$ARCH_TRIPLET-"
 
 # Attempt to strip binaries manually for improved file sizes
 # Some files might be shell scripts so fail gracefully
@@ -191,15 +246,14 @@ if [ "$LEGACY" == "1" ]; then
 fi
 
 # Download newer builds from EDK2
-if [ -d $INSTALL/efi ]; then
-    rm -rf $INSTALL/efi
-fi
-mkdir $INSTALL/efi
-mkdir $INSTALL/efi/aarch64
-mkdir $INSTALL/efi/x86_64
-
-wget -O $INSTALL/efi/x86_64/code.fd https://github.com/fredldotme/edk2-nightly/raw/master/bin/RELEASEX64_OVMF_CODE.fd
-wget -O $INSTALL/efi/aarch64/code.fd https://github.com/fredldotme/edk2-nightly/raw/master/bin/RELEASEAARCH64_QEMU_EFI.fd
+#if [ -d $INSTALL/efi ]; then
+#    rm -rf $INSTALL/efi
+#fi
+#mkdir $INSTALL/efi
+#mkdir $INSTALL/efi/aarch64
+#mkdir $INSTALL/efi/x86_64
+#wget -O $INSTALL/efi/x86_64/code.fd https://github.com/retrage/edk2-nightly/raw/master/bin/RELEASEX64_OVMF_CODE.fd # --no-check-certificate
+#wget -O $INSTALL/efi/aarch64/code.fd https://github.com/retrage/edk2-nightly/raw/master/bin/RELEASEAARCH64_QEMU_EFI.fd # --no-check-certificate
 
 # Build main sources
 build_project "$LEGACY_ARG"

@@ -196,7 +196,9 @@ bool VMManager::createVM(Machine* machine)
 bool VMManager::resetEFIFirmware(Machine* machine)
 {
     const QString pwd = QCoreApplication::applicationDirPath();
-    const QString efiFw = QStringLiteral("%1/efi/%2/code.fd").arg(pwd, machine->arch);
+    const QString varsArch = (machine->arch == QStringLiteral("aarch64")) ?
+                QStringLiteral("aarch64") : QStringLiteral("x86_64-secure");
+    const QString efiFw = QStringLiteral("%1/share/qemu/edk2-%2-code.fd").arg(pwd, varsArch);
     const QString efiFwTarget = QStringLiteral("%1/efi.fd").arg(machine->storage);
 
     if (QFile::exists(efiFwTarget)) {

@@ -204,7 +204,7 @@ MainView {
 
                     Rectangle {
                         visible: selectedMachine && machine.storage === selectedMachine.storage
-                        color: theme.palette.selected.base
+                        color: theme.palette.highlighted.base
                         anchors.fill: parent
                     }
 
@@ -347,6 +347,7 @@ MainView {
                 Column {
                     anchors.centerIn: parent
                     visible: !machine.running
+                    clip: true
                     anchors {
                         top: vmDetailsHeader.bottom
                         left: parent.left
@@ -369,6 +370,7 @@ MainView {
                 Column {
                     anchors.centerIn: parent
                     visible: machine.running && (fullscreenMode || machine.externalWindowOnly)
+                    clip: true
                     anchors {
                         top: vmDetailsHeader.bottom
                         left: parent.left
@@ -650,7 +652,7 @@ MainView {
                             ListItemLayout {
                                 id: externalWindowOnlyHint
                                 title.text: i18n.tr("Windowed Mode")
-                                summary.text: i18n.tr("Better keyboard & OpenGL support")
+                                summary.text: i18n.tr("Improves keyboard, mouse & OpenGL")
                             }
                         }
 
@@ -915,15 +917,6 @@ MainView {
                 width: contentHubDialogue.contentWidth
                 height: contentHubDialogue.contentHeight
 
-                function filteredVms() {
-                    let machines = []
-                    for (let machine in VMManager.vms) {
-                        if (machine.enableFileSharing)
-                            machines.push(machine)
-                    }
-                    return machines
-                }
-
                 ListItemLayout {
                     id: importHeader
                     title.text: i18n.tr("Drop the file in a VM")
@@ -941,9 +934,21 @@ MainView {
                     }
                 }
 
-                LomiriListView {
+                Column {
+                    anchors.centerIn: parent
+                    visible: contentHubVmListView.model.count === 0
+                    anchors.topMargin: typicalMargin
+
+                    ListItemLayout {
+                        title.text: i18n.tr("No machines available")
+                        summary.text: i18n.tr("Add a machine in the main app view to continue")
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                }
+
+                Repeater {
                     id: contentHubVmListView
-                    model: filteredVms()
+                    model: VMManager.vms
                     width: parent.width
                     anchors.bottom: importHeader.bottom
                     delegate: ListItem {
@@ -951,9 +956,12 @@ MainView {
                                                        getRegisteredMachine(modelData.storage) :
                                                        VMManager.fromQml(modelData);
 
+                        enabled: machine.enableFileSharing
+
                         ListItemLayout {
                             title.text: machine.name
-                            summary.text: machine.running ? i18n.tr("Running") : i18n.tr("Stopped")
+                            summary.text: machine.enableFileSharing ? i18n.tr("Available") :
+                                                                      i18n.tr("File sharing disabled in settings")
                         }
 
                         onClicked: {
