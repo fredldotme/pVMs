@@ -10,7 +10,7 @@
             "content-hub": "pvms.contenthub"
         }
     },
-    "version": "0.7.1",
+    "version": "0.7.2",
     "maintainer": "Alfred Neumayer <dev.beidl@gmail.com>",
     "framework" : "@CLICK_FRAMEWORK@"
 }
