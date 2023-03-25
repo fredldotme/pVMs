@@ -161,6 +161,30 @@ void Machine::stop()
     emit stopped();
 }
 
+void Machine::importIntoShare(QUrl url)
+{
+    QFile file(url.path());
+
+    if (!file.exists()) {
+        qWarning() << "File" << file << "doesn't exist.";
+        return;
+    }
+
+    const QString fileName = url.path().split('/', QString::SkipEmptyParts).back();
+    const QString newPath = getFileSharingDirectory() + QStringLiteral("/%1").arg(fileName);
+    if (!file.copy(newPath)) {
+        qWarning() << "Failed to copy file" << file << "to" << newPath;
+        return;
+    }
+
+    if (!file.remove()) {
+        qWarning() << "Failed to remove file" << file;
+        return;
+    }
+
+    qInfo() << "Imported" << fileName << "into VM" << name;
+}
+
 bool Machine::startQemu()
 {
     const QString pwd = QCoreApplication::applicationDirPath();
@@ -169,14 +193,14 @@ bool Machine::startQemu()
 
     if (this->enableFileSharing) {
         int counter = 0;
-        static const int MAX_RETRIES = 3;
+        static const int MAX_RETRIES = 5;
         const QString socket = getFileSharingSocket();
         while (!QFile::exists(socket) && counter < MAX_RETRIES) {
             QThread::msleep(1000);
             ++counter;
         }
         if (counter >= MAX_RETRIES && !QFile::exists(socket)) {
-            qWarning() << "Waited 3 seconds for socket" << socket;
+            qWarning() << "Waited" << MAX_RETRIES << "seconds for socket" << socket;
             return false;
         }
     }
@@ -185,10 +209,12 @@ bool Machine::startQemu()
     QProcessEnvironment qemuEnv = QProcessEnvironment::systemEnvironment();
     qemuEnv.insert("DESKTOP_FILE_HINT", qgetenv("APP_ID"));
 
-    if (this->useVirglrenderer) {
+    if (this->externalWindowOnly) {
         // SDL video output preferences
         qemuEnv.insert("EGL_PLATFORM", "wayland");
         qemuEnv.insert("SDL_VIDEODRIVER", "wayland");
+    } else {
+        qemuEnv.insert("EGL_PLATFORM", "null");
     }
 
     this->m_process->setProcessEnvironment(qemuEnv);
@@ -235,9 +261,17 @@ QStringList Machine::getLaunchArguments()
 
     // Display (with or without OpenGL support)
     if (!this->useVirglrenderer) {
-        ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci");
+        if (this->externalWindowOnly)
+            ret << QStringLiteral("-display") << QStringLiteral("sdl");
+        else
+            ret << QStringLiteral("-display") << QStringLiteral("egl-headless");
+
+        ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci,virgl=off");
     } else {
-        ret << QStringLiteral("-display") << QStringLiteral("sdl,gl=es");
+        if (this->externalWindowOnly)
+            ret << QStringLiteral("-display") << QStringLiteral("sdl,gl=es");
+        else
+            ret << QStringLiteral("-display") << QStringLiteral("egl-headless,gl=es");
         ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci,virgl=on%1").arg(useKvm && isAarch64
                                                                                               ? ",iommu_platform=on,max_hostmem=128M"
                                                                                               : ",max_hostmem=128M");
@@ -292,7 +326,7 @@ QStringList Machine::getLaunchArguments()
     ret << "-device" << "virtio-rng-pci,rng=rng0";
 
     // We don't embed the VM monitor in the main app when using OpenGL
-    if (!this->useVirglrenderer) {
+    if (!this->useVirglrenderer || !this->externalWindowOnly) {
         ret << QStringLiteral("-vnc") << QStringLiteral("unix:%1").arg(QStringLiteral("%1/vnc.sock").arg(this->storage));
     }
 

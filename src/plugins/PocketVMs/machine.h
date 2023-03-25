@@ -21,6 +21,7 @@
 #include <QProcess>
 #include <QString>
 #include <QStringList>
+#include <QUrl>
 
 class Machine: public QObject {
     Q_OBJECT
@@ -37,6 +38,7 @@ class Machine: public QObject {
     Q_PROPERTY(QString storage MEMBER storage NOTIFY storageChanged)
     Q_PROPERTY(bool enableFileSharing MEMBER enableFileSharing NOTIFY enableFileSharingChanged)
     Q_PROPERTY(bool useVirglrenderer MEMBER useVirglrenderer NOTIFY useVirglrendererChanged)
+    Q_PROPERTY(bool externalWindowOnly MEMBER externalWindowOnly NOTIFY externalWindowOnlyChanged)
 
     Q_PROPERTY(bool running MEMBER running NOTIFY runningChanged)
 
@@ -54,6 +56,7 @@ public:
     QString display;
     bool enableFileSharing = false;
     bool useVirglrenderer = false;
+    bool externalWindowOnly = false;
 
     bool running = false;
 
@@ -69,6 +72,7 @@ public:
 
     Q_INVOKABLE bool start();
     Q_INVOKABLE void stop();
+    Q_INVOKABLE void importIntoShare(QUrl url);
 
 private:
     bool startQemu();
@@ -94,6 +98,7 @@ signals:
     void storageChanged();
     void enableFileSharingChanged();
     void useVirglrendererChanged();
+    void externalWindowOnlyChanged();
 
     void runningChanged();
 

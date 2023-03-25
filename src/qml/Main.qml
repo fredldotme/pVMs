@@ -18,6 +18,7 @@ import QtQuick 2.7
 import Lomiri.Components 1.3
 import Lomiri.Components.Popups 1.3
 import Lomiri.Components.Themes 1.3
+import Lomiri.Content 1.0
 import QtQuick.Layouts 1.3
 import QtQuick.Window 2.12
 import PocketVMs 1.0
@@ -28,10 +29,11 @@ MainView {
     applicationName: 'pvms.me.fredl'
     automaticOrientation: true
     anchorToKeyboard: true
-    theme.name: "Lomiri.Components.Themes.SuruDark"
 
     readonly property int typicalMargin : units.gu(2)
     property var runningMachineRefs : []
+    property bool fullscreenMode : false
+    readonly property int convergenceWidth : units.gu(50)
     property Page selectedMachinePage : null
     readonly property Machine selectedMachine : selectedMachinePage ? selectedMachinePage.machine : null
     property string errorString : ""
@@ -88,10 +90,50 @@ MainView {
         VMManager.refreshVMs();
     }
 
+    property var importItems : []
+    Connections {
+        target: ContentHub
+
+        onImportRequested: {
+            if (VMManager.vms.count < 1)
+                return;
+
+            importItems = transfer.items;
+            PopupUtils.open(contentHubDialog);
+        }
+
+        onShareRequested: {
+            if (VMManager.vms.count < 1)
+                return;
+
+            importItems = transfer.items;
+            PopupUtils.open(contentHubDialog);
+        }
+    }
+
     AdaptivePageLayout {
         id: rootLayout
+
         anchors.fill: parent
         primaryPage: mainPage
+        layouts: [
+            PageColumnsLayout {
+                when: root.width > root.convergenceWidth && !fullscreenMode
+                PageColumn {
+                    preferredWidth: units.gu(40)
+                }
+                PageColumn {
+                    fillWidth: true
+                }
+            },
+            PageColumnsLayout {
+                when: true
+                PageColumn {
+                    fillWidth: true
+                }
+            }
+        ]
+
         Page {
             id: mainPage
             header: PageHeader {
@@ -193,27 +235,27 @@ MainView {
                 id: vmDetails
                 property Machine machine : null
                 property bool starting : false
-                property Window fullscreenWindow : null
-                readonly property bool isFullscreen : fullscreenWindow != null
+
+                Timer {
+                    id: delayedReconnect
+                    onTriggered: reconnect(vmDetails.machine, vncClient)
+                    interval: 500
+                    repeat: !vncClient.connected
+                }
 
                 Connections {
                     target: machine
                     onStarted: {
                         starting = false
                         registerMachine(machine)
-                        if (!machine.useVirglrenderer)
-                            reconnect(machine, vncClient)
+                        if (!machine.externalWindowOnly)
+                            delayedReconnect.start()
                     }
                     onStopped: {
                         starting = false
                         unregisterMachine(machine)
                         vncClient.disconnect();
-
-                        if (fullscreenWindow) {
-                            fullscreenWindow.close();
-                            fullscreenWindow.destroy();
-                            fullscreenWindow = null
-                        }
+                        fullscreenMode = false
                     }
                     onError: {
                         errorString = err;
@@ -221,17 +263,15 @@ MainView {
                     }
                 }
 
-                Connections {
-                    target: fullscreenWindow
-                    onClosing: {
-                        fullscreenWindow = null
+                Component.onCompleted: {
+                    if (machine.running && !machine.externalWindowOnly) {
+                        reconnect(machine, vncClient)
                     }
                 }
 
-                Component.onCompleted: {
-                    if (machine.running && !machine.useVirglrenderer) {
-                        reconnect(machine, vncClient)
-                    }
+                Component.onDestruction: {
+                    root.fullscreenMode = false
+                    delayedReconnect.stop()
                 }
 
                 header: PageHeader {
@@ -261,10 +301,11 @@ MainView {
                                     } else {
                                         vncClient.disconnect();
                                         machine.stop()
+                                        fullscreenMode = false
                                     }
                                 }
                             },
-/*
+                            /*
                             Action {
                                 iconName: "terminal-app-symbolic"
                                 text: i18n.tr("Serial console")
@@ -277,18 +318,17 @@ MainView {
                             Action {
                                 iconName: "view-fullscreen"
                                 text: i18n.tr("Show fullscreen")
-                                enabled: machine.running && (!isFullscreen && !machine.useVirglrenderer)
+                                enabled: machine.running && !machine.externalWindowOnly
+                                visible: !machine.externalWindowOnly && root.width > root.convergenceWidth
                                 onTriggered: {
-                                    fullscreenWindow = fullscreenVmComponent.createObject(mainPage, {
-                                                                                              machine: machine,
-                                                                                              client: vncClient
-                                                                                          });
+                                    root.fullscreenMode = !root.fullscreenMode
                                 }
                             },
                             Action {
                                 iconName: "input-keyboard-symbolic"
                                 text: i18n.tr("Keyboard")
-                                enabled: machine.running && (!isFullscreen && !machine.useVirglrenderer)
+                                enabled: machine.running && !machine.externalWindowOnly
+                                visible: !machine.externalWindowOnly
                                 onTriggered: {
                                     viewer.forceActiveFocus()
                                     Qt.inputMethod.show()
@@ -328,7 +368,7 @@ MainView {
                 }
                 Column {
                     anchors.centerIn: parent
-                    visible: machine.running && (isFullscreen || machine.useVirglrenderer)
+                    visible: machine.running && (fullscreenMode || machine.externalWindowOnly)
                     anchors {
                         top: vmDetailsHeader.bottom
                         left: parent.left
@@ -362,35 +402,7 @@ MainView {
                         right: parent.right
                         bottom: parent.bottom
                     }
-                    visible: machine.running && !(isFullscreen || machine.useVirglrenderer)
-                }
-            }
-        }
-
-        Component {
-            id: fullscreenVmComponent
-            Window {
-                id: fullscreenVm
-                property Machine machine : null
-                visibility: Window.FullScreen
-                onClosing: {
-                    client.disconnect()
-                }
-
-                VncClient {
-                    id: vncClient
-                }
-                VncOutput {
-                    id: viewer
-                    client: vncClient
-                    anchors.fill: parent
-                    visible: machine.running && fullscreenVm.visible
-                }
-
-                Component.onCompleted: {
-                    reconnect(machine, vncClient)
-                    viewer.forceActiveFocus()
-                    Qt.inputMethod.show()
+                    visible: machine.running && !machine.externalWindowOnly
                 }
             }
         }
@@ -472,6 +484,9 @@ MainView {
                                         newMachine.dvd = stripFilePath(isoFileUrl);
                                         newMachine.useVirglrenderer = virglrendererCheckbox.checked;
                                         newMachine.enableFileSharing = fileSharingCheckbox.checked;
+                                        newMachine.externalWindowOnly =
+                                                externalWindowOnlyCheckbox.enabled &&
+                                                externalWindowOnlyCheckbox.checked;
 
                                         if (VMManager.createVM(newMachine)) {
                                             VMManager.refreshVMs();
@@ -485,6 +500,9 @@ MainView {
                                         existingMachine.dvd = stripFilePath(isoFileUrl);
                                         existingMachine.useVirglrenderer = virglrendererCheckbox.checked;
                                         existingMachine.enableFileSharing = fileSharingCheckbox.checked;
+                                        existingMachine.externalWindowOnly =
+                                                externalWindowOnlyCheckbox.enabled &&
+                                                externalWindowOnlyCheckbox.checked;
 
                                         if (VMManager.editVM(existingMachine)) {
                                             VMManager.refreshVMs();
@@ -502,32 +520,27 @@ MainView {
                     filePicker.open()
                 }
 
+                ActivityIndicator {
+                    id: creatingActivity
+                    running: creating
+                    anchors.centerIn: parent
+                }
+
                 Flickable {
-                    anchors {
-                        top: addVmHeader.bottom
-                        left: parent.left
-                        right: parent.right
-                        bottom: parent.bottom
-                    }
-                    anchors.topMargin: typicalMargin
-
-                    // Hack around OptionSelector imploding when pressed
-                    // Allows scrolling past the edge but better than nothing...
-                    contentHeight: addVmMainColumn.height + architecture.height
-                    //contentHeight: contentItem.childrenRect.height
-
-                    ActivityIndicator {
-                        id: creatingActivity
-                        running: creating
-                        anchors.centerIn: parent
-                    }
+                    id: addVmFlickable
+                    width: parent.width
+                    height: parent.height - addVmHeader.height
+                    y: addVmHeader.height
+                    contentHeight: addVmMainColumn.height
+                    contentWidth: addVmFlickable.width
 
                     Column {
                         id: addVmMainColumn
-                        anchors.fill: parent
-                        anchors.leftMargin: typicalMargin
-                        anchors.rightMargin: typicalMargin
-                        spacing: typicalMargin
+                        x: typicalMargin
+                        y: typicalMargin
+                        width: parent.width - (typicalMargin*2)
+                        height: childrenRect.height + (typicalMargin*2)
+                        spacing: typicalMargin / 2
 
                         TextField {
                             id: description
@@ -603,6 +616,7 @@ MainView {
 
                         Column {
                             width: parent.width
+                            spacing: typicalMargin
                             Label {
                                 text: i18n.tr("DVD drive")
                             }
@@ -617,7 +631,7 @@ MainView {
                                 }
                                 Button {
                                     id: clearIsoButton
-                                    iconName: "edit-clear"
+                                    iconName: "media-eject"
                                     width: units.gu(4)
                                     onClicked: {
                                         isoFileUrl = ""
@@ -628,30 +642,50 @@ MainView {
 
                         Row {
                             width: parent.width
-                            spacing: typicalMargin
                             Switch {
-                                id: virglrendererCheckbox
-                                checked: editMode ? existingMachine.useVirglrenderer : false
+                                id: externalWindowOnlyCheckbox
+                                checked: editMode ? existingMachine.externalWindowOnly : false
+                                anchors.verticalCenter: externalWindowOnlyHint.verticalCenter
                             }
-                            Label {
-                                text: i18n.tr("Enable virtual OpenGL (EXPERIMENTAL)")
+                            ListItemLayout {
+                                id: externalWindowOnlyHint
+                                title.text: i18n.tr("Windowed Mode")
+                                summary.text: i18n.tr("Better keyboard & OpenGL support")
                             }
                         }
 
                         Row {
                             width: parent.width
-                            spacing: typicalMargin
+                            enabled: externalWindowOnlyCheckbox.checked
+                            Switch {
+                                id: virglrendererCheckbox
+                                checked: editMode ? existingMachine.useVirglrenderer : false
+                                anchors.verticalCenter: virglHint.verticalCenter
+                            }
+                            ListItemLayout {
+                                id: virglHint
+                                title.text: i18n.tr("3D graphics support")
+                                summary.text: i18n.tr("Requires 'Windowed Mode'")
+                            }
+                        }
+
+                        Row {
+                            width: parent.width
                             Switch {
                                 id: fileSharingCheckbox
-                                checked: editMode ? existingMachine.enableFileSharing : false
+                                checked: editMode ? existingMachine.enableFileSharing : true
+                                anchors.verticalCenter: fileSharingHint.verticalCenter
                             }
-                            Label {
-                                text: i18n.tr("Enable file sharing")
+                            ListItemLayout {
+                                id: fileSharingHint
+                                title.text: i18n.tr("Enable file sharing")
+                                summary.text: i18n.tr("Accessible via the virtiofs mount tag 'pocketvms'")
                             }
                         }
 
                         Column {
                             width: parent.width
+                            spacing: typicalMargin
                             visible: editMode
                             Label {
                                 text: i18n.tr("Reset EFI")
@@ -659,18 +693,24 @@ MainView {
                             Row {
                                 width: parent.width
                                 Button {
-                                    text: i18n.tr("Reset EFI Firmware")
+                                    text: i18n.tr("Reset firmware")
                                     width: parent.width / 2
                                     onClicked: VMManager.resetEFIFirmware(existingMachine)
                                 }
                                 Button {
-                                    text: i18n.tr("Reset EFI NVRAM")
+                                    text: i18n.tr("Reset NVRAM")
                                     width: parent.width / 2
                                     onClicked: VMManager.resetEFINVRAM(existingMachine)
                                 }
                             }
                         }
                     }
+                }
+
+                Scrollbar {
+                    id: addVmScrollbar
+                    flickableItem: addVmFlickable
+                    align: Qt.AlignTrailing
                 }
             }
         }
@@ -681,20 +721,21 @@ MainView {
                 id: aboutHeader
                 title: i18n.tr("About Pocket VMs")
             }
+
             Flickable {
-                anchors {
-                    top: aboutHeader.bottom
-                    left: parent.left
-                    right: parent.right
-                    bottom: parent.bottom
-                }
+                id: aboutFlickable
+                width: parent.width
+                height: parent.height - aboutHeader.height
+                y: aboutHeader.height
                 contentHeight: aboutMainColumn.height
 
                 Column {
                     id: aboutMainColumn
-                    width: parent.width
+                    x: typicalMargin
+                    y: typicalMargin
+                    width: parent.width - (typicalMargin*2)
+                    height: childrenRect.height + (typicalMargin*2)
                     spacing: typicalMargin
-                    anchors.topMargin: typicalMargin
 
                     LomiriShape {
                         width: Math.min(parent.width, parent.height) / 2
@@ -838,11 +879,13 @@ MainView {
                     }
                 }
             }
+            Scrollbar {
+                flickableItem: aboutFlickable
+                align: Qt.AlignTrailing
+            }
         }
     }
 
-
-    // First start password entry
     Component {
         id: dialog
 
@@ -855,6 +898,71 @@ MainView {
                 color: theme.palette.normal.positive
                 onClicked: {
                     PopupUtils.close(dialogue);
+                }
+            }
+        }
+    }
+
+    Component {
+        id: contentHubDialog
+
+        Dialog {
+            id: contentHubDialogue
+            contentWidth: (root.width / 3) * 2
+            contentHeight: (root.height / 3) * 2
+
+            Column {
+                width: contentHubDialogue.contentWidth
+                height: contentHubDialogue.contentHeight
+
+                function filteredVms() {
+                    let machines = []
+                    for (let machine in VMManager.vms) {
+                        if (machine.enableFileSharing)
+                            machines.push(machine)
+                    }
+                    return machines
+                }
+
+                ListItemLayout {
+                    id: importHeader
+                    title.text: i18n.tr("Drop the file in a VM")
+                    summary.text: i18n.tr("Select a machine")
+                    width: parent.width
+
+                    Button {
+                        text: i18n.tr("Cancel")
+                        color: theme.palette.normal.negative
+                        x: parent.width - width - units.gu(4)
+
+                        onClicked: {
+                            PopupUtils.close(contentHubDialogue);
+                        }
+                    }
+                }
+
+                LomiriListView {
+                    id: contentHubVmListView
+                    model: filteredVms()
+                    width: parent.width
+                    anchors.bottom: importHeader.bottom
+                    delegate: ListItem {
+                        property Machine machine : isRegisteredMachine(modelData.storage) ?
+                                                       getRegisteredMachine(modelData.storage) :
+                                                       VMManager.fromQml(modelData);
+
+                        ListItemLayout {
+                            title.text: machine.name
+                            summary.text: machine.running ? i18n.tr("Running") : i18n.tr("Stopped")
+                        }
+
+                        onClicked: {
+                            for (var i = 0; i < importItems.length; i++) {
+                                machine.importIntoShare(importItems[i].url)
+                            }
+                            PopupUtils.close(contentHubDialogue);
+                        }
+                    }
                 }
             }
         }

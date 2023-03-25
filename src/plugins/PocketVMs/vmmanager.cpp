@@ -44,6 +44,7 @@ const QString KEY_FLASH1 = QStringLiteral("flash1");
 const QString KEY_FLASH2 = QStringLiteral("flash2");
 const QString KEY_ENABLEFILESHARING = QStringLiteral("enableFileSharing");
 const QString KEY_VIRGLRENDERER = QStringLiteral("useVirglrenderer");
+const QString KEY_EXTERNAL_WINDOW_ONLY = QStringLiteral("externalWindowOnly");
 
 const QStringList VALID_ARCHES = {
     QStringLiteral("x86_64"),
@@ -104,6 +105,7 @@ Machine* VMManager::fromQml(QVariantMap vm)
     machine->flash2 = vm.value(KEY_FLASH2).toString();
     machine->useVirglrenderer = vm.value(KEY_VIRGLRENDERER).toBool();
     machine->enableFileSharing = vm.value(KEY_ENABLEFILESHARING).toBool();
+    machine->externalWindowOnly = vm.value(KEY_EXTERNAL_WINDOW_ONLY).toBool();
 
     return machine;
 }
@@ -309,6 +311,12 @@ QVariantMap VMManager::listEntryForJSON(const QString& path, const QString& stor
     else
         ret.insert(KEY_ENABLEFILESHARING, false);
 
+
+    if (rootObject.contains(KEY_EXTERNAL_WINDOW_ONLY))
+        ret.insert(KEY_EXTERNAL_WINDOW_ONLY, rootObject.value(KEY_EXTERNAL_WINDOW_ONLY).toBool());
+    return ret;
+        ret.insert(KEY_EXTERNAL_WINDOW_ONLY, false);
+
     return ret;
 }
 
@@ -325,6 +333,7 @@ QByteArray VMManager::machineToJSON(const Machine* machine)
     rootObject.insert(KEY_FLASH2, QJsonValue(machine->flash2).toString());
     rootObject.insert(KEY_VIRGLRENDERER, QJsonValue(machine->useVirglrenderer));
     rootObject.insert(KEY_ENABLEFILESHARING, QJsonValue(machine->enableFileSharing));
+    rootObject.insert(KEY_EXTERNAL_WINDOW_ONLY, QJsonValue(machine->externalWindowOnly));
 
     QJsonDocument doc(rootObject);
     return doc.toJson();

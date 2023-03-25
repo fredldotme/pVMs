@@ -6,10 +6,11 @@
     "hooks": {
         "pvms": {
             "apparmor": "pvms.apparmor",
-            "desktop":  "pvms.desktop"
+            "desktop":  "pvms.desktop",
+            "content-hub": "pvms.contenthub"
         }
     },
-    "version": "0.6.3",
+    "version": "0.7",
     "maintainer": "Alfred Neumayer <dev.beidl@gmail.com>",
     "framework" : "@CLICK_FRAMEWORK@"
 }
