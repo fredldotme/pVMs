@@ -196,9 +196,7 @@ bool VMManager::createVM(Machine* machine)
 bool VMManager::resetEFIFirmware(Machine* machine)
 {
     const QString pwd = QCoreApplication::applicationDirPath();
-    const QString varsArch = (machine->arch == QStringLiteral("aarch64")) ?
-                QStringLiteral("aarch64") : QStringLiteral("x86_64-secure");
-    const QString efiFw = QStringLiteral("%1/share/qemu/edk2-%2-code.fd").arg(pwd, varsArch);
+    const QString efiFw = QStringLiteral("%1/efi/%2/code.fd").arg(pwd, machine->arch);
     const QString efiFwTarget = QStringLiteral("%1/efi.fd").arg(machine->storage);
 
     if (QFile::exists(efiFwTarget)) {
@@ -366,4 +364,32 @@ bool VMManager::deleteVM(Machine* machine)
 {
     qDebug() << "Deleting:" << machine->storage;
     return QDir(machine->storage).removeRecursively();
+}
+
+bool VMManager::canVirtualize(QString arch)
+{
+    // Only "arm64" and "x86_64" are supported anyway
+    const QString currentCpuType = QSysInfo::currentCpuArchitecture();
+    const QString machineType = currentCpuType == QStringLiteral("arm64") ?
+                QStringLiteral("aarch64") : currentCpuType;
+    qDebug() << "uname" << machineType << "vs arch" << arch;
+
+    const QString kvmPath = QStringLiteral("/dev/kvm");
+
+    if (!QFile::exists(kvmPath)) {
+        qWarning() << "KVM is not enabled on this kernel or device.";
+        return false;
+    }
+
+    QFileInfo kvmInfo(kvmPath);
+    if (!kvmInfo.isReadable()) {
+        qWarning() << "/dev/kvm is not readable.";
+        return false;
+    }
+    if (!kvmInfo.isWritable()) {
+        qWarning() << "/dev/kvm is not writable.";
+        return false;
+    }
+
+    return (machineType == arch);
 }

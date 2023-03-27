@@ -260,7 +260,7 @@ QStringList Machine::getLaunchArguments()
         // and attaching one confuses virtio-gpu(-gl)
         ret << "-vga" << "none";
     } else {
-        ret << "-vga" << "std";
+        ret << "-vga" << "virtio";
     }
 
     // Configuration-specific display options
@@ -270,16 +270,24 @@ QStringList Machine::getLaunchArguments()
         else
             ret << QStringLiteral("-display") << QStringLiteral("egl-headless");
 
-        ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci");
+        if (isAarch64) {
+            ret << QStringLiteral("-device") << QStringLiteral("virtio-gpu-pci");
+        } else {
+            ret << QStringLiteral("-device") << QStringLiteral("virtio-vga");
+        }
     } else {
         if (this->externalWindowOnly)
             ret << QStringLiteral("-display") << QStringLiteral("sdl,gl=es");
         else
             ret << QStringLiteral("-display") << QStringLiteral("egl-headless,gl=es");
 
-        ret << QStringLiteral("-device") << QStringLiteral("virtio-ramfb-gl%1").arg(useKvm && isAarch64
-                                                                                              ? ",iommu_platform=on,max_hostmem=128M"
-                                                                                              : ",max_hostmem=128M");
+        if (isAarch64) {
+            ret << QStringLiteral("-device") << QStringLiteral("virtio-ramfb-gl%1").arg(useKvm && isAarch64
+                                                                                                  ? ",iommu_platform=on,max_hostmem=128M"
+                                                                                                  : ",max_hostmem=128M");
+        } else {
+            ret << QStringLiteral("-device") << QStringLiteral("virtio-vga-gl");
+        }
     }
 
     // ISO/DVD drive
@@ -331,7 +339,7 @@ QStringList Machine::getLaunchArguments()
     ret << "-device" << "virtio-rng-pci,rng=rng0";
 
     // We don't embed the VM monitor in the main app when using OpenGL
-    if (!this->useVirglrenderer || !this->externalWindowOnly) {
+    if (!this->externalWindowOnly) {
         ret << QStringLiteral("-vnc") << QStringLiteral("unix:%1").arg(QStringLiteral("%1/vnc.sock").arg(this->storage));
     }
 

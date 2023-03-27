@@ -193,10 +193,7 @@ MainView {
                                 iconName: "delete"
                                 enabled: !machine.running
                                 onTriggered: {
-                                    if (selectedMachine && machine.storage === selectedMachine.storage)
-                                        mainPage.pageStack.removePages(selectedMachinePage)
-                                    VMManager.deleteVM(machine)
-                                    VMManager.refreshVMs()
+                                    PopupUtils.open(deleteDialog, null, {machine: machine});
                                 }
                             }
                         ]
@@ -334,6 +331,17 @@ MainView {
                                     Qt.inputMethod.show()
                                 }
                             }
+/*
+                            ,
+                            Action {
+                                iconName: "document-open"
+                                text: i18n.tr("Shared files")
+                                visible: machine.enableFileSharing
+                                onTriggered: {
+                                    Qt.openUrlExternally("file://" + machine.getFileSharingDirectory())
+                                }
+                            }
+*/
                         ]
                         numberOfSlots: 4
                     }
@@ -418,8 +426,13 @@ MainView {
                 readonly property bool editMode : existingMachine !== null
 
                 property var supportedArchitectures : [
-                    i18n.tr("aarch64"),
-                    i18n.tr("x86_64")
+                    "aarch64",
+                    "x86_64"
+                ]
+
+                property var supportedArchitecturesReadable : [
+                    i18n.tr("aarch64 (%1)".arg(VMManager.canVirtualize(supportedArchitectures[0]) ? "fast" : "slow")),
+                    i18n.tr("x86_64 (%1)".arg(VMManager.canVirtualize(supportedArchitectures[1]) ? "fast" : "slow"))
                 ]
 
                 property bool creating : false
@@ -554,7 +567,7 @@ MainView {
                         OptionSelector {
                             id: architecture
                             text: i18n.tr("Architecture")
-                            model: supportedArchitectures
+                            model: supportedArchitecturesReadable
                             enabled: !editMode
                             selectedIndex: !editMode ? 0 : supportedArchitectures.indexOf(existingMachine.arch)
                         }
@@ -900,6 +913,37 @@ MainView {
                 color: theme.palette.normal.positive
                 onClicked: {
                     PopupUtils.close(dialogue);
+                }
+            }
+        }
+    }
+
+    Component {
+        id: deleteDialog
+
+        Dialog {
+            id: deleteDialogue
+            title: i18n.tr("Delete machine")
+            text: i18n.tr("Would you like to delete this VM?")
+
+            property Machine machine : null
+
+            Button {
+                text: i18n.tr("Yes")
+                color: theme.palette.normal.positive
+                onClicked: {
+                    if (selectedMachine && machine.storage === selectedMachine.storage)
+                        mainPage.pageStack.removePages(selectedMachinePage)
+                    VMManager.deleteVM(machine)
+                    VMManager.refreshVMs()
+                    PopupUtils.close(deleteDialogue);
+                }
+            }
+            Button {
+                text: i18n.tr("No")
+                color: theme.palette.normal.negative
+                onClicked: {
+                    PopupUtils.close(deleteDialogue);
                 }
             }
         }

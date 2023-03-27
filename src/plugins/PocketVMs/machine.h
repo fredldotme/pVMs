@@ -74,13 +74,15 @@ public:
     Q_INVOKABLE void stop();
     Q_INVOKABLE void importIntoShare(QUrl url);
 
+    Q_INVOKABLE QString getFileSharingDirectory();
+    Q_INVOKABLE QString getFileSharingSocket();
+
+    Q_INVOKABLE bool canVirtualize();
+
 private:
     bool startQemu();
     QStringList getLaunchArguments();
     bool hasKvm();
-    bool canVirtualize();
-    QString getFileSharingDirectory();
-    QString getFileSharingSocket();
 
     QProcess* m_process = nullptr;
     QProcess* m_fileSharingProcess = nullptr;

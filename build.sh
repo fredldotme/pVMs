@@ -255,14 +255,16 @@ if [ "$LEGACY" == "1" ]; then
 fi
 
 # Download newer builds from EDK2
-#if [ -d $INSTALL/efi ]; then
-#    rm -rf $INSTALL/efi
-#fi
-#mkdir $INSTALL/efi
-#mkdir $INSTALL/efi/aarch64
-#mkdir $INSTALL/efi/x86_64
+if [ -d $INSTALL/efi ]; then
+    rm -rf $INSTALL/efi
+fi
+mkdir $INSTALL/efi
+mkdir $INSTALL/efi/aarch64
+mkdir $INSTALL/efi/x86_64
+
+cp /usr/share/qemu/OVMF.fd $INSTALL/efi/x86_64/code.fd
 #wget -O $INSTALL/efi/x86_64/code.fd https://github.com/retrage/edk2-nightly/raw/master/bin/RELEASEX64_OVMF_CODE.fd # --no-check-certificate
-#wget -O $INSTALL/efi/aarch64/code.fd https://github.com/retrage/edk2-nightly/raw/master/bin/RELEASEAARCH64_QEMU_EFI.fd # --no-check-certificate
+wget -O $INSTALL/efi/aarch64/code.fd https://github.com/retrage/edk2-nightly/raw/master/bin/RELEASEAARCH64_QEMU_EFI.fd # --no-check-certificate
 
 # Build main sources
 build_project "$LEGACY_ARG"

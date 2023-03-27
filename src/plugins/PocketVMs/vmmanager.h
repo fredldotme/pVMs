@@ -43,6 +43,8 @@ public:
     Q_INVOKABLE bool resetEFIFirmware(Machine* machine);
     Q_INVOKABLE bool resetEFINVRAM(Machine* machine);
 
+    Q_INVOKABLE bool canVirtualize(QString arch);
+
 private:
     QVariantMap listEntryForJSON(const QString& path, const QString& storage);
     QByteArray machineToJSON(const Machine* machine);
