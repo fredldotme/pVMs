@@ -222,7 +222,7 @@ MIRCLIENT_SDL=""
 
 
 # Build direct dependencies
-build_3rdparty_autogen xorg-macros
+#build_3rdparty_autogen xorg-macros
 if [ ! -f "$BUILD_DIR/.libepoxy_built" ] && [ -d $SRC_PATH/3rdparty/libepoxy/m4 ]; then
     rm -rf $SRC_PATH/3rdparty/libepoxy/m4
 fi
