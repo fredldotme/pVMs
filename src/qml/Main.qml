@@ -302,7 +302,7 @@ MainView {
                                     }
                                 }
                             },
-                            /*
+/*
                             Action {
                                 iconName: "terminal-app-symbolic"
                                 text: i18n.tr("Serial console")
@@ -330,18 +330,15 @@ MainView {
                                     viewer.forceActiveFocus()
                                     Qt.inputMethod.show()
                                 }
-                            }
-/*
-                            ,
+                            },
                             Action {
-                                iconName: "document-open"
-                                text: i18n.tr("Shared files")
+                                iconName: "terminal-app-symbolic"
+                                text: i18n.tr("Jump to shared files")
                                 visible: machine.enableFileSharing
                                 onTriggered: {
-                                    Qt.openUrlExternally("file://" + machine.getFileSharingDirectory())
+                                    Qt.openUrlExternally("terminal://?path=" + machine.getFileSharingDirectory())
                                 }
                             }
-*/
                         ]
                         numberOfSlots: 4
                     }
