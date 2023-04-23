@@ -10,9 +10,6 @@
 [submodule "3rdparty/libepoxy"]
 	path = 3rdparty/libepoxy
 	url = https://github.com/fredldotme/libepoxy.git
-[submodule "3rdparty/xorg-macros"]
-	path = 3rdparty/xorg-macros
-	url = https://github.com/freedesktop/xorg-macros.git
 [submodule "3rdparty/gtk"]
 	path = 3rdparty/gtk
 	url = https://github.com/fredldotme/gtk3.git
