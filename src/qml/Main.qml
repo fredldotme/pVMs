@@ -21,6 +21,7 @@ import Lomiri.Components.Themes 1.3
 import Lomiri.Content 1.0
 import QtQuick.Layouts 1.3
 import QtQuick.Window 2.12
+import QMLTermWidget 1.0
 import PocketVMs 1.0
 
 MainView {
@@ -232,6 +233,19 @@ MainView {
                 id: vmDetails
                 property Machine machine : null
                 property bool starting : false
+                property bool serialTerminalEnabled : false
+
+                function focusForOsk() {
+                    if (serialTerminalEnabled)
+                        serialConnection.forceActiveFocus()
+                    else
+                        viewer.forceActiveFocus()
+
+                    if (Qt.inputMethod.visible)
+                        Qt.inputMethod.hide()
+                    else
+                        Qt.inputMethod.show()
+                }
 
                 Timer {
                     id: delayedReconnect
@@ -250,6 +264,7 @@ MainView {
                     }
                     onStopped: {
                         starting = false
+                        serialTerminalEnabled = false
                         unregisterMachine(machine)
                         vncClient.disconnect();
                         fullscreenMode = false
@@ -302,21 +317,20 @@ MainView {
                                     }
                                 }
                             },
-/*
                             Action {
                                 iconName: "terminal-app-symbolic"
                                 text: i18n.tr("Serial console")
-                                enabled: !starting
+                                visible: machine.running
                                 onTriggered: {
-
+                                    serialTerminalEnabled = !serialTerminalEnabled
+                                    focusForOsk()
                                 }
                             },
-*/
                             Action {
-                                iconName: "view-fullscreen"
+                                iconName: root.fullscreenMode ? "view-restore" : "view-fullscreen"
                                 text: i18n.tr("Show fullscreen")
                                 enabled: machine.running && !machine.externalWindowOnly
-                                visible: !machine.externalWindowOnly && root.width > root.convergenceWidth
+                                visible: !machine.externalWindowOnly && machine.running && root.width > root.convergenceWidth
                                 onTriggered: {
                                     root.fullscreenMode = !root.fullscreenMode
                                 }
@@ -325,22 +339,13 @@ MainView {
                                 iconName: "input-keyboard-symbolic"
                                 text: i18n.tr("Keyboard")
                                 enabled: machine.running && !machine.externalWindowOnly
-                                visible: !machine.externalWindowOnly
+                                visible: !machine.externalWindowOnly && machine.running
                                 onTriggered: {
-                                    viewer.forceActiveFocus()
-                                    Qt.inputMethod.show()
-                                }
-                            },
-                            Action {
-                                iconName: "terminal-app-symbolic"
-                                text: i18n.tr("Jump to shared files")
-                                visible: machine.enableFileSharing
-                                onTriggered: {
-                                    Qt.openUrlExternally("terminal://?path=" + machine.getFileSharingDirectory())
+                                    focusForOsk()
                                 }
                             }
                         ]
-                        numberOfSlots: 4
+                        numberOfSlots: 5
                     }
                 }
                 VncClient {
@@ -410,6 +415,87 @@ MainView {
                         bottom: parent.bottom
                     }
                     visible: machine.running && !machine.externalWindowOnly
+                }
+                QMLTermWidget {
+                    id: serialConnection
+                    anchors {
+                        top: vmDetailsHeader.bottom
+                        left: parent.left
+                        right: parent.right
+                        bottom: parent.bottom
+                    }
+                    font.family: "Monospace"
+                    font.pointSize: 12
+                    colorScheme: "cool-retro-term"
+                    visible: serialTerminalEnabled
+                    session: machine.session
+
+                    Component.onCompleted: serialConnection.setUsesMouse(true)
+
+                    onIsBusySelecting: {
+                        if (!busy) {
+                            PopupUtils.open(serialContextMenue);
+                        }
+                    }
+
+                    Component {
+                        id: serialContextMenue
+                        ActionSelectionPopover {
+                            id: serialContextMenu
+
+                            contentWidth: units.gu(30)
+                            delegate: ListItem {
+                                divider.visible: true
+                                enabled: action.enabled
+
+                                Item {
+                                    anchors {
+                                        left: parent.left
+                                        right: parent.right
+                                        leftMargin: units.gu(3)
+                                        rightMargin: units.gu(2)
+                                    }
+
+                                    height: childrenRect.height
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    Label {
+                                        text: action.text
+                                        textSize: Label.Small
+                                        color: theme.palette.normal.overlayText
+                                        opacity: action.enabled ? 1.0 : 0.4
+                                    }
+                                }
+                                onClicked: serialContextMenu.hide()
+                                visible: action.visible
+                                height: units.gu(4.5)
+                            }
+
+                            actions: ActionList {
+                                Action {
+                                    text: i18n.tr("Copy")
+                                    enabled: true
+                                    onTriggered: serialConnection.copyClipboard();
+                                    property bool divider: true
+                                }
+                                Action {
+                                    text: i18n.tr("Paste")
+                                    enabled: true
+                                    onTriggered: serialConnection.pasteClipboard();
+                                }
+                            }
+                        }
+                    }
+
+                    QMLTermScrollbar {
+                        terminal: serialConnection
+                        width: units.gu(3)
+                        Rectangle {
+                            opacity: 0.4
+                            anchors.margins: 5
+                            radius: width * 0.5
+                            anchors.fill: parent
+                        }
+                    }
                 }
             }
         }

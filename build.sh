@@ -151,13 +151,12 @@ function build_3rdparty_qmake {
     if [ ! -f "$BUILD_DIR/.${1}_built" ]; then
         env PKG_CONFIG_PATH=$PKG_CONFIG_PATH LD_LIBRARY_PATH=$INSTALL/lib:$LD_LIBRARY_PATH LDFLAGS="-L$INSTALL/lib" \
         qmake .. $2
-        qmake -set prefix $INSTALL
         make VERBOSE=1 -j$NUM_PROCS
     fi
     if [ -f /usr/bin/sudo ]; then
-        sudo make install -j$NUM_PROCS
+        sudo make install INSTALL_ROOT="$INSTALL" -j$NUM_PROCS
     else
-        make install -j$NUM_PROCS
+        make install INSTALL_ROOT="$INSTALL" -j$NUM_PROCS
     fi
     touch $BUILD_DIR/.${1}_built
 }
@@ -229,7 +228,7 @@ fi
 build_3rdparty_autogen libepoxy "--enable-egl=yes --enable-glx=yes --disable-static --enable-shared --host=$ARCH_TRIPLET"
 build_3rdparty_meson virglrenderer "-Dvideo=true -Dprefix=$INSTALL"
 build_3rdparty_autogen wayland-protocols "--host=$ARCH_TRIPLET"
-#build_3rdparty_qmake qmltermwidget
+build_3rdparty_qmake qmltermwidget ""
 #build_3rdparty_autogen glib "--host=$ARCH_TRIPLET --disable-gtk-doc --disable-installed-tests"
 #build_3rdparty_autogen gtk "--disable-x11-backend --enable-wayland-backend $MIRCLIENT_GTK \
 #        --disable-installed-tests --disable-gtk-doc \
@@ -267,3 +266,8 @@ cp $INSTALL/share/qemu/edk2-aarch64-code.fd $INSTALL/efi/aarch64/code.fd
 
 # Build main sources
 build_project "$LEGACY_ARG"
+
+# Make the runtime linker find the QMLTermWidget library (for KSession)
+ln -sf "../usr/lib/${ARCH_TRIPLET}/qt5/qml/QMLTermWidget/libqmltermwidget.so" "$INSTALL/lib/libqmltermwidget.so"
+
+exit 0

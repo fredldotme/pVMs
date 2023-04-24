@@ -14,8 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QGuiApplication>
-#include <QCoreApplication>
+#include <QApplication>
+#include <QQmlEngine>
 #include <QUrl>
 #include <QString>
 #include <QQuickView>
@@ -27,12 +27,21 @@
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication *app = new QGuiApplication(argc, (char**)argv);
+    QApplication *app = new QApplication(argc, (char**)argv);
     app->setApplicationName("pvms.me.fredl");
 
     qDebug() << "Starting app from main.cpp";
 
     QQuickView *view = new QQuickView();
+    
+    // Make our Pocket VMs QML plugin find the QMLTermWidget one
+#if __aarch64__
+#define TRIPLET "aarch64-linux-gnu"
+#else
+#define TRIPLET "x86_64-linux-gnu"
+#endif
+    view->engine()->addImportPath(app->applicationDirPath() + "/usr/lib/" TRIPLET "/qt5/qml");
+
 #ifdef PVMS_LEGACY
     const QString snapPath = qgetenv("SNAP");
     const QString snapThemePath = QStringLiteral("%1/usr/share/icons").arg(snapPath);

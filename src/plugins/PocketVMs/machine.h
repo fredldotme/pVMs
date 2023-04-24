@@ -22,6 +22,7 @@
 #include <QString>
 #include <QStringList>
 #include <QUrl>
+#include <ksession.h>
 
 class Machine: public QObject {
     Q_OBJECT
@@ -41,6 +42,7 @@ class Machine: public QObject {
     Q_PROPERTY(bool externalWindowOnly MEMBER externalWindowOnly NOTIFY externalWindowOnlyChanged)
 
     Q_PROPERTY(bool running MEMBER running NOTIFY runningChanged)
+    Q_PROPERTY(QObject* session READ session NOTIFY sessionChanged);
 
 public:
     Machine();
@@ -83,8 +85,9 @@ private:
     bool startQemu();
     QStringList getLaunchArguments();
     bool hasKvm();
+    QObject* session();
 
-    QProcess* m_process = nullptr;
+    KSession* m_session = nullptr;
     QProcess* m_fileSharingProcess = nullptr;
 
 signals:
@@ -103,6 +106,7 @@ signals:
     void externalWindowOnlyChanged();
 
     void runningChanged();
+    void sessionChanged();
 
     void started();
     void stopped();

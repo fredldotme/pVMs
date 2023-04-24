@@ -24,30 +24,16 @@
 #include <QTimer>
 #include <QThread>
 
+#include <sys/types.h>
+#include <signal.h>
+
 #include "machine.h"
 
 Machine::Machine()
 {
-    this->m_process = new QProcess(this);
-    QObject::connect(this->m_process, &QProcess::stateChanged, this, [=](QProcess::ProcessState newState){
-        if (newState == QProcess::NotRunning) {
-            qWarning() << this->m_process->readAllStandardOutput();
-            if (this->m_process->exitCode() != 0)
-                emit error(this->m_process->readAllStandardError());
-        }
-
-        if (newState != QProcess::Running) {
-            qWarning() << this->m_process->readAllStandardError();
-            emit stopped();
-            return;
-        }
-
-        if (newState == QProcess::Running) {
-            QTimer::singleShot(1000, this, [=](){
-                emit started();
-            });
-        }
-    });
+    this->m_session = new KSession(this);
+    QObject::connect(this->m_session, &KSession::started, this, &Machine::started);
+    QObject::connect(this->m_session, &KSession::finished, this, &Machine::stopped);
 
     this->m_fileSharingProcess = new QProcess(this);
     QObject::connect(this->m_fileSharingProcess, &QProcess::stateChanged, this, [=](QProcess::ProcessState newState) {
@@ -72,12 +58,14 @@ Machine::Machine()
             return;
         this->running = true;
         emit runningChanged();
+        emit sessionChanged();
     });
     QObject::connect(this, &Machine::stopped, this, [=](){
         if (!this->running)
             return;
         this->running = false;
         emit runningChanged();
+        emit sessionChanged();
     });
 }
 
@@ -88,13 +76,12 @@ Machine::~Machine()
 
 bool Machine::start()
 {
-    if (this->m_process->state() == QProcess::Running) {
+    if (this->running) {
         qWarning() << "VM process already running";
         return false;
     }
 
-    if (this->m_fileSharingProcess->state() == QProcess::Starting ||
-            this->m_process->state() == QProcess::Starting)
+    if (this->m_fileSharingProcess->state() == QProcess::Starting)
     {
         // Return true as the VM is already starting and should
         // put the UI into a "make it killable" state.
@@ -156,8 +143,7 @@ bool Machine::start()
 
 void Machine::stop()
 {
-    this->m_process->terminate();
-    this->m_process->waitForFinished();
+    kill(this->m_session->getShellPID(), SIGKILL);
     emit stopped();
 }
 
@@ -217,10 +203,13 @@ bool Machine::startQemu()
         qemuEnv.insert("EGL_PLATFORM", "null");
     }
 
-    this->m_process->setProcessEnvironment(qemuEnv);
-
     qDebug() << "Start:" << qemuBin << args;
-    this->m_process->start(qemuBin, args);
+
+    this->m_session->setEnvironment(qemuEnv.toStringList());
+    this->m_session->setShellProgram(qemuBin);
+    this->m_session->setArgs(args);
+    this->m_session->startShellProgram();
+
     return true;
 }
 
@@ -343,8 +332,8 @@ QStringList Machine::getLaunchArguments()
         ret << QStringLiteral("-vnc") << QStringLiteral("unix:%1").arg(QStringLiteral("%1/vnc.sock").arg(this->storage));
     }
 
-    // Disable all the unnecessary QEMU windows & consoles we don't use
-    ret << "-parallel" << "none" << "-serial" << "none" << "-monitor" << "none";
+    // Disable all the unnecessary QEMU windows & consoles we don't use, but keep one serial console
+    ret << "-parallel" << "none" << "-serial" << "mon:stdio";
 
     return ret;
 }
@@ -392,4 +381,9 @@ QString Machine::getFileSharingSocket()
 {
     const QString path = QStringLiteral("%1/virtiofsd.sock").arg(this->storage);
     return path;
+}
+
+QObject* Machine::session()
+{
+    return this->m_session;
 }

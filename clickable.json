@@ -11,7 +11,8 @@
         "libtool",
         "meson",
         "ninja-build",
-        "ovmf"
+        "ovmf",
+        "xutils-dev"
     ],
     "dependencies_target": [
         "libgbm-dev",

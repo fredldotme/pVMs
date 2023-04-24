@@ -5,10 +5,16 @@
         "content_exchange"
     ],
     "read_path": [
-        "/dev/kvm"
+        "/dev/kvm",
+        "/dev/ptmx",
+        "/dev/pts/",
+        "/dev/pts/[0-9]*"
     ],
     "write_path": [
-        "/dev/kvm"
+        "/dev/kvm",
+        "/dev/ptmx",
+        "/dev/pts/",
+        "/dev/pts/[0-9]*"
     ],
     "policy_version": 20.04
 }
