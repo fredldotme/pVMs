@@ -400,7 +400,7 @@ int VMManager::maxRam()
 {
     struct sysinfo info;
     if (!sysinfo(&info))
-        return ((info.totalram / 1024) / 1024);
+        return ((info.totalram / 1024) / 1024) - 2048;
     return 4096;
 }
 
