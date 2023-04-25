@@ -30,6 +30,8 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/statvfs.h>
+#include <sys/sysinfo.h>
 
 #include "vmmanager.h"
 
@@ -392,4 +394,26 @@ bool VMManager::canVirtualize(QString arch)
     }
 
     return (machineType == arch);
+}
+
+int VMManager::maxRam()
+{
+    struct sysinfo info;
+    if (!sysinfo(&info))
+        return ((info.totalram / 1024) / 1024);
+    return 4096;
+}
+
+int VMManager::maxCores()
+{
+    return sysconf(_SC_NPROCESSORS_CONF) - 1;
+}
+
+int VMManager::maxHddSize()
+{
+    const auto path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    struct statvfs stat;
+    if (!statvfs(path.toUtf8().data(), &stat))
+        return (((stat.f_bsize * stat.f_bfree) / 1024) / 1024) / 1024;
+    return 32;
 }

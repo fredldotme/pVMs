@@ -30,6 +30,10 @@ class VMManager: public QObject {
     Q_PROPERTY(QVariantList vms MEMBER m_vms NOTIFY vmsChanged)
     Q_PROPERTY(bool refreshing MEMBER m_refreshing NOTIFY refreshingChanged)
 
+    Q_PROPERTY(int maxRam READ maxRam CONSTANT)
+    Q_PROPERTY(int maxCores READ maxCores CONSTANT)
+    Q_PROPERTY(int maxHddSize READ maxHddSize CONSTANT)
+
 public:
     VMManager();
     ~VMManager() = default;
@@ -49,6 +53,10 @@ private:
     QVariantMap listEntryForJSON(const QString& path, const QString& storage);
     QByteArray machineToJSON(const Machine* machine);
     void setRefreshing(bool value);
+
+    int maxRam();
+    int maxCores();
+    int maxHddSize();
 
     QVariantList m_vms;
     bool m_refreshing;

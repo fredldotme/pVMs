@@ -664,7 +664,7 @@ MainView {
                             Slider {
                                 id: coresSlider
                                 minimumValue: 1
-                                maximumValue: 4
+                                maximumValue: VMManager.maxCores
                                 stepSize: 1
                                 value: !editMode ? 1 : existingMachine.cores
                                 live: true
@@ -684,7 +684,7 @@ MainView {
                             Slider {
                                 id: memSlider
                                 minimumValue: 256
-                                maximumValue: 4096
+                                maximumValue: VMManager.maxRam
                                 stepSize: 256
                                 value: !editMode ? 1024 : existingMachine.mem
                                 live: true
@@ -705,7 +705,7 @@ MainView {
                             Slider {
                                 id: hddSizeSlider
                                 minimumValue: 1
-                                maximumValue: 20
+                                maximumValue: VMManager.maxHddSize
                                 value: 8
                                 live: true
                                 width: parent.width
