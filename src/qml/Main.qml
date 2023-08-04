@@ -34,7 +34,6 @@ MainView {
     readonly property int typicalMargin : units.gu(2)
     property var runningMachineRefs : []
     property bool fullscreenMode : false
-    readonly property int convergenceWidth : units.gu(50)
     property Page selectedMachinePage : null
     readonly property Machine selectedMachine : selectedMachinePage ? selectedMachinePage.machine : null
     property string errorString : ""
@@ -119,7 +118,7 @@ MainView {
         primaryPage: mainPage
         layouts: [
             PageColumnsLayout {
-                when: root.width > root.convergenceWidth && !fullscreenMode
+                when: root.width > root.height && !fullscreenMode
                 PageColumn {
                     preferredWidth: units.gu(40)
                 }
@@ -330,7 +329,7 @@ MainView {
                                 iconName: root.fullscreenMode ? "view-restore" : "view-fullscreen"
                                 text: i18n.tr("Show fullscreen")
                                 enabled: machine.running && !machine.externalWindowOnly
-                                visible: !machine.externalWindowOnly && machine.running && root.width > root.convergenceWidth
+                                visible: !machine.externalWindowOnly && root.width > root.height
                                 onTriggered: {
                                     root.fullscreenMode = !root.fullscreenMode
                                 }
