@@ -754,7 +754,6 @@ MainView {
 
                         Row {
                             width: parent.width
-                            enabled: externalWindowOnlyCheckbox.checked
                             Switch {
                                 id: virglrendererCheckbox
                                 checked: editMode ? existingMachine.useVirglrenderer : false
@@ -763,7 +762,7 @@ MainView {
                             ListItemLayout {
                                 id: virglHint
                                 title.text: i18n.tr("3D graphics support")
-                                summary.text: i18n.tr("Requires 'Windowed Mode'")
+                                summary.text: i18n.tr("Enables 3D in both windowed and headless scenarios")
                             }
                         }
 
