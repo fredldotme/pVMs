@@ -196,10 +196,10 @@ bool Machine::startQemu()
 
     if (this->externalWindowOnly) {
         // SDL video output preferences
-        qemuEnv.insert("EGL_PLATFORM", "wayland");
+        qemuEnv.insert("HYBRIS_EGLPLATFORM", "wayland");
         qemuEnv.insert("SDL_VIDEODRIVER", "wayland");
     } else {
-        qemuEnv.insert("EGL_PLATFORM", "null");
+        qemuEnv.insert("HYBRIS_EGLPLATFORM", "null");
     }
 
     qDebug() << "Start:" << qemuBin << args;
