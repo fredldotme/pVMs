@@ -21,14 +21,12 @@
 #include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonParseError>
 #include <QQmlEngine>
 #include <QStandardPaths>
 #include <QString>
 #include <QUuid>
 #include <QVariant>
 
-#include <stdio.h>
 #include <unistd.h>
 #include <sys/statvfs.h>
 #include <sys/sysinfo.h>
@@ -53,9 +51,7 @@ const QStringList VALID_ARCHES = {
     QStringLiteral("aarch64"),
 };
 
-VMManager::VMManager() {
-
-}
+VMManager::VMManager() = default;
 
 void VMManager::setRefreshing(bool value)
 {
@@ -91,7 +87,7 @@ void VMManager::refreshVMs()
     setRefreshing(false);
 }
 
-Machine* VMManager::fromQml(QVariantMap vm)
+Machine* VMManager::fromQml(const QVariantMap& vm)
 {
     Machine* machine = new Machine();
     QQmlEngine::setObjectOwnership(machine, QQmlEngine::JavaScriptOwnership);
@@ -368,7 +364,7 @@ bool VMManager::deleteVM(Machine* machine)
     return QDir(machine->storage).removeRecursively();
 }
 
-bool VMManager::canVirtualize(QString arch)
+bool VMManager::canVirtualize(const QString& arch)
 {
     // Only "arm64" and "x86_64" are supported anyway
     const QString currentCpuType = QSysInfo::currentCpuArchitecture();
