@@ -40,23 +40,23 @@ public:
 
     Q_INVOKABLE void startVM(Machine* machine);
     Q_INVOKABLE void refreshVMs();
-    Q_INVOKABLE Machine* fromQml(QVariantMap vm);
-    Q_INVOKABLE bool createVM(Machine* machine);
-    Q_INVOKABLE bool editVM(Machine* machine);
-    Q_INVOKABLE bool deleteVM(Machine* machine);
-    Q_INVOKABLE bool resetEFIFirmware(Machine* machine);
-    Q_INVOKABLE bool resetEFINVRAM(Machine* machine);
+    Q_INVOKABLE static Machine* fromQml(const QVariantMap& vm);
+    Q_INVOKABLE static bool createVM(Machine* machine);
+    Q_INVOKABLE static bool editVM(Machine* machine);
+    Q_INVOKABLE static bool deleteVM(Machine* machine);
+    Q_INVOKABLE static bool resetEFIFirmware(Machine* machine);
+    Q_INVOKABLE static bool resetEFINVRAM(Machine* machine);
 
-    Q_INVOKABLE bool canVirtualize(QString arch);
+    Q_INVOKABLE static bool canVirtualize(const QString& arch);
 
 private:
-    QVariantMap listEntryForJSON(const QString& path, const QString& storage);
-    QByteArray machineToJSON(const Machine* machine);
+    static QVariantMap listEntryForJSON(const QString& path, const QString& storage);
+    static QByteArray machineToJSON(const Machine* machine);
     void setRefreshing(bool value);
 
-    int maxRam();
-    int maxCores();
-    int maxHddSize();
+    static int maxRam();
+    static int maxCores();
+    static int maxHddSize();
 
     QVariantList m_vms;
     bool m_refreshing;

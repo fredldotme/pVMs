@@ -24,8 +24,7 @@
 #include <QTimer>
 #include <QThread>
 
-#include <sys/types.h>
-#include <signal.h>
+#include <csignal>
 
 #include "machine.h"
 
@@ -147,7 +146,7 @@ void Machine::stop()
     emit stopped();
 }
 
-void Machine::importIntoShare(QUrl url)
+void Machine::importIntoShare(const QUrl& url) const
 {
     QFile file(url.path());
 
@@ -360,7 +359,7 @@ bool Machine::hasKvm()
     return true;
 }
 
-bool Machine::canVirtualize()
+bool Machine::canVirtualize() const
 {
     // Only "arm64" and "x86_64" are supported anyway
     const QString currentCpuType = QSysInfo::currentCpuArchitecture();
@@ -371,13 +370,13 @@ bool Machine::canVirtualize()
     return (machineType == this->arch);
 }
 
-QString Machine::getFileSharingDirectory()
+QString Machine::getFileSharingDirectory() const
 {
     const QString path = QStringLiteral("%1/shared").arg(this->storage);
     return path;
 }
 
-QString Machine::getFileSharingSocket()
+QString Machine::getFileSharingSocket() const
 {
     const QString path = QStringLiteral("%1/virtiofsd.sock").arg(this->storage);
     return path;

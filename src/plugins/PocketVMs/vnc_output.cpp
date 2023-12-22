@@ -70,9 +70,7 @@ VncOutputPrivate::VncOutputPrivate(VncOutput *q):
 {
 }
 
-VncOutputPrivate::~VncOutputPrivate()
-{
-}
+VncOutputPrivate::~VncOutputPrivate() = default;
 
 void VncOutputPrivate::setCenter(const QPointF &center)
 {

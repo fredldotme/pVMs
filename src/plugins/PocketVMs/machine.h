@@ -74,17 +74,17 @@ public:
 
     Q_INVOKABLE bool start();
     Q_INVOKABLE void stop();
-    Q_INVOKABLE void importIntoShare(QUrl url);
+    Q_INVOKABLE void importIntoShare(const QUrl& url) const;
 
-    Q_INVOKABLE QString getFileSharingDirectory();
-    Q_INVOKABLE QString getFileSharingSocket();
+    Q_INVOKABLE QString getFileSharingDirectory() const;
+    Q_INVOKABLE QString getFileSharingSocket() const;
 
-    Q_INVOKABLE bool canVirtualize();
+    Q_INVOKABLE bool canVirtualize() const;
 
 private:
     bool startQemu();
     QStringList getLaunchArguments();
-    bool hasKvm();
+    static bool hasKvm();
     QObject* session();
 
     KSession* m_session = nullptr;
