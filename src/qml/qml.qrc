@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>Main.qml</file>
         <file>LomiriFilePicker.qml</file>
+        <file>LomiriFileReceiver.qml</file>
         <file>LegacyFilePicker.qml</file>
     </qresource>
 </RCC>

@@ -18,7 +18,6 @@ import QtQuick 2.7
 import Lomiri.Components 1.3
 import Lomiri.Components.Popups 1.3
 import Lomiri.Components.Themes 1.3
-import Lomiri.Content 1.0
 import QtQuick.Layouts 1.3
 import QtQuick.Window 2.12
 import QMLTermWidget 1.0
@@ -44,7 +43,11 @@ MainView {
     readonly property Component lomiriFilePicker :
         Qt.createComponent("qrc:/LomiriFilePicker.qml",
                            Component.PreferSynchronous);
+    readonly property Component lomiriFileReceiver :
+        Qt.createComponent("qrc:/LomiriFileReceiver.qml",
+                           Component.PreferSynchronous);
 
+    property var fileReceiver : null
 
     function isRegisteredMachine(storage) {
         for (var i = 0; i < runningMachineRefs.length; i++) {
@@ -88,27 +91,8 @@ MainView {
 
     Component.onCompleted: {
         VMManager.refreshVMs();
-    }
-
-    property var importItems : []
-    Connections {
-        target: ContentHub
-
-        onImportRequested: {
-            if (VMManager.vms.count < 1)
-                return;
-
-            importItems = transfer.items;
-            PopupUtils.open(contentHubDialog);
-        }
-
-        onShareRequested: {
-            if (VMManager.vms.count < 1)
-                return;
-
-            importItems = transfer.items;
-            PopupUtils.open(contentHubDialog);
-        }
+        if (!legacy)
+            fileReceiver = lomiriFileReceiver.createObject(root)
     }
 
     AdaptivePageLayout {
@@ -1025,77 +1009,6 @@ MainView {
                 color: theme.palette.normal.negative
                 onClicked: {
                     PopupUtils.close(deleteDialogue);
-                }
-            }
-        }
-    }
-
-    Component {
-        id: contentHubDialog
-
-        Dialog {
-            id: contentHubDialogue
-            contentWidth: (root.width / 3) * 2
-            contentHeight: (root.height / 3) * 2
-
-            Column {
-                width: contentHubDialogue.contentWidth
-                height: contentHubDialogue.contentHeight
-
-                ListItemLayout {
-                    id: importHeader
-                    title.text: i18n.tr("Drop the file in a VM")
-                    summary.text: i18n.tr("Select a machine")
-                    width: parent.width
-
-                    Button {
-                        text: i18n.tr("Cancel")
-                        color: theme.palette.normal.negative
-                        x: parent.width - width - units.gu(4)
-
-                        onClicked: {
-                            PopupUtils.close(contentHubDialogue);
-                        }
-                    }
-                }
-
-                Column {
-                    anchors.centerIn: parent
-                    visible: contentHubVmListView.model.count === 0
-                    anchors.topMargin: typicalMargin
-
-                    ListItemLayout {
-                        title.text: i18n.tr("No machines available")
-                        summary.text: i18n.tr("Add a machine in the main app view to continue")
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                }
-
-                Repeater {
-                    id: contentHubVmListView
-                    model: VMManager.vms
-                    width: parent.width
-                    anchors.bottom: importHeader.bottom
-                    delegate: ListItem {
-                        property Machine machine : isRegisteredMachine(modelData.storage) ?
-                                                       getRegisteredMachine(modelData.storage) :
-                                                       VMManager.fromQml(modelData);
-
-                        enabled: machine.enableFileSharing
-
-                        ListItemLayout {
-                            title.text: machine.name
-                            summary.text: machine.enableFileSharing ? i18n.tr("Available") :
-                                                                      i18n.tr("File sharing disabled in settings")
-                        }
-
-                        onClicked: {
-                            for (var i = 0; i < importItems.length; i++) {
-                                machine.importIntoShare(importItems[i].url)
-                            }
-                            PopupUtils.close(contentHubDialogue);
-                        }
-                    }
                 }
             }
         }

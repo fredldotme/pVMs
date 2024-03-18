@@ -51,6 +51,14 @@ const QStringList VALID_ARCHES = {
     QStringLiteral("aarch64"),
 };
 
+static QString appDataLocation() {
+#ifdef PVMS_LEGACY
+    return QString::fromLocal8Bit(qgetenv("SNAP_USER_COMMON"));
+#else
+    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+#endif
+}
+
 VMManager::VMManager() = default;
 
 void VMManager::setRefreshing(bool value)
@@ -65,8 +73,7 @@ void VMManager::setRefreshing(bool value)
 void VMManager::refreshVMs()
 {
     QVariantList vms;
-    QDirIterator dirIt(
-                QStandardPaths::writableLocation(QStandardPaths::AppDataLocation),
+    QDirIterator dirIt(appDataLocation(),
                 QStringList() << "info.json", QDir::Files, QDirIterator::Subdirectories);
 
     setRefreshing(true);
@@ -115,8 +122,7 @@ bool VMManager::createVM(Machine* machine)
         return false;
     }
 
-    const QString vmDirPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
-            QStringLiteral("/") + QUuid::createUuid().toString();
+    const QString vmDirPath = appDataLocation() + QStringLiteral("/") + QUuid::createUuid().toString();
     const QString pwd = QCoreApplication::applicationDirPath();
 
     machine->storage = vmDirPath;
@@ -407,7 +413,7 @@ int VMManager::maxCores()
 
 int VMManager::maxHddSize()
 {
-    const auto path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    const auto path = appDataLocation();
     struct statvfs stat;
     if (!statvfs(path.toUtf8().data(), &stat))
         return (((stat.f_bsize * stat.f_bfree) / 1024) / 1024) / 1024;
