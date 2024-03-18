@@ -3,7 +3,7 @@ version: "0.6"
 summary: A convergent QEMU frontend for desktop and mobile
 description: |
   Pocket VMs is a QEMU frontend for Ubuntu Touch & Ubuntu Desktop
-  
+
   Features:
   - A custom build of QEMU
   - A native & convergent GUI
@@ -22,20 +22,38 @@ architectures:
   - build-on: arm64
     run-on: arm64
 
+plugs:
+  graphics-core20:
+    interface: content
+    target: $SNAP/graphics
+    default-provider: mesa-core20
+
+layout:
+  /usr/share/libdrm:  # Needed by mesa-core20 on AMD GPUs
+    bind: $SNAP/graphics/libdrm
+  /usr/share/drirc.d:  # Used by mesa-core20 for app specific workarounds
+    bind: $SNAP/graphics/drirc.d
+  /usr/share/X11/xkb:
+    bind: $SNAP/usr/share/X11/xkb
+  /usr/share/fonts:
+    bind: $SNAP/usr/share/fonts
+  /etc/fonts:
+    bind: $SNAP/etc/fonts
+
 apps:
-  pvms:
+  pocketvms:
     environment:
-      LD_LIBRARY_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/ceph:${SNAP}/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib
-      LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+      LD_LIBRARY_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/ceph:${SNAP}/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/pulseaudio:${SNAP}/usr/lib:${SNAP}/graphics/lib
       QT_PLUGIN_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/plugins
       QML2_IMPORT_PATH: ${SNAP}/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/qml
-      XDG_DATA_DIRS: $XDG_DATA_DIRS:${SNAP}/usr/share 
-    command: bin/desktop-launch pvms -platform xcb
-    command-chain: [ bin/runner ]
+      XDG_DATA_DIRS: $XDG_DATA_DIRS:${SNAP}/usr/share
+      PATH: ${SNAP}/bin:$PATH
+    command: bin/desktop-launch /snap/pocketvms/current/bin/runner
     plugs:
       - audio-playback
       - audio-record
       - kvm
+      - userns
       - home
       - opengl
       - raw-usb
@@ -227,6 +245,11 @@ parts:
       - intltool
       - libvncserver-dev
       - libssl-dev
+      - xutils-dev
+      - meson
+      - libva-dev
+      - libslirp-dev
+      - ovmf
     stage-packages:
       - libaio1
       - libbluetooth3
@@ -307,6 +330,7 @@ parts:
       - libxdamage1
       - qml-module-qtquick2
       - qml-module-qtquick-window2
+      - qml-module-qtquick-dialogs
       - libdouble-conversion3
       - libevdev2
       - libpcre2-16-0
@@ -318,6 +342,9 @@ parts:
       - libqt5quick5
       - libqt5sql5
       - libqt5svg5
+      - libslirp0
+      - libva-drm2
+      - libva2
     prime:
       # Remove cruft
       - -usr/share/qemu/qemu-nsis.bmp
@@ -328,15 +355,6 @@ parts:
     override-build: |
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       cp -av runner $SNAPCRAFT_PART_INSTALL/bin/
-  desktop-qt5:
-    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
-    source-subdir: qt
-    plugin: make
-    make-parameters: [ "FLAVOR=qt5" ]
-    build-packages:
-      - build-essential
-      - qtbase5-dev
-      - dpkg-dev
     stage-packages:
       - libxkbcommon0
       - ttf-ubuntu-font-family
@@ -347,27 +365,42 @@ parts:
       - shared-mime-info
       - libqt5gui5
       - libgdk-pixbuf2.0-0
-  mesa:
+      - qtwayland5
+      - fontconfig
+      - fontconfig-config
+      - locales-all
+      - xdg-user-dirs
+  qt-setup:
+    after: [ runner ]
+    source: https://github.com/snapcore/snapcraft-desktop-integration.git
     plugin: nil
+    override-build: |
+      cd qt-framework
+      make PLATFORM_PLUG=desktop DESTDIR=$SNAPCRAFT_PART_INSTALL install
     stage-packages:
-      - libegl1
-      - libgl1
-      - libgl1-mesa-dri
-      - libglx-mesa0
-    build-attributes:
-      - no-patchelf
-    prime:
-      - -lib/udev
-      - -usr/doc
-      - -usr/doc-base
-      - -usr/share/applications
-      - -usr/share/apport
-      - -usr/share/bug
-      - -usr/share/doc
-      - -usr/share/doc-base
-      - -usr/share/icons
-      - -usr/share/libdrm
-      - -usr/share/libwacom
-      - -usr/share/lintian
-      - -usr/share/man
-      - -usr/share/pkgconfig
+      - libxkbcommon0
+      - ttf-ubuntu-font-family
+      - dmz-cursor-theme
+      - light-themes
+      - adwaita-icon-theme
+      - gnome-themes-standard
+      - shared-mime-info
+      - libqt5gui5
+      - libgdk-pixbuf2.0-0
+      - qtwayland5
+      - fontconfig
+      - fontconfig-config
+      - locales-all
+      - xdg-user-dirs
+  cleanup:
+    after: [ qt-setup ]
+    plugin: nil
+    build-snaps: [ mesa-core20 ]
+    override-prime: |
+      set -eux
+      cd /snap/mesa-core20/current/egl/lib
+      find . -type f,l -exec rm -f $SNAPCRAFT_PRIME/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/{} \;
+      rm -fr "$SNAPCRAFT_PRIME/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri"
+      for CRUFT in bug drirc.d glvnd libdrm lintian man; do
+        rm -rf "$SNAPCRAFT_PRIME/usr/share/$CRUFT"
+      done
