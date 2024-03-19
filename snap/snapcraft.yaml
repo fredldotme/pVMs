@@ -47,8 +47,8 @@ apps:
       QT_PLUGIN_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/plugins
       QML2_IMPORT_PATH: ${SNAP}/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/qml
       XDG_DATA_DIRS: $XDG_DATA_DIRS:${SNAP}/usr/share
-      PATH: ${SNAP}/bin:$PATH
-    command: bin/desktop-launch runner
+      PATH: ${SNAP}/bin:${SNAP}/command-chain:$PATH
+    command: command-chain/desktop-launch runner
     plugs:
       - audio-playback
       - audio-record
@@ -65,6 +65,7 @@ apps:
       - unity7
       - x11
       - wayland
+      - desktop
 
 parts:
   qtsystems:
