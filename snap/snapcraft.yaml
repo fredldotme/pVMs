@@ -1,5 +1,5 @@
 name: pocketvms
-version: "0.6"
+version: "0.8"
 summary: A convergent QEMU frontend for desktop and mobile
 description: |
   Pocket VMs is a QEMU frontend for Ubuntu Touch & Ubuntu Desktop
