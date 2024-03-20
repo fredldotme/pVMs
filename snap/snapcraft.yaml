@@ -53,7 +53,6 @@ apps:
       - audio-playback
       - audio-record
       - kvm
-      - userns
       - home
       - opengl
       - raw-usb
