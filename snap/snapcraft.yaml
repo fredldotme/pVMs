@@ -48,7 +48,7 @@ apps:
       QML2_IMPORT_PATH: ${SNAP}/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/qml
       XDG_DATA_DIRS: $XDG_DATA_DIRS:${SNAP}/usr/share
       PATH: ${SNAP}/bin:${SNAP}/command-chain:$PATH
-    command: command-chain/desktop-launch runner
+    command: bin/runner
     plugs:
       - audio-playback
       - audio-record
@@ -83,9 +83,8 @@ parts:
         - libdbus-1-dev
         - liblttng-ust-dev
         - libqt5svg5-dev
-        - qtdeclarative5-dev
-        - qtdeclarative5-private-dev
         - qtbase5-private-dev
+        - qtdeclarative5-dev
   qtfeedback:
     plugin: qmake
     after: [ qtsystems ]
@@ -103,8 +102,6 @@ parts:
         - libdbus-1-dev
         - liblttng-ust-dev
         - libqt5svg5-dev
-        - qtdeclarative5-dev
-        - qtdeclarative5-private-dev
         - qtbase5-private-dev
   qtpim:
     after: [ qtfeedback ]
@@ -123,8 +120,6 @@ parts:
         - libdbus-1-dev
         - liblttng-ust-dev
         - libqt5svg5-dev
-        - qtdeclarative5-dev
-        - qtdeclarative5-private-dev
         - qtbase5-private-dev
   suru-icons:
     after: [ qtpim ]
@@ -153,11 +148,9 @@ parts:
         - libdbus-1-dev
         - liblttng-ust-dev
         - libqt5svg5-dev
-        - qtdeclarative5-dev
-        - qtdeclarative5-private-dev
         - qtbase5-private-dev
+        - qtdeclarative5-private-dev
         - qml-module-qtquick2
-        - qml-module-qtquick-controls2
         - qml-module-qtquick-window2
         - qml-module-qtquick-layouts
         - qml-module-qtgraphicaleffects
@@ -165,11 +158,6 @@ parts:
     stage-packages:
         - ttf-ubuntu-font-family
         - yaru-theme-icon
-        - qml-module-qtquick2
-        - qml-module-qtquick-window2
-        - qml-module-qtquick-layouts
-        - qml-module-qtgraphicaleffects
-        - qml-module-qttest
         - libbluetooth3
         - liblttng-ust0
         - libnuma1
@@ -234,14 +222,7 @@ parts:
       - ninja-build
       - qml-module-qtquick2
       - qt5-qmake
-      - qttools5-dev
-      - qtdeclarative5-dev
       - libqt5svg5-dev
-      - qttools5-dev-tools
-      - libqt5xmlpatterns5-dev
-      - libqt5webkit5-dev
-      - qtbase5-dev
-      - qtquickcontrols2-5-dev
       - intltool
       - libvncserver-dev
       - libssl-dev
@@ -328,18 +309,14 @@ parts:
       - libxcb-shm0
       - libxcomposite1
       - libxdamage1
-      - qml-module-qtquick2
-      - qml-module-qtquick-window2
-      - qml-module-qtquick-dialogs
       - libdouble-conversion3
       - libevdev2
       - libpcre2-16-0
       - libqt5core5a
       - libqt5dbus5
-      - libqt5gui5
+      - libqt5gui5-gles
       - libqt5network5
       - libqt5qml5
-      - libqt5quick5
       - libqt5sql5
       - libqt5svg5
       - libslirp0
@@ -363,13 +340,21 @@ parts:
       - adwaita-icon-theme
       - gnome-themes-standard
       - shared-mime-info
-      - libqt5gui5
+      - libqt5gui5-gles
+      - libqt5quick5-gles
       - libgdk-pixbuf2.0-0
       - qtwayland5
       - fontconfig
       - fontconfig-config
       - locales-all
       - xdg-user-dirs
+      - qml-module-qttest
+      - qml-module-qtquick2
+      - qml-module-qtquick-window2
+      - qml-module-qtquick-dialogs
+      - qml-module-qtquick-layouts
+      - qml-module-qtgraphicaleffects
+      - libqt5test5
   qt-setup:
     after: [ runner ]
     source: https://github.com/snapcore/snapcraft-desktop-integration.git
@@ -377,21 +362,8 @@ parts:
     override-build: |
       cd qt-framework
       make PLATFORM_PLUG=desktop DESTDIR=$SNAPCRAFT_PART_INSTALL install
-    stage-packages:
-      - libxkbcommon0
-      - ttf-ubuntu-font-family
-      - dmz-cursor-theme
-      - light-themes
-      - adwaita-icon-theme
-      - gnome-themes-standard
-      - shared-mime-info
-      - libqt5gui5
-      - libgdk-pixbuf2.0-0
-      - qtwayland5
-      - fontconfig
-      - fontconfig-config
-      - locales-all
-      - xdg-user-dirs
+    stage:
+      - command-chain
   cleanup:
     after: [ qt-setup ]
     plugin: nil

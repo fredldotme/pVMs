@@ -1,7 +1,16 @@
 #! /bin/sh
 
+if [ "$QT_QPA_PLATFORM" = "ubuntumirclient" ]; then
+    export QT_QPA_PLATFORM=wayland-egl
+    export EGL_PLATFORM=wayland
+fi
+
+if [ ! -z "$DESKTOP_FILE_HINT" ]; then
+    export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+fi
+
 export LIBGL_DRIVERS_PATH=${SNAP}/graphics/dri
-export __EGL_VENDOR_LIBRARY_DIRS=${SNAP}/graphics/glvnd/egl_vendor.d
+export __EGL_VENDOR_LIBRARY_DIRS=/var/lib/snapd/lib/glvnd/egl_vendor.d:${SNAP}/graphics/glvnd/egl_vendor.d:${__EGL_VENDOR_LIBRARY_DIRS}
 
 if [ ! -e $XDG_RUNTIME_DIR/pulse ]; then
     ln -sf ../pulse $XDG_RUNTIME_DIR/pulse
