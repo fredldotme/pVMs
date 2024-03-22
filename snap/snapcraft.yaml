@@ -65,6 +65,7 @@ apps:
       - x11
       - wayland
       - desktop
+      - maliit
 
 parts:
   qtsystems:
@@ -364,8 +365,21 @@ parts:
       make PLATFORM_PLUG=desktop DESTDIR=$SNAPCRAFT_PART_INSTALL install
     stage:
       - command-chain
-  cleanup:
+  maliit:
     after: [ qt-setup ]
+    plugin: cmake
+    source: https://github.com/fredldotme/maliit-framework.git
+    source-branch: pvms
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -Denable-wayland=OFF
+      - -Denable-glib=OFF
+      - -Denable-tests=OFF
+      - -Denable-docs=OFF
+      - -Denable-xcb=OFF
+      - -Denable-hwkeyboard=OFF
+  cleanup:
+    after: [ maliit ]
     plugin: nil
     build-snaps: [ mesa-core20 ]
     override-prime: |

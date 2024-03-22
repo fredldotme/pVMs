@@ -1,8 +1,32 @@
 #! /bin/sh
 
+if [ ! -d "$XDG_RUNTIME_DIR" ]; then
+    mkdir -p "$XDG_RUNTIME_DIR"
+fi
+
+if [ ! -e "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; then
+    ln -sf "../$WAYLAND_DISPLAY" "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY"
+fi
+
+if [ ! -d "$XDG_RUNTIME_DIR/pulse" ]; then
+    mkdir "$XDG_RUNTIME_DIR/pulse"
+fi
+
+if [ ! -e "$XDG_RUNTIME_DIR/pulse/native" ]; then
+    ln -sf "/run/user/$(id -u)/pulse/native" "$XDG_RUNTIME_DIR/pulse/native"
+fi
+
+if [ ! -e "$XDG_RUNTIME_DIR/pulse/pid" ]; then
+    ln -sf "/run/user/$(id -u)/pulse/pid" "$XDG_RUNTIME_DIR/pulse/pid"
+fi
+
 if [ "$QT_QPA_PLATFORM" = "ubuntumirclient" ]; then
     export QT_QPA_PLATFORM=wayland-egl
     export EGL_PLATFORM=wayland
+fi
+
+if [ "$QT_IM_MODULE" = "maliitphablet" ]; then
+    export QT_IM_MODULE=Maliit
 fi
 
 if [ ! -z "$DESKTOP_FILE_HINT" ]; then
@@ -11,9 +35,5 @@ fi
 
 export LIBGL_DRIVERS_PATH=${SNAP}/graphics/dri
 export __EGL_VENDOR_LIBRARY_DIRS=/var/lib/snapd/lib/glvnd/egl_vendor.d:${SNAP}/graphics/glvnd/egl_vendor.d:${__EGL_VENDOR_LIBRARY_DIRS}
-
-if [ ! -e $XDG_RUNTIME_DIR/pulse ]; then
-    ln -sf ../pulse $XDG_RUNTIME_DIR/pulse
-fi
 
 exec "$SNAP/pvms"
