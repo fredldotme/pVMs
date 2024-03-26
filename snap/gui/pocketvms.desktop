@@ -3,3 +3,4 @@ Type=Application
 Icon=${SNAP}/meta/gui/pocketvms.svg
 Exec=pocketvms
 Name=Pocket VMs
+X-Ubuntu-Touch=true
