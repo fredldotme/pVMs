@@ -27,6 +27,10 @@ plugs:
     interface: content
     target: $SNAP/graphics
     default-provider: mesa-core20
+  lomiri-ui-toolkit:
+    interface: content
+    target: $SNAP/lomiri-ui-toolkit
+    default-provider: lomiri-ui-toolkit-core20
 
 layout:
   /usr/share/libdrm:  # Needed by mesa-core20 on AMD GPUs
@@ -43,12 +47,12 @@ layout:
 apps:
   pocketvms:
     environment:
-      LD_LIBRARY_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/ceph:${SNAP}/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/pulseaudio:${SNAP}/usr/lib:${SNAP}/graphics/lib
-      QT_PLUGIN_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/plugins
-      QML2_IMPORT_PATH: ${SNAP}/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/qml
-      XDG_DATA_DIRS: $XDG_DATA_DIRS:${SNAP}/usr/share
+      LD_LIBRARY_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/ceph:${SNAP}/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/pulseaudio:${SNAP}/usr/lib:${SNAP}/graphics/lib:${SNAP}/lomiri-ui-toolkit/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}
+      QT_PLUGIN_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/plugins:${SNAP}/lomiri-ui-toolkit/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/plugins
+      QML2_IMPORT_PATH: ${SNAP}/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/qml:${SNAP}/lomiri-ui-toolkit/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/lomiri-ui-toolkit/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/qml
+      XDG_DATA_DIRS: $XDG_DATA_DIRS:${SNAP}/usr/share:${SNAP}/lomiri-ui-toolkit/usr/share
       PATH: ${SNAP}/bin:${SNAP}/command-chain:$PATH
-    command: bin/runner
+    command: bin/runner $SNAP/pvms
     plugs:
       - audio-playback
       - audio-record
@@ -68,108 +72,15 @@ apps:
       - maliit
 
 parts:
-  qtsystems:
-    plugin: qmake
-    qmake-project-file: qtsystems.pro
-    source: https://github.com/qt/qtsystems.git
-    source-commit: e3332ee38d27a134cef6621fdaf36687af1b6f4a
-    override-build: |
-      snapcraftctl build
-      cp -a $SNAPCRAFT_PART_INSTALL/* /
-    build-packages:
-        - dbus
-        - dbus-test-runner
-        - devscripts
-        - gdb
-        - libdbus-1-dev
-        - liblttng-ust-dev
-        - libqt5svg5-dev
-        - qtbase5-private-dev
-        - qtdeclarative5-dev
-  qtfeedback:
-    plugin: qmake
-    after: [ qtsystems ]
-    qmake-project-file: qtfeedback.pro
-    source: https://github.com/qt/qtfeedback.git
-    source-commit: a14bd0bb1373cde86e09e3619fb9dc70f34c71f2
-    override-build: |
-      snapcraftctl build
-      cp -a $SNAPCRAFT_PART_INSTALL/* /
-    build-packages:
-        - dbus
-        - dbus-test-runner
-        - devscripts
-        - gdb
-        - libdbus-1-dev
-        - liblttng-ust-dev
-        - libqt5svg5-dev
-        - qtbase5-private-dev
-  qtpim:
-    after: [ qtfeedback ]
-    plugin: qmake
-    qmake-project-file: qtpim.pro
-    source: https://github.com/qt/qtpim.git
-    source-commit: 8fec622c186d254bc9750606d54c32670a9046a5
-    override-build: |
-      snapcraftctl build
-      cp -a $SNAPCRAFT_PART_INSTALL/* /
-    build-packages:
-        - dbus
-        - dbus-test-runner
-        - devscripts
-        - gdb
-        - libdbus-1-dev
-        - liblttng-ust-dev
-        - libqt5svg5-dev
-        - qtbase5-private-dev
-  suru-icons:
-    after: [ qtpim ]
-    plugin: nil
-    source: https://gitlab.com/ubports/core/suru-icon-theme.git
-    source-branch: main
-    override-build: |
-      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/icons
-      cp -a $SNAPCRAFT_PART_SRC/suru $SNAPCRAFT_PART_INSTALL/usr/share/icons/
-  lomiri-ui-toolkit:
-    plugin: qmake
-    after: [ suru-icons ]
-    qmake-project-file: lomiri-sdk.pro
-    qmake-parameters:
-        - CONFIG+=ubuntu-uitk-compat
-    source: https://gitlab.com/ubports/core/lomiri-ui-toolkit.git
-    source-branch: main
-    override-build: |
-      snapcraftctl build
-      cp -a $SNAPCRAFT_PART_INSTALL/* /
-    build-packages:
-        - dbus
-        - dbus-test-runner
-        - devscripts
-        - gdb
-        - libdbus-1-dev
-        - liblttng-ust-dev
-        - libqt5svg5-dev
-        - qtbase5-private-dev
-        - qtdeclarative5-private-dev
-        - qml-module-qtquick2
-        - qml-module-qtquick-window2
-        - qml-module-qtquick-layouts
-        - qml-module-qtgraphicaleffects
-        - qml-module-qttest
-    stage-packages:
-        - ttf-ubuntu-font-family
-        - yaru-theme-icon
-        - libbluetooth3
-        - liblttng-ust0
-        - libnuma1
-        - liburcu6
   pvms:
     source: .
     plugin: cmake
     override-build: |
       cd $SNAPCRAFT_PART_SRC
+      export CMAKE_MODULE_PATH=/snap/lomiri-ui-toolkit-core20/current/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/cmake
       ./build.sh -c -l
-    after: [ lomiri-ui-toolkit ]
+    build-snaps:
+      - lomiri-ui-toolkit-core20
     build-packages:
       - autoconf
       - automake
@@ -232,6 +143,9 @@ parts:
       - libva-dev
       - libslirp-dev
       - ovmf
+      - libgles-dev
+      - qtbase5-dev
+      - qtdeclarative5-dev
     stage-packages:
       - libaio1
       - libbluetooth3
@@ -370,6 +284,8 @@ parts:
     plugin: cmake
     source: https://github.com/fredldotme/maliit-framework.git
     source-branch: pvms
+    build-packages:
+      - qtbase5-private-dev
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
       - -Denable-wayland=OFF

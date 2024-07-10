@@ -222,10 +222,7 @@ MIRCLIENT_SDL=""
 
 # Build direct dependencies
 #build_3rdparty_autogen xorg-macros
-if [ ! -f "$BUILD_DIR/.libepoxy_built" ] && [ -d $SRC_PATH/3rdparty/libepoxy/m4 ]; then
-    rm -rf $SRC_PATH/3rdparty/libepoxy/m4
-fi
-build_3rdparty_autogen libepoxy "--enable-egl=yes --enable-glx=yes --disable-static --enable-shared --host=$ARCH_TRIPLET"
+build_3rdparty_meson libepoxy "-Ddocs=false -Degl=yes -Dglx=yes -Dx11=true -Dtests=false -Dprefix=$INSTALL"
 build_3rdparty_meson virglrenderer "-Dvideo=true -Dprefix=$INSTALL"
 build_3rdparty_autogen wayland-protocols "--host=$ARCH_TRIPLET"
 build_3rdparty_qmake qmltermwidget ""
