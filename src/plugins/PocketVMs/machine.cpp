@@ -192,7 +192,10 @@ bool Machine::startQemu()
 
     // Pass proper and valid APP_ID as DESKTOP_FILE_HINT
     QProcessEnvironment qemuEnv = QProcessEnvironment::systemEnvironment();
-    qemuEnv.insert("DESKTOP_FILE_HINT", qgetenv("APP_ID"));
+
+    // Use APP_ID as DESKTOP_FILE_HINT if available
+    if (!qgetenv("APP_ID").isEmpty())
+        qemuEnv.insert("DESKTOP_FILE_HINT", qgetenv("APP_ID"));
 
     if (this->externalWindowOnly) {
         // SDL video output preferences
