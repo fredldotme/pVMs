@@ -147,6 +147,7 @@ VncOutput::VncOutput(QQuickItem *parent):
     QQuickPaintedItem(parent),
     d_ptr(new VncOutputPrivate(this))
 {
+    setFillColor(QColor(Qt::black));
     setOpaquePainting(true);
     setAntialiasing(true);
     setAcceptedMouseButtons(Qt::AllButtons);
