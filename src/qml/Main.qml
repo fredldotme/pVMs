@@ -388,6 +388,11 @@ MainView {
                     running: starting
                     anchors.centerIn: parent
                 }
+                Rectangle {
+                    anchors.fill: viewer
+                    color: "black"
+                    visible: viewer.visible
+                }
                 VncOutput {
                     id: viewer
                     client: vncClient
