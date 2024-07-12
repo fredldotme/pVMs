@@ -52,7 +52,10 @@ apps:
       QML2_IMPORT_PATH: ${SNAP}/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/qml:${SNAP}/lomiri-ui-toolkit/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/lomiri-ui-toolkit/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/qml
       XDG_DATA_DIRS: $XDG_DATA_DIRS:${SNAP}/usr/share:${SNAP}/lomiri-ui-toolkit/usr/share
       PATH: ${SNAP}/bin:${SNAP}/command-chain:$PATH
-    command: bin/runner $SNAP/pvms
+    command-chain:
+      - command-chain/desktop-launch
+      - bin/runner
+    command: pvms
     plugs:
       - audio-playback
       - audio-record
