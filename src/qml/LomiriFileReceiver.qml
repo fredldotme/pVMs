@@ -1,9 +1,10 @@
 import QtQuick 2.12
 import Lomiri.Components 1.3
+import Lomiri.Components.Popups 1.3
 import Lomiri.Content 1.0
 import PocketVMs 1.0
 
-QtObject {
+Item {
     property var importItems : []
     Connections {
         target: ContentHub
@@ -96,3 +97,4 @@ QtObject {
         }
     }
 }
+

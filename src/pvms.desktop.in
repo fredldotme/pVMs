@@ -4,4 +4,8 @@ Exec=pvms %U
 Icon=assets/logo.svg
 Terminal=false
 Type=Application
-X-Ubuntu-Touch=true
+X-Lomiri-Touch=true
+X-Lomiri-Splash-Image=assets/logo.png
+X-Lomiri-Splash-Show-Header=false
+X-Lomiri-Splash-Color=#872c77
+

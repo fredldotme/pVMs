@@ -219,7 +219,7 @@ QStringList Machine::getLaunchArguments()
 {
     QStringList ret;
 
-    const bool useKvm = hasKvm() && canVirtualize();
+    const bool useKvm = hasKvm() && canVirtualize() && this->enableVirtualization;
     const bool isAarch64 = this->arch == QStringLiteral("aarch64");
 
     // Machine setup

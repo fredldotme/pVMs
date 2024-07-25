@@ -44,6 +44,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/manifest.json DESTINATION ${CMAKE_INST
 install(FILES ${PROJECT_NAME}.apparmor DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(FILES ${PROJECT_NAME}.contenthub DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(FILES assets/logo.svg DESTINATION assets)
+install(FILES assets/logo.png DESTINATION assets)
 
 option(PVMS_LEGACY "Build with legacy compatibility" OFF)
 if (PVMS_LEGACY)

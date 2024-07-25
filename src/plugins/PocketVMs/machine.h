@@ -40,6 +40,7 @@ class Machine: public QObject {
     Q_PROPERTY(bool enableFileSharing MEMBER enableFileSharing NOTIFY enableFileSharingChanged)
     Q_PROPERTY(bool useVirglrenderer MEMBER useVirglrenderer NOTIFY useVirglrendererChanged)
     Q_PROPERTY(bool externalWindowOnly MEMBER externalWindowOnly NOTIFY externalWindowOnlyChanged)
+    Q_PROPERTY(bool enableVirtualization MEMBER enableVirtualization NOTIFY enableVirtualizationChanged)
 
     Q_PROPERTY(bool running MEMBER running NOTIFY runningChanged)
     Q_PROPERTY(QObject* session READ session NOTIFY sessionChanged);
@@ -59,6 +60,7 @@ public:
     bool enableFileSharing = false;
     bool useVirglrenderer = false;
     bool externalWindowOnly = false;
+    bool enableVirtualization = false;
 
     bool running = false;
 
@@ -104,6 +106,7 @@ signals:
     void enableFileSharingChanged();
     void useVirglrendererChanged();
     void externalWindowOnlyChanged();
+    void enableVirtualizationChanged();
 
     void runningChanged();
     void sessionChanged();

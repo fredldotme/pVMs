@@ -359,6 +359,96 @@ MainView {
                         textSize: Label.Large
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
+
+                    Item { height: units.gu(2) }
+
+                    Row {
+                        width: parent.width
+                        height: implicitHeight
+                        Label {
+                            text: i18n.tr("Machine:")
+                            textSize: Label.Medium
+                            font.bold: true
+                        }
+                        Label {
+                            text: machine.arch
+                            textSize: Label.Medium
+                        }
+                    }
+
+                    Row {
+                        width: parent.width
+                        height: implicitHeight
+                        Label {
+                            text: i18n.tr("Name:")
+                            textSize: Label.Medium
+                            font.bold: true
+                        }
+                        Label {
+                            text: machine.name
+                            textSize: Label.Medium
+                        }
+                    }
+
+                    Row {
+                        width: parent.width
+                        height: implicitHeight
+                        Label {
+                            text: i18n.tr("Specs:")
+                            textSize: Label.Medium
+                            font.bold: true
+                        }
+                        Label {
+                            text: "%1 Cores, %2 RAM, %3 storage".arg(machine.cores, machine.mem, machine.hddSize)
+                            textSize: Label.Medium
+                        }
+                    }
+
+                    /*Row {
+                        width: parent.width
+                        height: implicitHeight
+                        Label {
+                            text: i18n.tr("Features:")
+                            textSize: Label.Medium
+                            font.bold: true
+                        }
+                        Column {
+                            Label {
+                                text: "%1 Cores, %2 RAM, %3 storage".arg(machine.cores, machine.mem, machine.hddSize)
+                                textSize: Label.Medium
+                            }
+                        }
+                    }*/
+
+                    /*
+                    * newMachine.name = description.text
+                                        newMachine.arch = supportedArchitectures[architecture.selectedIndex]
+                                        newMachine.cores = coresSlider.value.toFixed(0)
+                                        newMachine.mem = memSlider.value.toFixed(0)
+                                        newMachine.hddSize = hddSizeSlider.value.toFixed(0)
+                                        newMachine.dvd = stripFilePath(isoFileUrl);
+                                        newMachine.useVirglrenderer = virglrendererCheckbox.checked;
+                                        newMachine.enableFileSharing = fileSharingCheckbox.checked;
+                                        newMachine.externalWindowOnly =
+                                                externalWindowOnlyCheckbox.enabled &&
+                                                externalWindowOnlyCheckbox.checked;
+                                        newMachine.enableVirtualization = virtualizationCheckbox.checked;
+
+                    */
+                    
+                    Row {
+                        width: parent.width
+                        height: implicitHeight
+                        Label {
+                            text: i18n.tr("Machine:")
+                            textSize: Label.Medium
+                            font.bold: true
+                        }
+                        Label {
+                            text: machine.arch
+                            textSize: Label.Medium
+                        }
+                    }
                 }
                 Column {
                     anchors.centerIn: parent
@@ -573,6 +663,7 @@ MainView {
                                         newMachine.externalWindowOnly =
                                                 externalWindowOnlyCheckbox.enabled &&
                                                 externalWindowOnlyCheckbox.checked;
+                                        newMachine.enableVirtualization = virtualizationCheckbox.checked;
 
                                         if (VMManager.createVM(newMachine)) {
                                             VMManager.refreshVMs();
@@ -589,6 +680,7 @@ MainView {
                                         existingMachine.externalWindowOnly =
                                                 externalWindowOnlyCheckbox.enabled &&
                                                 externalWindowOnlyCheckbox.checked;
+                                        existingMachine.enableVirtualization = virtualizationCheckbox.checked;
 
                                         if (VMManager.editVM(existingMachine)) {
                                             VMManager.refreshVMs();
@@ -765,6 +857,28 @@ MainView {
                                 id: fileSharingHint
                                 title.text: i18n.tr("Enable file sharing")
                                 summary.text: i18n.tr("Accessible via the virtiofs mount tag 'pocketvms'")
+                            }
+                        }
+                        
+                        Row {
+                            width: parent.width
+                            visible: {
+                                for (var i = 0; i < supportedArchitectures.length; i++) {
+                                    if (VMManager.canVirtualize(supportedArchitectures[i]))
+                                        return true;
+                                }
+                                return false;
+                            }
+
+                            Switch {
+                                id: virtualizationCheckbox
+                                checked: editMode ? existingMachine.enableVirtualization : true
+                                anchors.verticalCenter: virtualizationHint.verticalCenter
+                            }
+                            ListItemLayout {
+                                id: virtualizationHint
+                                title.text: i18n.tr("Enable virtualization")
+                                summary.text: i18n.tr("Switches KVM on or off if needed")
                             }
                         }
 
