@@ -21,7 +21,7 @@ execute_process(
 
 add_library(${PLUGIN} MODULE ${SRC})
 set_target_properties(${PLUGIN} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${PLUGIN})
-qt5_use_modules(${PLUGIN} Qml Quick DBus Widgets)
+qt5_use_modules(${PLUGIN} Gui Qml Quick DBus Widgets)
 target_link_libraries(${PLUGIN} vncclient ${CMAKE_INSTALL_PREFIX}/usr/lib/${ARCH_TRIPLET}/qt5/qml/QMLTermWidget/libqmltermwidget.so)
 
 set(QT_IMPORTS_DIR "${CMAKE_INSTALL_PREFIX}/lib/${ARCH_TRIPLET}")
