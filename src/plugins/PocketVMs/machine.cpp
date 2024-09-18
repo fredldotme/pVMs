@@ -196,9 +196,10 @@ bool Machine::startQemu()
     // Ubuntu Touch specific tasks:
     // - Use APP_ID as DESKTOP_FILE_HINT if available
     // - Set up libhybris and SDL to go over Wayland
-    if (!qgetenv("APP_ID").isEmpty()) {
+    if (!qgetenv("APP_ID").isEmpty())
         qemuEnv.insert("DESKTOP_FILE_HINT", qgetenv("APP_ID"));
 
+    if (QGuiApplication::platformName() != QStringLiteral("xcb")) {
         if (this->externalWindowOnly) {
             // SDL video output preferences
             qemuEnv.insert("HYBRIS_EGLPLATFORM", "wayland");
