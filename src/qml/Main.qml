@@ -360,11 +360,12 @@ MainView {
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
 
-                    Item { height: units.gu(2) }
+                    Item { height: units.gu(2); width: 1 }
 
                     Row {
                         width: parent.width
                         height: implicitHeight
+                        anchors.horizontalCenter: parent.horizontalCenter
                         Label {
                             text: i18n.tr("Machine:")
                             textSize: Label.Medium
@@ -379,6 +380,7 @@ MainView {
                     Row {
                         width: parent.width
                         height: implicitHeight
+                        anchors.horizontalCenter: parent.horizontalCenter
                         Label {
                             text: i18n.tr("Name:")
                             textSize: Label.Medium
@@ -393,13 +395,14 @@ MainView {
                     Row {
                         width: parent.width
                         height: implicitHeight
+                        anchors.horizontalCenter: parent.horizontalCenter
                         Label {
                             text: i18n.tr("Specs:")
                             textSize: Label.Medium
                             font.bold: true
                         }
                         Label {
-                            text: "%1 Cores, %2 RAM, %3 storage".arg(machine.cores, machine.mem, machine.hddSize)
+                            text: i18n.tr("%1 Cores, %2 RAM, %3 storage").arg(machine.cores, machine.mem, machine.hddSize)
                             textSize: Label.Medium
                         }
                     }
@@ -407,6 +410,7 @@ MainView {
                     /*Row {
                         width: parent.width
                         height: implicitHeight
+                        anchors.horizontalCenter: parent.horizontalCenter
                         Label {
                             text: i18n.tr("Features:")
                             textSize: Label.Medium
