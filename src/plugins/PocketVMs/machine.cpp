@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QCoreApplication>
+#include <QGuiApplication>
 #include <QDebug>
 #include <QDir>
 #include <QFile>
