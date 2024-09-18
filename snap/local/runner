@@ -22,6 +22,7 @@ fi
 
 if [ "$QT_QPA_PLATFORM" = "ubuntumirclient" ]; then
     export EGL_PLATFORM=wayland
+    export QT_QPA_PLATFORM=wayland-egl
 fi
 
 if [ "$QT_IM_MODULE" = "maliitphablet" ]; then
@@ -32,7 +33,6 @@ if [ ! -z "$DESKTOP_FILE_HINT" ]; then
     export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
 fi
 
-export QT_QPA_PLATFORM=wayland-egl
 export LIBGL_DRIVERS_PATH=${SNAP}/graphics/dri
 export __EGL_VENDOR_LIBRARY_DIRS=/var/lib/snapd/lib/glvnd/egl_vendor.d:${SNAP}/graphics/glvnd/egl_vendor.d:${__EGL_VENDOR_LIBRARY_DIRS}
 
