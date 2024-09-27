@@ -852,7 +852,7 @@ MainView {
                             ListItemLayout {
                                 id: virglHint
                                 title.text: i18n.tr("3D graphics support")
-                                summary.text: i18n.tr("Enables 3D in both windowed and headless scenarios")
+                                summary.text: i18n.tr("Enables 3D acceleration in windowed mode")
                             }
                         }
 
