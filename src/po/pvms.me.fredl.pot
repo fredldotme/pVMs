@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pvms.me.fredl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-25 15:00+0000\n"
+"POT-Creation-Date: 2024-09-27 09:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,242 +45,254 @@ msgstr ""
 msgid "File sharing disabled in settings"
 msgstr ""
 
-#: ../qml/Main.qml:125
+#: ../qml/Main.qml:137
 msgid "Virtual machines"
 msgstr ""
 
-#: ../qml/Main.qml:130
+#: ../qml/Main.qml:142
 msgid "Info"
 msgstr ""
 
-#: ../qml/Main.qml:137 ../qml/Main.qml:643
+#: ../qml/Main.qml:149 ../qml/Main.qml:652
 msgid "Add VM"
 msgstr ""
 
-#: ../qml/Main.qml:149
+#: ../qml/Main.qml:161
 msgid "Please add a VM to continue"
 msgstr ""
 
-#: ../qml/Main.qml:274
+#: ../qml/Main.qml:286
 msgid "VM: "
 msgstr ""
 
-#: ../qml/Main.qml:279
+#: ../qml/Main.qml:291
 msgid "Settings"
 msgstr ""
 
-#: ../qml/Main.qml:291
+#: ../qml/Main.qml:303
 msgid "Start"
 msgstr ""
 
-#: ../qml/Main.qml:291
+#: ../qml/Main.qml:303
 msgid "Stop"
 msgstr ""
 
-#: ../qml/Main.qml:305
+#: ../qml/Main.qml:317
 msgid "Serial console"
 msgstr ""
 
-#: ../qml/Main.qml:314
+#: ../qml/Main.qml:326
 msgid "Show fullscreen"
 msgstr ""
 
-#: ../qml/Main.qml:323
+#: ../qml/Main.qml:335
 msgid "Keyboard"
 msgstr ""
 
-#: ../qml/Main.qml:358
+#: ../qml/Main.qml:371
 msgid "VM is not running"
 msgstr ""
 
-#: ../qml/Main.qml:369 ../qml/Main.qml:443
+#: ../qml/Main.qml:385
 msgid "Machine:"
 msgstr ""
 
-#: ../qml/Main.qml:383
+#: ../qml/Main.qml:392
+msgid " (fast)"
+msgstr ""
+
+#: ../qml/Main.qml:406
 msgid "Name:"
 msgstr ""
 
-#: ../qml/Main.qml:397
+#: ../qml/Main.qml:423
 msgid "Specs:"
 msgstr ""
 
-#: ../qml/Main.qml:471
-msgid "VM window is running & detached"
+#: ../qml/Main.qml:446
+msgid "ISO:"
 msgstr ""
 
-#: ../qml/Main.qml:553
-msgid "Copy"
+#: ../qml/Main.qml:463
+msgid "File sharing:"
 msgstr ""
 
-#: ../qml/Main.qml:559
-msgid "Paste"
+#: ../qml/Main.qml:468 ../qml/Main.qml:1166
+msgid "No"
 msgstr ""
 
-#: ../qml/Main.qml:595
-msgid "aarch64 (%1)"
-msgstr ""
-
-#: ../qml/Main.qml:596
-msgid "x86_64 (%1)"
-msgstr ""
-
-#: ../qml/Main.qml:643
-msgid "Edit VM"
-msgstr ""
-
-#: ../qml/Main.qml:648
-msgid "Save"
-msgstr ""
-
-#: ../qml/Main.qml:725
-msgid "Description"
-msgstr ""
-
-#: ../qml/Main.qml:732
-msgid "Architecture"
-msgstr ""
-
-#: ../qml/Main.qml:741
-msgid "CPU cores: "
-msgstr ""
-
-#: ../qml/Main.qml:761
-msgid "MB"
-msgstr ""
-
-#: ../qml/Main.qml:761
-msgid "RAM: "
-msgstr ""
-
-#: ../qml/Main.qml:782
-msgid "GB"
-msgstr ""
-
-#: ../qml/Main.qml:782
-msgid "HDD size: "
-msgstr ""
-
-#: ../qml/Main.qml:799
-msgid "DVD drive"
-msgstr ""
-
-#: ../qml/Main.qml:806
-msgid "Pick an ISO"
-msgstr ""
-
-#: ../qml/Main.qml:830
-msgid "Windowed Mode"
-msgstr ""
-
-#: ../qml/Main.qml:831
-msgid "Improves keyboard, mouse & OpenGL"
-msgstr ""
-
-#: ../qml/Main.qml:844
-msgid "3D graphics support"
-msgstr ""
-
-#: ../qml/Main.qml:845
-msgid "Enables 3D in both windowed and headless scenarios"
-msgstr ""
-
-#: ../qml/Main.qml:858
-msgid "Enable file sharing"
-msgstr ""
-
-#: ../qml/Main.qml:859
-msgid "Accessible via the virtiofs mount tag 'pocketvms'"
-msgstr ""
-
-#: ../qml/Main.qml:880
-msgid "Enable virtualization"
-msgstr ""
-
-#: ../qml/Main.qml:881
-msgid "Switches KVM on or off if needed"
-msgstr ""
-
-#: ../qml/Main.qml:890
-msgid "Reset EFI"
-msgstr ""
-
-#: ../qml/Main.qml:895
-msgid "Reset firmware"
-msgstr ""
-
-#: ../qml/Main.qml:900
-msgid "Reset NVRAM"
-msgstr ""
-
-#: ../qml/Main.qml:921
-msgid "About Pocket VMs"
-msgstr ""
-
-#: ../qml/Main.qml:950 pvms.desktop.in.h:1
-msgid "Pocket VMs"
-msgstr ""
-
-#: ../qml/Main.qml:958
-msgid "Virtual Machines for your Ubuntu Touch device"
-msgstr ""
-
-#: ../qml/Main.qml:970
-msgid "Donation"
-msgstr ""
-
-#: ../qml/Main.qml:981
-msgid "Via PayPal"
-msgstr ""
-
-#: ../qml/Main.qml:1006
-msgid "Copyright notices"
-msgstr ""
-
-#: ../qml/Main.qml:1013
-msgid "Licensed under GPL v3"
-msgstr ""
-
-#: ../qml/Main.qml:1025
-msgid "Source code on GitHub"
-msgstr ""
-
-#: ../qml/Main.qml:1044
-msgid "QEMU (GPL v2 & GPL v3)"
-msgstr ""
-
-#: ../qml/Main.qml:1056
-msgid "CuteVNC QML controls by Alberto Mardegan (GPL v3)"
-msgstr ""
-
-#: ../qml/Main.qml:1068
-msgid "Icon by Mateo Salta"
-msgstr ""
-
-#: ../qml/Main.qml:1093
-msgid "QEMU quit unexpectedly!"
-msgstr ""
-
-#: ../qml/Main.qml:1094
-msgid "Error: "
-msgstr ""
-
-#: ../qml/Main.qml:1096
-msgid "Ok"
-msgstr ""
-
-#: ../qml/Main.qml:1110
-msgid "Delete machine"
-msgstr ""
-
-#: ../qml/Main.qml:1111
-msgid "Would you like to delete this VM?"
-msgstr ""
-
-#: ../qml/Main.qml:1116
+#: ../qml/Main.qml:468 ../qml/Main.qml:1155
 msgid "Yes"
 msgstr ""
 
-#: ../qml/Main.qml:1127
-msgid "No"
+#: ../qml/Main.qml:491
+msgid "VM window is running & detached"
+msgstr ""
+
+#: ../qml/Main.qml:573
+msgid "Copy"
+msgstr ""
+
+#: ../qml/Main.qml:579
+msgid "Paste"
+msgstr ""
+
+#: ../qml/Main.qml:615
+msgid "aarch64 (%1)"
+msgstr ""
+
+#: ../qml/Main.qml:616
+msgid "x86_64 (%1)"
+msgstr ""
+
+#: ../qml/Main.qml:652
+msgid "Edit VM"
+msgstr ""
+
+#: ../qml/Main.qml:657
+msgid "Save"
+msgstr ""
+
+#: ../qml/Main.qml:734
+msgid "Description"
+msgstr ""
+
+#: ../qml/Main.qml:741
+msgid "Architecture"
+msgstr ""
+
+#: ../qml/Main.qml:750
+msgid "CPU cores: "
+msgstr ""
+
+#: ../qml/Main.qml:770
+msgid "MB"
+msgstr ""
+
+#: ../qml/Main.qml:770
+msgid "RAM: "
+msgstr ""
+
+#: ../qml/Main.qml:791
+msgid "GB"
+msgstr ""
+
+#: ../qml/Main.qml:791
+msgid "HDD size: "
+msgstr ""
+
+#: ../qml/Main.qml:808
+msgid "DVD drive"
+msgstr ""
+
+#: ../qml/Main.qml:816
+msgid "Pick an ISO"
+msgstr ""
+
+#: ../qml/Main.qml:840
+msgid "Windowed Mode"
+msgstr ""
+
+#: ../qml/Main.qml:841
+msgid "Improves keyboard, mouse & OpenGL"
+msgstr ""
+
+#: ../qml/Main.qml:854
+msgid "3D graphics support"
+msgstr ""
+
+#: ../qml/Main.qml:855
+msgid "Enables 3D in both windowed and headless scenarios"
+msgstr ""
+
+#: ../qml/Main.qml:868
+msgid "Enable file sharing"
+msgstr ""
+
+#: ../qml/Main.qml:869
+msgid "Accessible via the virtiofs mount tag 'pocketvms'"
+msgstr ""
+
+#: ../qml/Main.qml:890
+msgid "Enable virtualization"
+msgstr ""
+
+#: ../qml/Main.qml:891
+msgid "Switches KVM on or off if needed"
+msgstr ""
+
+#: ../qml/Main.qml:900
+msgid "Reset EFI"
+msgstr ""
+
+#: ../qml/Main.qml:905
+msgid "Reset firmware"
+msgstr ""
+
+#: ../qml/Main.qml:910
+msgid "Reset NVRAM"
+msgstr ""
+
+#: ../qml/Main.qml:931
+msgid "About Pocket VMs"
+msgstr ""
+
+#: ../qml/Main.qml:961 pvms.desktop.in.h:1
+msgid "Pocket VMs"
+msgstr ""
+
+#: ../qml/Main.qml:969
+msgid "Virtual Machines for your Ubuntu Touch device"
+msgstr ""
+
+#: ../qml/Main.qml:981
+msgid "Donation"
+msgstr ""
+
+#: ../qml/Main.qml:992
+msgid "Via PayPal"
+msgstr ""
+
+#: ../qml/Main.qml:1017
+msgid "Copyright notices"
+msgstr ""
+
+#: ../qml/Main.qml:1024
+msgid "Licensed under GPL v3"
+msgstr ""
+
+#: ../qml/Main.qml:1036
+msgid "Source code on GitHub"
+msgstr ""
+
+#: ../qml/Main.qml:1055
+msgid "QEMU (GPL v2 & GPL v3)"
+msgstr ""
+
+#: ../qml/Main.qml:1067
+msgid "CuteVNC QML controls by Alberto Mardegan (GPL v3)"
+msgstr ""
+
+#: ../qml/Main.qml:1079
+msgid "Icon by Mateo Salta"
+msgstr ""
+
+#: ../qml/Main.qml:1132
+msgid "QEMU quit unexpectedly!"
+msgstr ""
+
+#: ../qml/Main.qml:1133
+msgid "Error: "
+msgstr ""
+
+#: ../qml/Main.qml:1135
+msgid "Ok"
+msgstr ""
+
+#: ../qml/Main.qml:1149
+msgid "Delete machine"
+msgstr ""
+
+#: ../qml/Main.qml:1150
+msgid "Would you like to delete this VM?"
 msgstr ""

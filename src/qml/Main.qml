@@ -86,6 +86,18 @@ MainView {
         vncClient.connectToServer(socket, "");
     }
 
+
+    function getFileName(path) {
+        var crumbs = path.split("/").filter(function (element) {
+            return element !== null && element !== "";
+        });
+
+        if (crumbs.length < 1)
+            return "/"
+
+        return crumbs[(crumbs.length - 1) % crumbs.length]
+    }
+
     width: units.gu(45)
     height: units.gu(75)
 
@@ -348,6 +360,7 @@ MainView {
                         bottom: parent.bottom
                     }
                     anchors.topMargin: typicalMargin
+                    spacing: units.gu(0.75)
                     Icon {
                         width: units.gu(16)
                         name: "system-suspend"
@@ -363,24 +376,32 @@ MainView {
                     Item { height: units.gu(2); width: 1 }
 
                     Row {
-                        width: parent.width
+                        width: implicitWidth
                         height: implicitHeight
                         anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: units.gu(0.5)
+
                         Label {
                             text: i18n.tr("Machine:")
                             textSize: Label.Medium
                             font.bold: true
                         }
                         Label {
-                            text: machine.arch
+                            text: {
+                                const suffix = machine.enableVirtualization && VMManager.canVirtualize(machine.arch)
+                                               ? i18n.tr(" (fast)") : ""
+                                return machine.arch + suffix
+                            }
                             textSize: Label.Medium
                         }
                     }
 
                     Row {
-                        width: parent.width
+                        width: implicitWidth
                         height: implicitHeight
                         anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: units.gu(0.5)
+
                         Label {
                             text: i18n.tr("Name:")
                             textSize: Label.Medium
@@ -393,63 +414,58 @@ MainView {
                     }
 
                     Row {
-                        width: parent.width
+                        width: implicitWidth
                         height: implicitHeight
                         anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: units.gu(0.5)
+
                         Label {
                             text: i18n.tr("Specs:")
                             textSize: Label.Medium
                             font.bold: true
                         }
                         Label {
-                            text: i18n.tr("%1 Cores, %2 RAM, %3 storage").arg(machine.cores, machine.mem, machine.hddSize)
+                            text: {
+                                const cores = machine.cores
+                                const mem = machine.mem
+                                const hddSize = (machine.hddSize / 1024 / 1024 / 1024).toFixed(0);
+                                return cores + " cores, " + mem + "MB RAM, " + hddSize + "GB storage";
+                            }
                             textSize: Label.Medium
                         }
                     }
 
-                    /*Row {
-                        width: parent.width
+                    Row {
+                        width: implicitWidth
+                        height: machine.dvd !== "" ? implicitHeight : 0
+                        visible: height > 0
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: units.gu(0.5)
+
+                        Label {
+                            text: i18n.tr("ISO:")
+                            textSize: Label.Medium
+                            font.bold: true
+                        }
+                        Label {
+                            text: root.getFileName(machine.dvd)
+                            textSize: Label.Medium
+                        }
+                    }
+
+                    Row {
+                        width: implicitWidth
                         height: implicitHeight
                         anchors.horizontalCenter: parent.horizontalCenter
-                        Label {
-                            text: i18n.tr("Features:")
-                            textSize: Label.Medium
-                            font.bold: true
-                        }
-                        Column {
-                            Label {
-                                text: "%1 Cores, %2 RAM, %3 storage".arg(machine.cores, machine.mem, machine.hddSize)
-                                textSize: Label.Medium
-                            }
-                        }
-                    }*/
+                        spacing: units.gu(0.5)
 
-                    /*
-                    * newMachine.name = description.text
-                                        newMachine.arch = supportedArchitectures[architecture.selectedIndex]
-                                        newMachine.cores = coresSlider.value.toFixed(0)
-                                        newMachine.mem = memSlider.value.toFixed(0)
-                                        newMachine.hddSize = hddSizeSlider.value.toFixed(0)
-                                        newMachine.dvd = stripFilePath(isoFileUrl);
-                                        newMachine.useVirglrenderer = virglrendererCheckbox.checked;
-                                        newMachine.enableFileSharing = fileSharingCheckbox.checked;
-                                        newMachine.externalWindowOnly =
-                                                externalWindowOnlyCheckbox.enabled &&
-                                                externalWindowOnlyCheckbox.checked;
-                                        newMachine.enableVirtualization = virtualizationCheckbox.checked;
-
-                    */
-                    
-                    Row {
-                        width: parent.width
-                        height: implicitHeight
                         Label {
-                            text: i18n.tr("Machine:")
+                            text: i18n.tr("File sharing:")
                             textSize: Label.Medium
                             font.bold: true
                         }
                         Label {
-                            text: machine.arch
+                            text: machine.enableFileSharing ? i18n.tr("Yes") : i18n.tr("No")
                             textSize: Label.Medium
                         }
                     }
@@ -604,17 +620,6 @@ MainView {
                 property var activeTransfer
                 property string isoFileUrl : !editMode ? "" : existingMachine.dvd
                 property var filePicker : null
-
-                function getFileName(path) {
-                    var crumbs = path.split("/").filter(function (element) {
-                        return element !== null && element !== "";
-                    });
-
-                    if (crumbs.length < 1)
-                        return "/"
-
-                    return crumbs[(crumbs.length - 1) % crumbs.length]
-                }
 
                 function stripFilePath(path) {
                     if (path.indexOf("file://") !== 0)
@@ -805,11 +810,12 @@ MainView {
 
                             Row {
                                 width: parent.width
+                                spacing: units.gu(1)
                                 Button {
                                     id: isoImport
-                                    text: isoFileUrl === "" ? i18n.tr("Pick an ISO") : getFileName(isoFileUrl)
+                                    text: isoFileUrl === "" ? i18n.tr("Pick an ISO") : root.getFileName(isoFileUrl)
                                     onClicked: openIsoPicker()
-                                    width: parent.width - clearIsoButton.width
+                                    width: parent.width - clearIsoButton.width - units.gu(1)
                                 }
                                 Button {
                                     id: clearIsoButton
@@ -944,6 +950,7 @@ MainView {
                         width: Math.min(parent.width, parent.height) / 2
                         height: width
                         anchors.horizontalCenter: parent.horizontalCenter
+                        radius: "large"
                         source: Image {
                             source: "qrc:/assets/logo.svg"
                         }
@@ -1088,6 +1095,34 @@ MainView {
             }
         }
     }
+
+/*
+    Column {
+        visible: root.width > root.height
+        anchors.fill: parent
+        anchors.topMargin: (parent.height - implicitHeight) / 2
+        anchors.leftMargin: mainPage.width
+        spacing: typicalMargin
+
+        LomiriShape {
+            width: Math.min(parent.width, parent.height) / 2
+            height: width
+            anchors.horizontalCenter: parent.horizontalCenter
+            radius: "large"
+            source: Image {
+                source: "qrc:/assets/logo.svg"
+            }
+        }
+
+        Label {
+            width: parent.width
+            text: i18n.tr("Pocket VMs")
+            textSize: Label.Large
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            horizontalAlignment: Text.AlignHCenter
+        }
+    }
+*/
 
     Component {
         id: dialog
