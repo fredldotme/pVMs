@@ -106,6 +106,7 @@ Machine* VMManager::fromQml(const QVariantMap& vm)
     machine->cores = vm.value(KEY_CORES).toInt();
     machine->mem = vm.value(KEY_MEM).toInt();
     machine->hdd = vm.value(KEY_HDD).toString();
+    machine->hddSize = QFileInfo(machine->hdd).size();
     machine->dvd = vm.value(KEY_DVD).toString();
     machine->flash1 = vm.value(KEY_FLASH1).toString();
     machine->flash2 = vm.value(KEY_FLASH2).toString();
@@ -291,7 +292,9 @@ QVariantMap VMManager::listEntryForJSON(const QString& path, const QString& stor
 
     if (!rootObject.contains(KEY_HDD))
         throw "Missing 'hdd'";
-    ret.insert("hdd", rootObject.value(KEY_HDD).toString());
+    const auto hdd = rootObject.value(KEY_HDD).toString();
+    ret.insert("hdd", hdd);
+    ret.insert("hddSize", QFileInfo(hdd).size());
 
     if (!rootObject.contains(KEY_DVD))
         throw "Missing 'dvd'";
