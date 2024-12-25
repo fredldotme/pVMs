@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pvms.me.fredl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-30 01:30+0000\n"
-"PO-Revision-Date: 2022-12-02 12:51+0100\n"
+"POT-Creation-Date: 2024-09-27 09:35+0000\n"
+"PO-Revision-Date: 2024-12-23 19:49+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: Dutch\n"
 "Language: nl\n"
@@ -15,180 +15,289 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 22.11.90\n"
+"X-Generator: Poedit 3.4.2\n"
 
-#: ../qml/Main.qml:99
+#: ../qml/LomiriFileReceiver.qml:43
+msgid "Drop the file in a VM"
+msgstr "Sleep het bestand naar een VM"
+
+#: ../qml/LomiriFileReceiver.qml:44
+msgid "Select a machine"
+msgstr "Kies een machine"
+
+#: ../qml/LomiriFileReceiver.qml:48
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: ../qml/LomiriFileReceiver.qml:64
+msgid "No machines available"
+msgstr "Er zijn nog geen machines"
+
+#: ../qml/LomiriFileReceiver.qml:65
+msgid "Add a machine in the main app view to continue"
+msgstr "Voeg een machine toe op het hoofdscherm"
+
+#: ../qml/LomiriFileReceiver.qml:84
+msgid "Available"
+msgstr "Beschikbaar"
+
+#: ../qml/LomiriFileReceiver.qml:85
+msgid "File sharing disabled in settings"
+msgstr "Bestandsdeling is uitgeschakeld in de instellingen"
+
+#: ../qml/Main.qml:137
 msgid "Virtual machines"
 msgstr "Virtuele machines"
 
-#: ../qml/Main.qml:104
+#: ../qml/Main.qml:142
 msgid "Info"
 msgstr "Informatie"
 
-#: ../qml/Main.qml:111 ../qml/Main.qml:455
+#: ../qml/Main.qml:149 ../qml/Main.qml:652
 msgid "Add VM"
 msgstr "VM toevoegen"
 
-#: ../qml/Main.qml:123
+#: ../qml/Main.qml:161
 msgid "Please add a VM to continue"
 msgstr "Voeg een VM om aan de slag te gaan"
 
-#: ../qml/Main.qml:239
+#: ../qml/Main.qml:286
 msgid "VM: "
 msgstr "VM: "
 
-#: ../qml/Main.qml:244
+#: ../qml/Main.qml:291
 msgid "Settings"
 msgstr "Instellingen"
 
-#: ../qml/Main.qml:256
+#: ../qml/Main.qml:303
 msgid "Start"
 msgstr "Starten"
 
-#: ../qml/Main.qml:256
+#: ../qml/Main.qml:303
 msgid "Stop"
 msgstr "Stoppen"
 
-#: ../qml/Main.qml:279
+#: ../qml/Main.qml:317
+msgid "Serial console"
+msgstr "Seriële console"
+
+#: ../qml/Main.qml:326
 msgid "Show fullscreen"
 msgstr "Schermvullende weergave"
 
-#: ../qml/Main.qml:290
+#: ../qml/Main.qml:335
 msgid "Keyboard"
 msgstr "Toetsenbord"
 
-#: ../qml/Main.qml:324
+#: ../qml/Main.qml:371
 msgid "VM is not running"
 msgstr "De VM is niet actief"
 
-#: ../qml/Main.qml:346
+#: ../qml/Main.qml:385
+msgid "Machine:"
+msgstr "Machine:"
+
+#: ../qml/Main.qml:392
+msgid " (fast)"
+msgstr " (snel)"
+
+#: ../qml/Main.qml:406
+msgid "Name:"
+msgstr "Naam:"
+
+#: ../qml/Main.qml:423
+msgid "Specs:"
+msgstr "Specificaties:"
+
+#: ../qml/Main.qml:446
+msgid "ISO:"
+msgstr "Iso-bestand:"
+
+#: ../qml/Main.qml:463
+msgid "File sharing:"
+msgstr "Bestandsdeling:"
+
+#: ../qml/Main.qml:468 ../qml/Main.qml:1166
+msgid "No"
+msgstr "Nee"
+
+#: ../qml/Main.qml:468 ../qml/Main.qml:1155
+msgid "Yes"
+msgstr "Ja"
+
+#: ../qml/Main.qml:491
 msgid "VM window is running & detached"
 msgstr "De VM is actief en draait los"
 
-#: ../qml/Main.qml:407
-msgid "aarch64"
-msgstr "aarch64"
+#: ../qml/Main.qml:573
+msgid "Copy"
+msgstr "Kopiëren"
 
-#: ../qml/Main.qml:408
-msgid "x86_64"
-msgstr "x86_64"
+#: ../qml/Main.qml:579
+msgid "Paste"
+msgstr "Plakken"
 
-#: ../qml/Main.qml:455
+#: ../qml/Main.qml:615
+#| msgid "aarch64"
+msgid "aarch64 (%1)"
+msgstr "aarch64 (%1)"
+
+#: ../qml/Main.qml:616
+#| msgid "x86_64"
+msgid "x86_64 (%1)"
+msgstr "x86_64 (%1)"
+
+#: ../qml/Main.qml:652
 msgid "Edit VM"
 msgstr "VM bewerken"
 
-#: ../qml/Main.qml:460
+#: ../qml/Main.qml:657
 msgid "Save"
 msgstr "Opslaan"
 
-#: ../qml/Main.qml:534
+#: ../qml/Main.qml:734
 msgid "Description"
 msgstr "Beschrijving"
 
-#: ../qml/Main.qml:541
+#: ../qml/Main.qml:741
 msgid "Architecture"
 msgstr "Architectuur"
 
-#: ../qml/Main.qml:550
+#: ../qml/Main.qml:750
 msgid "CPU cores: "
 msgstr "Aantal cpu-kernen: "
 
-#: ../qml/Main.qml:570
+#: ../qml/Main.qml:770
 msgid "MB"
 msgstr "MB"
 
-#: ../qml/Main.qml:570
+#: ../qml/Main.qml:770
 msgid "RAM: "
-msgstr "Ram-geheugen: "
+msgstr "Ramgeheugen: "
 
-#: ../qml/Main.qml:591
+#: ../qml/Main.qml:791
 msgid "GB"
 msgstr "GB"
 
-#: ../qml/Main.qml:591
+#: ../qml/Main.qml:791
 msgid "HDD size: "
-msgstr "Hdd-omvang:"
+msgstr "Hdd-omvang: "
 
-#: ../qml/Main.qml:607
+#: ../qml/Main.qml:808
 msgid "DVD drive"
 msgstr "Dvd-speler"
 
-#: ../qml/Main.qml:614
+#: ../qml/Main.qml:816
 msgid "Pick an ISO"
 msgstr "Kies een iso-bestand"
 
-#: ../qml/Main.qml:637
-msgid "Enable virtual OpenGL (EXPERIMENTAL)"
-msgstr "Virtuele OpenGL-aandrijving gebruiken (EXPERIMENTEEL)"
+#: ../qml/Main.qml:840
+msgid "Windowed Mode"
+msgstr "Venstermodus"
 
-#: ../qml/Main.qml:649
+#: ../qml/Main.qml:841
+msgid "Improves keyboard, mouse & OpenGL"
+msgstr "Verbeterd OpenGL en toetsenbord- en muisinvoer"
+
+#: ../qml/Main.qml:854
+msgid "3D graphics support"
+msgstr "Hardwareversnelling"
+
+#: ../qml/Main.qml:855
+msgid "Enables 3D in both windowed and headless scenarios"
+msgstr "Schakelt hardwareversnelling in alle modi in"
+
+#: ../qml/Main.qml:868
 msgid "Enable file sharing"
 msgstr "Bestandsdeling inschakelen"
 
-#: ../qml/Main.qml:657
+#: ../qml/Main.qml:869
+msgid "Accessible via the virtiofs mount tag 'pocketvms'"
+msgstr "Bereikbaar via de virtiofs-aankoppeling ‘pocketvms’"
+
+#: ../qml/Main.qml:890
+msgid "Enable virtualization"
+msgstr "Virtualisatie gebruiken"
+
+#: ../qml/Main.qml:891
+msgid "Switches KVM on or off if needed"
+msgstr "Zet KVM, indien nodig, aan of uit"
+
+#: ../qml/Main.qml:900
 msgid "Reset EFI"
 msgstr "Efi herstellen"
 
-#: ../qml/Main.qml:662
-msgid "Reset EFI Firmware"
-msgstr "Efi-firmware herstellen"
+#: ../qml/Main.qml:905
+msgid "Reset firmware"
+msgstr "Firmware herstellen"
 
-#: ../qml/Main.qml:667
-msgid "Reset EFI NVRAM"
-msgstr "Efi-nvram herstellen"
+#: ../qml/Main.qml:910
+msgid "Reset NVRAM"
+msgstr "Nvram herstellen"
 
-#: ../qml/Main.qml:682
+#: ../qml/Main.qml:931
 msgid "About Pocket VMs"
 msgstr "Over Pocket VMs"
 
-#: ../qml/Main.qml:710 pvms.desktop.in.h:1
+#: ../qml/Main.qml:961 pvms.desktop.in.h:1
 msgid "Pocket VMs"
 msgstr "Pocket VMs"
 
-#: ../qml/Main.qml:718
+#: ../qml/Main.qml:969
 msgid "Virtual Machines for your Ubuntu Touch device"
 msgstr "Virtuele machines op je Ubuntu Touch-apparaat"
 
-#: ../qml/Main.qml:730
+#: ../qml/Main.qml:981
 msgid "Donation"
 msgstr "Doneren"
 
-#: ../qml/Main.qml:741
+#: ../qml/Main.qml:992
 msgid "Via PayPal"
 msgstr "Via PayPal"
 
-#: ../qml/Main.qml:766
+#: ../qml/Main.qml:1017
 msgid "Copyright notices"
 msgstr "Auteursrechten"
 
-#: ../qml/Main.qml:773
+#: ../qml/Main.qml:1024
 msgid "Licensed under GPL v3"
 msgstr "Uitgebracht onder de GPLv3-licentie"
 
-#: ../qml/Main.qml:785
+#: ../qml/Main.qml:1036
 msgid "Source code on GitHub"
 msgstr "Broncode op GitHub"
 
-#: ../qml/Main.qml:804
+#: ../qml/Main.qml:1055
 msgid "QEMU (GPL v2 & GPL v3)"
 msgstr "QEMU (GPLv2 en GPLv3)"
 
-#: ../qml/Main.qml:816
+#: ../qml/Main.qml:1067
 msgid "CuteVNC QML controls by Alberto Mardegan (GPL v3)"
 msgstr "CuteVNC QML-bediening van Alberto Mardegan (GPLv3)"
 
-#: ../qml/Main.qml:828
+#: ../qml/Main.qml:1079
 msgid "Icon by Mateo Salta"
 msgstr "Pictogram van Mateo Salta"
 
-#: ../qml/Main.qml:851
+#: ../qml/Main.qml:1132
 msgid "QEMU quit unexpectedly!"
 msgstr "QEMU is onverwachts afgesloten!"
 
-#: ../qml/Main.qml:852
+#: ../qml/Main.qml:1133
 msgid "Error: "
 msgstr "Foutmelding: "
 
-#: ../qml/Main.qml:854
+#: ../qml/Main.qml:1135
 msgid "Ok"
 msgstr "Oké"
+
+#: ../qml/Main.qml:1149
+msgid "Delete machine"
+msgstr "Machine verwijderen"
+
+#: ../qml/Main.qml:1150
+msgid "Would you like to delete this VM?"
+msgstr "Weet je zeker dat je deze VW wilt verwijderen?"
+
+#~ msgid "Enable virtual OpenGL (EXPERIMENTAL)"
+#~ msgstr "Virtuele OpenGL-aandrijving gebruiken (EXPERIMENTEEL)"
