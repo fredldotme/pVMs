@@ -24,6 +24,8 @@ if [ -f /usr/bin/python3.8 ]; then
     PYTHON_BIN=/usr/bin/python3.8
 elif [ -f /usr/bin/python3.6 ]; then
     PYTHON_BIN=/usr/bin/python3.6
+elif [ -f /usr/bin/python3.12 ]; then
+    PYTHON_BIN=/usr/bin/python3.12
 fi
 
 if [ "$PYTHON_BIN" == "" ]; then

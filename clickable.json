@@ -40,7 +40,6 @@
         "libpixman-1-dev",
         "libgles2-mesa-dev",
         "libegl1-mesa-dev",
-        "libmirclient-dev",
         "libvncserver-dev",
         "libva-dev",
         "libslirp-dev",
@@ -54,6 +53,6 @@
     ],
     "build": "${ROOT}/build.sh",
     "make_jobs": 6,
-    "qt_version": "5.12",
-    "framework": "ubuntu-sdk-20.04"
+    "qt_version": "5.15",
+    "framework": "ubuntu-touch-24.04-1.x"
 }

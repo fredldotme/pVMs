@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pvms.me.fredl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-27 09:35+0000\n"
+"POT-Creation-Date: 2025-07-17 11:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -202,7 +202,7 @@ msgid "3D graphics support"
 msgstr ""
 
 #: ../qml/Main.qml:855
-msgid "Enables 3D in both windowed and headless scenarios"
+msgid "Enables 3D acceleration in windowed mode"
 msgstr ""
 
 #: ../qml/Main.qml:868
