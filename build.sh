@@ -20,7 +20,9 @@ if [ "$SNAPCRAFT_ARCH_TRIPLET" != "" ]; then
     ARCH_TRIPLET="$SNAPCRAFT_ARCH_TRIPLET"
 fi
 
-if [ -f /usr/bin/python3.8 ]; then
+if [ -f /usr/bin/python3.12 ]; then
+    PYTHON_BIN=/usr/bin/python3.12
+elif [ -f /usr/bin/python3.8 ]; then
     PYTHON_BIN=/usr/bin/python3.8
 elif [ -f /usr/bin/python3.6 ]; then
     PYTHON_BIN=/usr/bin/python3.6
@@ -121,14 +123,14 @@ function build_3rdparty_meson {
     if [ ! -d build ]; then
         mkdir build
     fi
-    if [ ! -f "$BUILD_DIR/.${1}_built" ]; then
+    #if [ ! -f "$BUILD_DIR/.${1}_built" ]; then
         CROSS_ARGS=""
         if [ "$MESON_CROSS_FILE" != "" ]; then
             CROSS_ARGS="--cross-file $MESON_CROSS_FILE"
         fi
         meson setup $2 build $CROSS_ARGS
         ninja -C build
-    fi
+    #fi
     if [ -f /usr/bin/sudo ]; then
         sudo ninja -C build install
     else
@@ -224,7 +226,7 @@ MIRCLIENT_SDL=""
 
 # Build direct dependencies
 #build_3rdparty_autogen xorg-macros
-build_3rdparty_meson libepoxy "-Ddocs=false -Degl=yes -Dglx=yes -Dx11=true -Dtests=false -Dprefix=$INSTALL"
+build_3rdparty_meson libepoxy "-Ddocs=false -Degl=yes -Dglx=yes -Dx11=true -Dprefix=$INSTALL"
 build_3rdparty_meson virglrenderer "-Dvideo=true -Dprefix=$INSTALL"
 build_3rdparty_autogen wayland-protocols "--host=$ARCH_TRIPLET"
 build_3rdparty_qmake qmltermwidget ""
