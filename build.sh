@@ -6,8 +6,8 @@ set -x
 SRC_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 cd $SRC_PATH
 
-if [ "$SNAPCRAFT_PART_INSTALL" != "" ]; then
-    INSTALL=$SNAPCRAFT_PART_INSTALL
+if [ "$CRAFT_PART_INSTALL" != "" ]; then
+    INSTALL=$CRAFT_PART_INSTALL
 elif [ "$INSTALL_DIR" != "" ]; then
     INSTALL=$INSTALL_DIR
 fi
@@ -16,8 +16,8 @@ if [ "$BUILD_DIR" == "" ]; then
     BUILD_DIR="$INSTALL"
 fi
 
-if [ "$SNAPCRAFT_ARCH_TRIPLET" != "" ]; then
-    ARCH_TRIPLET="$SNAPCRAFT_ARCH_TRIPLET"
+if [ "$CRAFT_ARCH_TRIPLET_BUILD_FOR" != "" ]; then
+    ARCH_TRIPLET="$CRAFT_ARCH_TRIPLET_BUILD_FOR"
 fi
 
 if [ -f /usr/bin/python3.12 ]; then

@@ -42,15 +42,17 @@ int main(int argc, char *argv[])
 #endif
     view->engine()->addImportPath(app->applicationDirPath() + "/usr/lib/" TRIPLET "/qt5/qml");
 
-#ifdef PVMS_LEGACY
+#ifdef PVMS_SNAP
     const QString snapPath = qgetenv("SNAP");
     const QString snapThemePath = QStringLiteral("%1/usr/share/icons").arg(snapPath);
     qDebug() << snapThemePath;
     QIcon::setThemeSearchPaths(QStringList() << snapThemePath);
     QIcon::setThemeName("suru");
-    view->rootContext()->setContextProperty("legacy", true);
-#else
     view->rootContext()->setContextProperty("legacy", false);
+    view->rootContext()->setContextProperty("useContentHub", true);
+#else
+    view->rootContext()->setContextProperty("legacy", true);
+    view->rootContext()->setContextProperty("useContentHub", false);
 #endif
     view->setSource(QUrl("qrc:/Main.qml"));
     view->setResizeMode(QQuickView::SizeRootObjectToView);

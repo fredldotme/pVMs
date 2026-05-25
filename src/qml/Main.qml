@@ -103,7 +103,7 @@ MainView {
 
     Component.onCompleted: {
         VMManager.refreshVMs();
-        if (!legacy)
+        if (!useContentHub)
             fileReceiver = lomiriFileReceiver.createObject(root)
     }
 
@@ -628,8 +628,8 @@ MainView {
                 }
 
                 Component.onCompleted: {
-                    // Ubuntu Touch
-                    if (!legacy) {
+                    // Lomiri Desktop Environment
+                    if (!useContentHub) {
                         filePicker = lomiriFilePicker.createObject(root)
                     }
                     // Generic/legacy
@@ -661,18 +661,30 @@ MainView {
                                     creating = true
 
                                     if (!editMode) {
-                                        newMachine.name = description.text
-                                        newMachine.arch = supportedArchitectures[architecture.selectedIndex]
-                                        newMachine.cores = coresSlider.value.toFixed(0)
-                                        newMachine.mem = memSlider.value.toFixed(0)
-                                        newMachine.hddSize = hddSizeSlider.value.toFixed(0)
-                                        newMachine.dvd = stripFilePath(isoFileUrl);
-                                        newMachine.useVirglrenderer = virglrendererCheckbox.checked;
-                                        newMachine.enableFileSharing = fileSharingCheckbox.checked;
+                                        newMachine.name =
+                                                description.text;
+                                        newMachine.arch =
+                                                supportedArchitectures[architecture.selectedIndex];
+                                        newMachine.cores =
+                                                coresSlider.value.toFixed(0);
+                                        newMachine.mem =
+                                                memSlider.value.toFixed(0);
+                                        newMachine.hddSize =
+                                                hddSizeSlider.value.toFixed(0);
+                                        newMachine.dvd =
+                                                stripFilePath(isoFileUrl);
+                                        newMachine.useVirglrenderer =
+                                                virglrendererCheckbox.checked;
+                                        newMachine.enableFileSharing =
+                                                fileSharingCheckbox.checked;
                                         newMachine.externalWindowOnly =
                                                 externalWindowOnlyCheckbox.enabled &&
                                                 externalWindowOnlyCheckbox.checked;
-                                        newMachine.enableVirtualization = virtualizationCheckbox.checked;
+                                        newMachine.useVirglrenderer =
+                                                newMachine.externalWindowOnly &&
+                                                virglrendererCheckbox.checked;
+                                        newMachine.enableVirtualization =
+                                                virtualizationCheckbox.checked;
 
                                         if (VMManager.createVM(newMachine)) {
                                             VMManager.refreshVMs();
@@ -680,16 +692,25 @@ MainView {
                                             selectedMachinePage = null
                                         }
                                     } else {
-                                        existingMachine.name = description.text
-                                        existingMachine.cores = coresSlider.value.toFixed(0)
-                                        existingMachine.mem = memSlider.value.toFixed(0)
-                                        existingMachine.dvd = stripFilePath(isoFileUrl);
-                                        existingMachine.useVirglrenderer = virglrendererCheckbox.checked;
-                                        existingMachine.enableFileSharing = fileSharingCheckbox.checked;
+                                        existingMachine.name =
+                                                description.text;
+                                        existingMachine.cores =
+                                                coresSlider.value.toFixed(0);
+                                        existingMachine.mem =
+                                                memSlider.value.toFixed(0);
+                                        existingMachine.dvd =
+                                                stripFilePath(isoFileUrl);
+                                        existingMachine.enableFileSharing =
+                                                fileSharingCheckbox.checked;
                                         existingMachine.externalWindowOnly =
                                                 externalWindowOnlyCheckbox.enabled &&
                                                 externalWindowOnlyCheckbox.checked;
-                                        existingMachine.enableVirtualization = virtualizationCheckbox.checked;
+                                        existingMachine.useVirglrenderer =
+                                                virglrendererCheckbox.enabled &&
+                                                virglrendererCheckbox.checked &&
+                                                existingMachine.externalWindowOnly;
+                                        existingMachine.enableVirtualization =
+                                                virtualizationCheckbox.checked;
 
                                         if (VMManager.editVM(existingMachine)) {
                                             VMManager.refreshVMs();
@@ -846,6 +867,7 @@ MainView {
                             width: parent.width
                             Switch {
                                 id: virglrendererCheckbox
+                                enabled: editMode ? externalMachine.externalWindowOnly : false
                                 checked: editMode ? existingMachine.useVirglrenderer : false
                                 anchors.verticalCenter: virglHint.verticalCenter
                             }

@@ -47,8 +47,12 @@ install(FILES assets/logo.svg DESTINATION assets)
 install(FILES assets/logo.png DESTINATION assets)
 
 option(PVMS_LEGACY "Build with legacy compatibility" OFF)
+option(PVMS_SNAP "Build as a Snap" OFF)
 if (PVMS_LEGACY)
     add_compile_definitions(PVMS_LEGACY)
+endif()
+if (PVMS_SNAP)
+    add_compile_definitions(PVMS_SNAP)
 endif()
 
 qt5_add_resources(QT_RESOURCES qml/qml.qrc)

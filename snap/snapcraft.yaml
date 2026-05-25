@@ -1,5 +1,5 @@
 name: pocketvms
-version: "0.9"
+version: "1.0"
 summary: A convergent QEMU frontend for desktop and mobile
 description: |
   Pocket VMs is a QEMU frontend for Ubuntu Touch & Ubuntu Desktop
@@ -11,26 +11,27 @@ description: |
   - Virtualization (aarch64 on aarch64) using KVM
   - File sharing support
   - Easy to use machine management
+  - Tight Ubuntu Touch integration
 
 grade: stable
 confinement: strict
-base: core20
+base: core24
 
-architectures:
-  - build-on: amd64
-    run-on: amd64
-  - build-on: arm64
-    run-on: arm64
+platforms:
+  amd64:
+    build-on: amd64
+  arm64:
+    build-on: arm64
 
 plugs:
-  graphics-core20:
+  gpu-2404:
     interface: content
-    target: $SNAP/graphics
-    default-provider: mesa-core20
+    target: $SNAP/gpu-2404
+    default-provider: hybris-2404
   lomiri-ui-toolkit:
     interface: content
     target: $SNAP/lomiri-ui-toolkit
-    default-provider: lomiri-ui-toolkit-core20
+    default-provider: lomiri-ui-toolkit-core24
 
 layout:
   /usr/share/libdrm:  # Needed by mesa-core20 on AMD GPUs
@@ -47,14 +48,10 @@ layout:
 apps:
   pocketvms:
     environment:
-      LD_LIBRARY_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/ceph:${SNAP}/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/pulseaudio:${SNAP}/usr/lib:${SNAP}/graphics/lib:${SNAP}/lomiri-ui-toolkit/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}
-      QT_PLUGIN_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/plugins:${SNAP}/lomiri-ui-toolkit/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/plugins
-      QML2_IMPORT_PATH: ${SNAP}/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/qml:${SNAP}/lomiri-ui-toolkit/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/lomiri-ui-toolkit/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/qt5/qml
-      XDG_DATA_DIRS: $XDG_DATA_DIRS:${SNAP}/usr/share:${SNAP}/lomiri-ui-toolkit/usr/share
-      PATH: ${SNAP}/bin:${SNAP}/command-chain:$PATH
+      PATH: ${SNAP}/bin:${SNAP}/usr/bin:${SNAP}/command-chain:$PATH
     command-chain:
-      - command-chain/desktop-launch
-      - bin/runner
+      - bin/gpu-2404-wrapper
+      - bin/lomiri-launch
     command: pvms
     plugs:
       - audio-playback
@@ -69,6 +66,7 @@ apps:
       - network-bind
       - network-control
       - unity7
+      - unity8
       - x11
       - wayland
       - desktop
@@ -78,12 +76,16 @@ parts:
   pvms:
     source: .
     plugin: cmake
-    override-build: |
-      cd $SNAPCRAFT_PART_SRC
-      export CMAKE_MODULE_PATH=/snap/lomiri-ui-toolkit-core20/current/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/cmake
-      ./build.sh -c -l
     build-snaps:
-      - lomiri-ui-toolkit-core20
+      - lomiri-ui-toolkit-core24
+    override-build: |
+      cd $CRAFT_PART_SRC
+      export CMAKE_MODULE_PATH=/snap/lomiri-ui-toolkit-core24/current/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/cmake
+      git config --global --add safe.directory $CRAFT_PART_SRC/3rdparty/qemu
+      build.sh -c -l
+    override-prime: |
+      craftctl default
+      cp -a /snap/lomiri-ui-toolkit-core24/current/command-chain/lomiri-launch ${CRAFT_PRIME}/bin/lomiri-launch
     build-packages:
       - autoconf
       - automake
@@ -135,9 +137,7 @@ parts:
       - libiscsi-dev
       - libpulse-dev
       - ninja-build
-      - qml-module-qtquick2
       - qt5-qmake
-      - libqt5svg5-dev
       - intltool
       - libvncserver-dev
       - libssl-dev
@@ -150,40 +150,39 @@ parts:
       - qtbase5-dev
       - qtdeclarative5-dev
     stage-packages:
-      - libaio1
+      - libaio1t64
       - libbluetooth3
-      - libboost-iostreams1.67.0
-      - libboost-random1.67.0
-      - libboost-thread1.67.0
-      - libbrlapi0.7
-      - libflac8
+      - libboost-iostreams1.83.0
+      - libboost-random1.83.0
+      - libboost-thread1.83.0
+      - libbrlapi0.8
+      - libflac12t64
       - libiscsi7
       - libjemalloc2
-      - libnfs13
+      - libnfs14
       - libnuma1
       - librados2
       - librbd1
       - libsdl2-2.0-0
       - libsdl2-image-2.0-0
-      - libsnappy1v5
       - libsndio7.0
       - libspice-server1
       - libusb-1.0-0
-      - libusbredirparser1
-      - libvdeplug2
-      - libxencall1
-      - libxendevicemodel1
-      - libxenevtchn1
-      - libxenforeignmemory1
-      - libxengnttab1
-      - libxenmisc4.11
-      - libxenstore3.0
-      - libxentoolcore1
-      - libxentoollog1
+      - libusbredirparser1t64
+      - libvdeplug2t64
+      - libxencall1t64
+      - libxendevicemodel1t64
+      - libxenevtchn1t64
+      - libxenforeignmemory1t64
+      - libxengnttab1t64
+      - libxenmisc4.17t64
+      - libxenstore4t64
+      - libxentoolcore1t64
+      - libxentoollog1t64
       - libyajl2
       - libxi6
       - libxss1
-      - libasn1-8-heimdal
+      - libasn1-8t64-heimdal
       - libatk-bridge2.0-0
       - libatk1.0-0
       - libatspi2.0-0
@@ -192,126 +191,55 @@ parts:
       - libcairo2
       - libcurl3-gnutls
       - libdatrie1
-      - libdrm2
-      - libepoxy0
       - libfdt1
-      - libfontconfig1
-      - libfreetype6
       - libfribidi0
-      - libgbm1
       - libgdk-pixbuf2.0-0
       - libgraphite2-3
-      - libgssapi3-heimdal
+      - libgssapi3t64-heimdal
       - libgtk-3-0
       - libharfbuzz0b
-      - libhcrypto4-heimdal
-      - libheimbase1-heimdal
-      - libheimntlm0-heimdal
-      - libhx509-5-heimdal
-      - libicu66
-      - libkrb5-26-heimdal
+      - libhcrypto5t64-heimdal
+      - libheimbase1t64-heimdal
+      - libheimntlm0t64-heimdal
+      - libhx509-5t64-heimdal
+      - libkrb5-26t64-heimdal
       - libldap-2.4-2
       - libnghttp2-14
       - libpango-1.0-0
       - libpangocairo-1.0-0
       - libpangoft2-1.0-0
-      - libroken18-heimdal
+      - libroken19t64-heimdal
       - librtmp1
       - libssh-4
       - libthai0
       - libvte-2.91-0
       - libvncclient1
-      - libwayland-server0
-      - libwind0-heimdal
-      - libxcb-render0
-      - libxcb-shm0
-      - libxcomposite1
-      - libxdamage1
+      - libwind0t64-heimdal
       - libdouble-conversion3
       - libevdev2
       - libpcre2-16-0
-      - libqt5core5a
-      - libqt5dbus5
-      - libqt5gui5-gles
-      - libqt5network5
-      - libqt5qml5
-      - libqt5sql5
-      - libqt5svg5
       - libslirp0
-      - libva-drm2
-      - libva2
     prime:
       # Remove cruft
       - -usr/share/qemu/qemu-nsis.bmp
-  runner:
-    after: [ pvms ]
-    source: snap/local
-    plugin: nil
-    override-build: |
-      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
-      cp -av runner $SNAPCRAFT_PART_INSTALL/bin/
-    stage-packages:
-      - libxkbcommon0
-      - ttf-ubuntu-font-family
-      - dmz-cursor-theme
-      - light-themes
-      - adwaita-icon-theme
-      - gnome-themes-standard
-      - shared-mime-info
-      - libqt5gui5-gles
-      - libqt5quick5-gles
-      - libgdk-pixbuf2.0-0
-      - qtwayland5
-      - fontconfig
-      - fontconfig-config
-      - locales-all
-      - xdg-user-dirs
-      - qml-module-qttest
-      - qml-module-qtquick2
-      - qml-module-qtquick-window2
-      - qml-module-qtquick-dialogs
-      - qml-module-qtquick-layouts
-      - qml-module-qtgraphicaleffects
-      - libqt5test5
-  qt-setup:
-    after: [ runner ]
-    source: https://github.com/snapcore/snapcraft-desktop-integration.git
-    plugin: nil
-    override-build: |
-      cd qt-framework
-      make PLATFORM_PLUG=desktop DESTDIR=$SNAPCRAFT_PART_INSTALL install
-    stage:
-      - command-chain
-  maliit:
-    after: [ qt-setup ]
-    plugin: cmake
-    source: https://github.com/fredldotme/maliit-framework.git
-    source-branch: pvms
-    build-packages:
-      - qtbase5-private-dev
-    cmake-parameters:
-      - -DCMAKE_INSTALL_PREFIX=/usr
-      - -Denable-wayland=OFF
-      - -Denable-glib=OFF
-      - -Denable-tests=OFF
-      - -Denable-docs=OFF
-      - -Denable-xcb=OFF
-      - -Denable-hwkeyboard=OFF
+
   cleanup:
-    after: [ maliit ]
+    after: [ pvms ]
     plugin: nil
-    build-snaps: [ mesa-core20 ]
+    build-snaps: [ mesa-2404, hybris-2404 ]
     build-packages:
       - execstack
     override-prime: |
       set -eux
-      cd /snap/mesa-core20/current/egl/lib
-      find . -type f,l -exec rm -f $SNAPCRAFT_PRIME/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/{} \;
-      rm -fr "$SNAPCRAFT_PRIME/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri"
+      cd /snap/mesa-2404/current/usr/lib
+      find . -type f,l -exec rm -f $CRAFT_PRIME/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/{} \;
+      rm -fr "$CRAFT_PRIME/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri"
       for CRUFT in bug drirc.d glvnd libdrm lintian man; do
-        rm -rf "$SNAPCRAFT_PRIME/usr/share/$CRUFT"
+        rm -rf "$CRAFT_PRIME/usr/share/$CRUFT"
       done
-      cd $SNAPCRAFT_PRIME
+      cd /snap/hybris-2404/current/usr/lib
+      find . -type f,l -exec rm -f $CRAFT_PRIME/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/{} \;
+      cd $CRAFT_PRIME
       for f in $(ls share/qemu/openbios-*); do
         execstack -c $f
       done
