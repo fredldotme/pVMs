@@ -39,6 +39,11 @@ if [ "$INSTALL" == "" ]; then
     exit 1
 fi
 
+# Use ccache
+export USE_CCACHE=1
+export CCACHE_DIR="$HOME/.ccache"
+export PATH=/usr/lib/ccache:$PATH
+
 # Argument variables
 CLEAN=0
 LEGACY=0
@@ -225,20 +230,8 @@ MIRCLIENT_SDL=""
 
 
 # Build direct dependencies
-#build_3rdparty_autogen xorg-macros
-#build_3rdparty_meson libepoxy "-Ddocs=false -Degl=yes -Dglx=yes -Dx11=true -Dprefix=$INSTALL"
 build_3rdparty_meson virglrenderer "-Dvideo=true -Dprefix=$INSTALL"
-#build_3rdparty_autogen wayland-protocols "--host=$ARCH_TRIPLET"
 build_3rdparty_qmake qmltermwidget ""
-#build_3rdparty_autogen glib "--host=$ARCH_TRIPLET --disable-gtk-doc --disable-installed-tests"
-#build_3rdparty_autogen gtk "--disable-x11-backend --enable-wayland-backend $MIRCLIENT_GTK \
-#        --disable-installed-tests --disable-gtk-doc \
-#        --host=$ARCH_TRIPLET"
-#build_3rdparty_autogen SDL "--disable-video-x11 --enable-video-wayland --disable-wayland-shared \
-#        $MIRCLIENT_SDL \
-#        --enable-video-opengles  --disable-video-opengl --disable-video-vulkan \
-#        --disable-alsa-shared --disable-pulseaudio-shared \
-#        --enable-pulseaudio --enable-hidapi --enable-libudev --enable-dbus --disable-static --host=$ARCH_TRIPLET"
 build_3rdparty_autogen qemu "--python=$PYTHON_BIN \
         --audio-drv-list=pa --target-list=aarch64-softmmu,x86_64-softmmu \
         --enable-strip --enable-virtiofsd --enable-opengl --enable-virglrenderer --enable-slirp \
@@ -251,7 +244,9 @@ build_3rdparty_autogen qemu "--python=$PYTHON_BIN \
 #done
 
 if [ "$LEGACY" == "1" ]; then
-    LEGACY_ARG="-DPVMS_LEGACY=ON"
+    PROJECT_ARG="-DPVMS_LEGACY=ON $PROJECT_ARG"
+else
+    PROJECT_ARG="-DPVMS_SNAP=ON $PROJECT_ARG"
 fi
 
 # Download newer builds from EDK2
@@ -266,7 +261,7 @@ cp /usr/share/qemu/OVMF.fd $INSTALL/efi/x86_64/code.fd
 cp $INSTALL/share/qemu/edk2-aarch64-code.fd $INSTALL/efi/aarch64/code.fd
 
 # Build main sources
-build_project "$LEGACY_ARG"
+build_project "$PROJECT_ARG"
 
 # Make the runtime linker find the QMLTermWidget library (for KSession)
 ln -sf "../usr/lib/${ARCH_TRIPLET}/qt5/qml/QMLTermWidget/libqmltermwidget.so" "$INSTALL/lib/libqmltermwidget.so"

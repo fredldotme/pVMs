@@ -83,7 +83,7 @@ parts:
       cd $CRAFT_PART_SRC
       export CMAKE_MODULE_PATH=/snap/lomiri-ui-toolkit-core24/current/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/cmake
       git config --global --add safe.directory $CRAFT_PART_SRC/3rdparty/qemu
-      ./build.sh
+      ./build.sh -c
     override-prime: |
       craftctl default
       cp -a /snap/lomiri-ui-toolkit-core24/current/command-chain/lomiri-launch ${CRAFT_PRIME}/bin/lomiri-launch
@@ -91,6 +91,7 @@ parts:
       - autoconf
       - automake
       - bison
+      - ccache
       - flex
       - gettext
       - gtk-doc-tools
@@ -222,11 +223,12 @@ parts:
       - libevdev2
       - libpcre2-16-0
       - libslirp0
+      - qml-module-termwidget
     prime:
       # Remove cruft
       - -usr/share/qemu/qemu-nsis.bmp
 
-  cleanup:
+  post:
     after: [ pvms ]
     build-snaps: [ mesa-2404, hybris-2404 ]
     build-packages:
