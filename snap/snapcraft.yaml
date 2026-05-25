@@ -158,6 +158,7 @@ parts:
       - libboost-random1.83.0
       - libboost-thread1.83.0
       - libbrlapi0.8
+      - libepoxy0
       - libflac12t64
       - libiscsi7
       - libjemalloc2
