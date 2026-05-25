@@ -681,7 +681,7 @@ MainView {
                                                 externalWindowOnlyCheckbox.enabled &&
                                                 externalWindowOnlyCheckbox.checked;
                                         newMachine.useVirglrenderer =
-                                                newMachine.externalWindowOnly &&
+                                                externalWindowOnlyCheckbox.enabled &&
                                                 virglrendererCheckbox.checked;
                                         newMachine.enableVirtualization =
                                                 virtualizationCheckbox.checked;
@@ -703,12 +703,11 @@ MainView {
                                         existingMachine.enableFileSharing =
                                                 fileSharingCheckbox.checked;
                                         existingMachine.externalWindowOnly =
-                                                externalWindowOnlyCheckbox.enabled &&
                                                 externalWindowOnlyCheckbox.checked;
                                         existingMachine.useVirglrenderer =
                                                 virglrendererCheckbox.enabled &&
                                                 virglrendererCheckbox.checked &&
-                                                existingMachine.externalWindowOnly;
+                                                externalWindowOnlyCheckbox.checked;
                                         existingMachine.enableVirtualization =
                                                 virtualizationCheckbox.checked;
 
@@ -867,7 +866,7 @@ MainView {
                             width: parent.width
                             Switch {
                                 id: virglrendererCheckbox
-                                enabled: editMode ? externalMachine.externalWindowOnly : false
+                                enabled: editMode ? existingMachine.externalWindowOnly : false
                                 checked: editMode ? existingMachine.useVirglrenderer : false
                                 anchors.verticalCenter: virglHint.verticalCenter
                             }
