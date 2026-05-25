@@ -866,7 +866,7 @@ MainView {
                             width: parent.width
                             Switch {
                                 id: virglrendererCheckbox
-                                enabled: editMode ? existingMachine.externalWindowOnly : false
+                                enabled: externalWindowOnlyCheckbox.checked
                                 checked: editMode ? existingMachine.useVirglrenderer : false
                                 anchors.verticalCenter: virglHint.verticalCenter
                             }
