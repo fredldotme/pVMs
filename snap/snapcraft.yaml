@@ -66,11 +66,12 @@ apps:
       - network-bind
       - network-control
       - unity7
-      - unity8
+      #- unity8
       - x11
       - wayland
       - desktop
       - maliit
+      #- content-hub
 
 parts:
   pvms:
@@ -82,7 +83,7 @@ parts:
       cd $CRAFT_PART_SRC
       export CMAKE_MODULE_PATH=/snap/lomiri-ui-toolkit-core24/current/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/cmake
       git config --global --add safe.directory $CRAFT_PART_SRC/3rdparty/qemu
-      build.sh -c -l
+      ./build.sh
     override-prime: |
       craftctl default
       cp -a /snap/lomiri-ui-toolkit-core24/current/command-chain/lomiri-launch ${CRAFT_PRIME}/bin/lomiri-launch
@@ -149,6 +150,7 @@ parts:
       - libgles-dev
       - qtbase5-dev
       - qtdeclarative5-dev
+      - libldap2-dev
     stage-packages:
       - libaio1t64
       - libbluetooth3
@@ -203,7 +205,7 @@ parts:
       - libheimntlm0t64-heimdal
       - libhx509-5t64-heimdal
       - libkrb5-26t64-heimdal
-      - libldap-2.4-2
+      - libldap2
       - libnghttp2-14
       - libpango-1.0-0
       - libpangocairo-1.0-0
@@ -225,21 +227,19 @@ parts:
 
   cleanup:
     after: [ pvms ]
-    plugin: nil
     build-snaps: [ mesa-2404, hybris-2404 ]
     build-packages:
       - execstack
+    source: https://github.com/canonical/gpu-snap.git
+    plugin: dump
     override-prime: |
-      set -eux
-      cd /snap/mesa-2404/current/usr/lib
-      find . -type f,l -exec rm -f $CRAFT_PRIME/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/{} \;
-      rm -fr "$CRAFT_PRIME/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri"
-      for CRUFT in bug drirc.d glvnd libdrm lintian man; do
-        rm -rf "$CRAFT_PRIME/usr/share/$CRUFT"
-      done
-      cd /snap/hybris-2404/current/usr/lib
-      find . -type f,l -exec rm -f $CRAFT_PRIME/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/{} \;
-      cd $CRAFT_PRIME
+      craftctl default
+      $CRAFT_PART_SRC/bin/gpu-2404-cleanup mesa-2404
+      $CRAFT_PART_SRC/bin/gpu-2404-cleanup hybris-2404
+      rm -rf $CRAFT_PRIME/usr/share/{doc,man}
+      cd $CRAFT_PRIME/usr
       for f in $(ls share/qemu/openbios-*); do
         execstack -c $f
       done
+    prime:
+      - bin/gpu-2404-wrapper

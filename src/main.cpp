@@ -21,7 +21,7 @@
 #include <QQuickView>
 #include <QQmlContext>
 
-#ifdef PVMS_LEGACY
+#ifdef PVMS_SNAP
 #include <QIcon>
 #endif
 
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     qDebug() << "Starting app from main.cpp";
 
     QQuickView *view = new QQuickView();
-    
+
     // Make our Pocket VMs QML plugin find the QMLTermWidget one
 #if __aarch64__
 #define TRIPLET "aarch64-linux-gnu"
